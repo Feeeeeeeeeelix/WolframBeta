@@ -1,4 +1,4 @@
 # WolframBeta
 
-Beschreibung\n
+Beschreibung
 zweiter Text
