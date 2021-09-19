@@ -876,7 +876,7 @@ func = lambda f: (lambda x: eval(f.replace("^","**")))
 
  
 
-f="sin(4*sin(x))"
+f="x^2 -x-1"
 t=tree(f)  
 abl=der(t)
 fuck = func(f)
@@ -897,3 +897,6 @@ print("\n")
 print("Nullstellen | ", nullstellen(fuck,1,10,10))
 
 
+phi=nullstellen(fuck,1,10,10)[0]
+
+print(phi**20/(sqrt(5))-phi**(-20)/(sqrt(5)))
