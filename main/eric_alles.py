@@ -1,4 +1,4 @@
-from wbprealphatest import *
+from functions import *
 
 def sekanten_verfahren(f, x1, x2):
     eps_stop = 10 ** -15
@@ -375,7 +375,7 @@ def w(f):
                 return "(" + w(f[1]) + ")" + f[0]
 
         # Sonst nur noch Zahlen möglich
-        elif: is_number(f) == True:
+        elif is_number(f) == True:
             return f
 
         else:
@@ -508,6 +508,7 @@ def der(f):
             # Für jeden elementaren operator explizit schreiben (z.B. (arctan(f))' = f' * 1/(1+f^2)
             return ["*", [der(f[1]), elementare_ableitung(f[0], f[1])]]
 
+
 def max(f,a,b):
     #MAN MÜSSTE lokal um UNSTETIGKEITSSTELLEN ANALYSISEREN!
     extremstellen = [a,b]
@@ -583,7 +584,8 @@ def simpson_fehler(f,a,b):
     h = (b-a)/5000
     return abs(1/180*(b-a)*h**4*max(der(der(der(der(f)))),a,b))
 
-pi = nullstellen(lambda x: sum((-1) ** k * 1 / fact(2 * k + 1) * x ** (2 * k + 1) for k in range(0, 50)), 3, 4, 2)[0]
+
+pi = nullstellen(lambda x: sum((-1) ** k * 1 / fact(2 * k + 1) * x ** (2 * k + 1) for k in range(0, 50)), 3, 4)[0]
 func = lambda f: (lambda x: eval(f.replace("^", "**")))
 
 
@@ -593,5 +595,26 @@ print("tr",trapez(f,0,1),"Fehler-abschätzung:",trapez_fehler(f,0,1))
 print("ri",riemann(f,0,1))
 print("si",simpson(f,0,1),"Fehler-abschätzung:",simpson_fehler(f,0,1))
 
-        
-    
+
+
+# f="((sin(x)+1)) * cosh(3*(x+1)^0.5) + sin(x)^cos(x) +  cos(x)^2 "
+print("#"*10)
+
+f = "x^2 -x-1"
+t = tree(f)  #Liste
+abl = der(t) #Ableitung (auch Liste)
+fuck = func(f) #Lambda zum Ausdruck f ("x^2 -x-1")
+
+print("\n" * 3)
+print("Input | ", f)
+print("\n")
+print("Baum | ", t)
+print("\n")
+print("Input erneut | ", write(t))
+print("\n")
+print("Ableitung | ", abl)
+print("\n")
+print("Ableitung | ", write(abl))
+print("\n")
+print("Nullstellen | ", nullstellen(fuck, 1, 10))
+
