@@ -458,10 +458,8 @@ def der(f):
 
     elif f[0] == "*":
         if len(f[1]) > 2:
-            print("LONG")
-            # FEHLER IN LISTEN LOGIK:
-            #WICHTIG: FEHLER
-            return ["+", [["*", der(f[1][i]), f[1][1:i], f[1][i + 1:]] for i in range(len(f[1]))]]
+            #Fehler wurde behoben:
+            return ["+", [["*", [der(factor), f.remove(factor)]] for factor in f[1]]]
 
         else:
             return ["+", [["*", [der(f[1][0]), f[1][1]]], ["*", [der(f[1][1]), f[1][0]]]]]
