@@ -510,29 +510,90 @@ def der(f):
             # Für jeden elementaren operator explizit schreiben (z.B. (arctan(f))' = f' * 1/(1+f^2)
             return ["*", [der(f[1]), elementare_ableitung(f[0], f[1])]]
 
+def max(f,a,b):
+    #MAN MÜSSTE lokal um UNSTETIGKEITSSTELLEN ANALYSISEREN!
+    extremstellen = [a,b]
+    extremstellen.append(nulls(abl(f,a,b)))
+    
+    max_x=a
+    max_fx=f(a)
+    for x in extremstellen:
+        if f(x) > max_fx:
+            max_fx = f(x)
+            max_x = x
+    
+    return [max_x,max_fx]
+
+def min(f,a,b):
+    #MAN MÜSSTE lokal um UNSTETIGKEITSSTELLEN ANALYSISEREN!
+    extremstellen = [a,b]
+    extremstellen.append(nulls(abl(f,a,b)))
+    
+    min_x=a
+    min_fx=f(a)
+    for x in extremstellen:
+        if f(x) < min_fx:
+            min_fx = f(x)
+            min_x = x
+    
+    return [min_x,min_fx]
+
+def riemann(f,a,b):
+    n = 5000
+    Int = 0
+    x = a
+    schrittweite = (b-a)/n
+    
+    for i in range(n):
+        Int += f(a + i*schrittweite)
+        
+    Int *= schrittweite
+    
+    return Int
+
+def trapez(f,a,b):
+    n = 5000
+    Int = 0
+    x = a
+    schrittweite = (b-a)/n
+    
+    Int += 1/2*f(a)
+    Int += sum( f(a + i * schrittweite) for i in range(n))
+    Int += 1/2*f(b)    
+    
+    Int *= schrittweite
+    
+    return Int
+
+def simpson(f,a,b):
+    n = 5000
+    Int = 0
+    schrittweite = (b-a)/n
+    
+    Int += 1/2*f(a)
+    Int += sum( (1 + i % 2) * f(a + i*schrittweite) for i in range(1,n))
+    Int += 1/2*f(b)
+    
+    Int *= 2/3*schrittweite
+    return Int
+
+def trapez_fehler(f,a,b):
+    h = (b-a)/5000
+    return abs(1/12*(b-a)*h**2*max(der(derl(f)),a,b) )
+
+def simpson_fehler(f,a,b):
+    h = (b-a)/5000
+    return abs(1/180*(b-a)*h**4*max(der(der(der(der(f)))),a,b))
+
 pi = nullstellen(lambda x: sum((-1) ** k * 1 / fact(2 * k + 1) * x ** (2 * k + 1) for k in range(0, 50)), 3, 4, 2)[0]
-
-
-
-
 func = lambda f: (lambda x: eval(f.replace("^", "**")))
-# f="((sin(x)+1)) * cosh(3*(x+1)^0.5) + sin(x)^cos(x) +  cos(x)^2 "
 
 
-f = "x^2 -x-1"
-t = tree(f)  #Liste
-abl = der(t) #Ableitung (auch Liste)
-fuck = func(f) #Lambda zum Ausdruck f ("x^2 -x-1")
+f = lambda x : x**9
 
-print("\n" * 3)
-print("Input | ", f)
-print("\n")
-print("Baum | ", t)
-print("\n")
-print("Input erneut | ", write(t))
-print("\n")
-print("Ableitung | ", abl)
-print("\n")
-print("Ableitung | ", write(abl))
-print("\n")
-print("Nullstellen | ", nullstellen(fuck, 1, 10, 10))
+print("tr",trapez(f,0,1),"Fehler-abschätzung:",trapez_fehler(f,0,1))
+print("ri",riemann(f,0,1))
+print("si",simpson(f,0,1),"Fehler-abschätzung:",simpson_fehler(f,0,1))
+
+        
+    
