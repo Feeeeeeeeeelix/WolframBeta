@@ -28,7 +28,4 @@ def readable(f):
 	return "x" if f == "x" else f
 
 
-
-if __name__ == "__main__":
-	print("f(x) = " + readable(d2))
 	

@@ -101,13 +101,13 @@ def calculate(userinput):
 			
 	if userinput:
 		print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-		print(f"{userinput = : <15}")
+		print(f"{userinput      = }")
 		parsed = parse(userinput, "x")
-		print(f"\n{parsed = : <15}")
+		print(f"\n{parsed         = }")
 		differentiated = diff(parsed)
-		print(f"\n{differentiated = : <15}")
+		print(f"\n{differentiated = }")
 		readablee = readable(differentiated)
-		print(f"\n{readablee = : <15}")
+		print(f"\n{readablee      = }")
 		return readablee
 	else:
 		return ""

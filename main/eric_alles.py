@@ -1,4 +1,4 @@
-from wbprealphatest import *
+from functions import *
 
 def sekanten_verfahren(f, x1, x2):
     eps_stop = 10 ** -15
@@ -375,7 +375,7 @@ def w(f):
                 return "(" + w(f[1]) + ")" + f[0]
 
         # Sonst nur noch Zahlen möglich
-        elif: is_number(f) == True:
+        elif is_number(f) == True:
             return f
 
         else:
@@ -510,7 +510,7 @@ def der(f):
             # Für jeden elementaren operator explizit schreiben (z.B. (arctan(f))' = f' * 1/(1+f^2)
             return ["*", [der(f[1]), elementare_ableitung(f[0], f[1])]]
 
-pi = nullstellen(lambda x: sum((-1) ** k * 1 / fact(2 * k + 1) * x ** (2 * k + 1) for k in range(0, 50)), 3, 4, 2)[0]
+pi = nullstellen(lambda x: sum((-1) ** k * 1 / fact(2 * k + 1) * x ** (2 * k + 1) for k in range(0, 50)), 3, 4)[0]
 
 
 
@@ -535,4 +535,4 @@ print("Ableitung | ", abl)
 print("\n")
 print("Ableitung | ", write(abl))
 print("\n")
-print("Nullstellen | ", nullstellen(fuck, 1, 10, 10))
+print("Nullstellen | ", nullstellen(fuck, 1, 10))
