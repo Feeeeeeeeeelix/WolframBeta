@@ -71,43 +71,6 @@ def nullstellen(f, a, b):
 
     return Nulls
 
-def fact(n):
-    return n * fact(n - 1) if n >= 1 else 1
-
-def eratosthenes(n):
-    x = [True] * (n + 3)
-    prime_list = []
-
-    for i in range(2, n + 1):
-
-        if x[i]:
-            prime_list.append(i)
-            a = 2 * i
-
-            while a <= n:
-                x[a] = False
-                a += i
-
-    return prime_list
-
-def isprime(n):
-    for i in range(2, int(sqrt(n)) + 1):
-        if n % i == 0:
-            return False
-    return True
-
-def factor(n):
-    factors = []
-    temp = n
-
-    for i in range(2, temp):
-
-        while temp % i == 0:
-            temp = temp / i
-            factors.append(i)
-
-    return factors
-
 def maximum(f,a,b):
     
     #MAN MÜSSTE lokal um UNSTETIGKEITSSTELLEN ANALYSISEREN!
@@ -126,7 +89,7 @@ def maximum(f,a,b):
 def minimum(f,a,b):
     #MAN MÜSSTE lokal um UNSTETIGKEITSSTELLEN ANALYSISEREN!
     extremstellen = [a,b]
-    extremstellen.append(nullstellen(f.diff(),a,b))
+    extremstellen += nullstellen(f.diff(),a,b)
     
     min_x=a
     min_fx=f.lam(a)
