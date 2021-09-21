@@ -25,7 +25,7 @@ def exp(x):
 def log(x, base = "e"): #Patent
 	
 	if base != "e":
-		return ln(x)/ln(base)
+		return log(x)/log(base)
 	
 	if x <= 0:
 		raise ValueError
