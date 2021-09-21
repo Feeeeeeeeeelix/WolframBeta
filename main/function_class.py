@@ -1,3 +1,4 @@
+from functions import *
 
 operators = ["sin", "cos", "exp", "log", "cosh", "sinh", "tan", "tanh", "arccos", "arcsin", "arctan", "arccosh",
              "arcsinh", "arctanh"]
@@ -48,6 +49,7 @@ def inner_and_outer_operation(f):
 
     return [outer_text, place_holders]
 def tree(f):
+    print(f)
     # - durch +- ersetzen, damit dies als "Summand" erkannt wird
     for letter_index in range(1, len(f)):
         if f[letter_index] == "-" and f[letter_index - 1] != "+":
@@ -62,8 +64,24 @@ def tree(f):
     is_sum_or_prod = False
 
     if "+" in simplified:
-        factorized = ["+", simplified.split("+")]
-        is_sum_or_prod = True
+        #Neu, vllt falsch:
+        if simplified[:2] == "+-" and simplified.count("+") == 1: #falls nur ein +- am anfang ist, dann ist es keine summe sondern nur ein minus
+                
+            factorized = ["-", simplified[2:]]
+    
+            # Die {} durch deren Inhalt ersetzen
+            holder_counter = 0
+    
+            while "{}" in factorized[1]:
+                factorized[1] = factorized[1].replace("{}", "(" + place_holders[holder_counter] + ")", 1)
+                holder_counter += 1
+    
+            # Tree auf inneres anwenden
+            
+            return ["-", tree(factorized[1])]
+        else:
+            factorized = ["+", simplified.split("+")]
+            is_sum_or_prod = True
 
     elif "*" in simplified:
         factorized = ["*", simplified.split("*")]  #Nachteil: Es werden mehrere Faktoren erlaubt, weshalb die Produktregel schwieriger ist
@@ -333,7 +351,6 @@ def elementare_ableitung_hilfs_funktion(operator, innen):
     else:
         print("Operator nicht erkannt")
 def der_hilfs_funktion(f):
-    print(f)
     if f[0] == "+":
         return ["+", [der_hilfs_funktion(summand) for summand in f[1]]]
 
@@ -406,18 +423,32 @@ class function():
         list_of_derivative = der_hilfs_funktion(self.list)
         return function(list_of_derivative)
        
+def add(f,g):
+    return function(f.str+"+"+g.str)
+
+def mult(f,g):
+    return function("("+f.str+")*("+g.str+")")
+
+def div(f,g):
+    return function("("+f.str+")/("+g.str+")")
+
+def pow(f,g):
+    return function("("+f.str+")^("+g.str+")")
+
+def minus(f):
+    return function("-"+f.str)
+
+def verkettet(f,g):
+    return function(f.str.replace("x","("+g.str+")"))
 
 
-f = function("cos(x)^2+1")
+
+f = function("cos(x^2)")
+g = function("-sin(x)")
 #(definiere eine instanz der class "function")
 
-print(f.str)
-print(f.list)
-print(f.lam(2))
+h = verkettet(f,g)
 
-#neue Funktion :
-g = f.derivative()
-
-print(g.str)
-print(g.list)
-print(g.lam(0))
+print(h.str)
+print(h.list)
+print(h.lam(2))
