@@ -443,12 +443,12 @@ def verkettet(f,g):
 
 
 
-f = function("cos(x^2)")
-g = function("-sin(x)")
+#f = function("cos(x^2)")
+#g = function("-sin(x)")
 #(definiere eine instanz der class "function")
 
-h = verkettet(f,g)
+#h = verkettet(f,g)
 
-print(h.str)
-print(h.list)
-print(h.lam(2))
+#print(h.str)
+#print(h.list)
+#print(h.lam(2))
