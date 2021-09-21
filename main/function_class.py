@@ -49,7 +49,6 @@ def inner_and_outer_operation(f):
 
     return [outer_text, place_holders]
 def tree(f):
-    print(f)
     # - durch +- ersetzen, damit dies als "Summand" erkannt wird
     for letter_index in range(1, len(f)):
         if f[letter_index] == "-" and f[letter_index - 1] != "+":
@@ -66,18 +65,18 @@ def tree(f):
     if "+" in simplified:
         #Neu, vllt falsch:
         if simplified[:2] == "+-" and simplified.count("+") == 1: #falls nur ein +- am anfang ist, dann ist es keine summe sondern nur ein minus
-                
+
             factorized = ["-", simplified[2:]]
-    
+
             # Die {} durch deren Inhalt ersetzen
             holder_counter = 0
-    
+
             while "{}" in factorized[1]:
                 factorized[1] = factorized[1].replace("{}", "(" + place_holders[holder_counter] + ")", 1)
                 holder_counter += 1
-    
+
             # Tree auf inneres anwenden
-            
+
             return ["-", tree(factorized[1])]
         else:
             factorized = ["+", simplified.split("+")]
@@ -195,7 +194,7 @@ def tree(f):
                 else:
                     print("Input nicht verstanden")
 def w(f):
-    
+
     if f[0] == "+":
         text = ""
         for i in range(len(f[1])):
@@ -214,7 +213,7 @@ def w(f):
         for i in range(len(f[1])):
             # Faktoren sind nur in klammern, falls sie aus einer summe bestehen:
             if f[1][i][0] == "+":
-                text += "[" + w(f[1][i]) + "]" + "*"
+                text += "(" + w(f[1][i]) + ")" + "*"
             else:
                 text += w(f[1][i]) + "*"
 
@@ -223,7 +222,7 @@ def w(f):
     elif f[0] == "-":
         # Term ist nur in klammern, falls es eine Summe ist:
         if f[1][0][0] == "+":
-            return "-" + "[" + w(f[1]) + "]"
+            return "-" + "(" + w(f[1]) + ")"
         else:
             return "-" + w(f[1])
 
@@ -269,7 +268,7 @@ def w(f):
         # Keine elementare Operation +,-,*,/,^:
         if f == "x":
             return "x"
-    
+
         # Operationen:
         elif type(f) == list:
             #nachtrag: nötig??
@@ -277,11 +276,11 @@ def w(f):
                 return f[0] + "(" + w(f[1]) + ")"
             else:
                 return "(" + w(f[1]) + ")" + f[0]
-    
+
         # Sonst nur noch Zahlen möglich
         elif is_number(f) == True:
             return f
-    
+
         else:
             print("Fehler in der_hilfs_funktion Funktion!")
 def write(f):
@@ -355,6 +354,7 @@ def der_hilfs_funktion(f):
         return ["+", [der_hilfs_funktion(summand) for summand in f[1]]]
 
     elif f[0] == "*":
+        #WÄRE SCHÖN wenn für 3*4*x^2 keine kettenregel verwendet wird!
         if len(f[1]) > 2:
             #Fehler wurde behoben:
             return ["+", [["*", [der_hilfs_funktion(factor), f[1].remove(factor)]] for factor in f[1]]]
@@ -371,6 +371,8 @@ def der_hilfs_funktion(f):
 
             # Trennung um kein unnötiges Komma zu haben
             if float(f[2]) == int(float(f[2])):
+                if f[1]=="x":
+                    return ["*",[f[2], ["^", f[1], str(int(f[2]) - 1)]]]
                 return ["*", [der_hilfs_funktion(f[1]), f[2], ["^", f[1], str(int(f[2]) - 1)]]]
             else:
                 return ["*", [der_hilfs_funktion(f[1]), f[2], ["^", f[1], str(float(f[2]) - 1)]]]
@@ -393,11 +395,11 @@ def der_hilfs_funktion(f):
 
     else:
         #Nun ist es z.B. cos(...)
-        
+
         #Falls ... = x, mache keine unnötige Kettenregel.
         if f[1] == "x":
             return elementare_ableitung_hilfs_funktion(f[0], f[1])
-        
+
         #analog für ... = const
         elif is_number(f[1]) == True:
             return "0"
@@ -405,10 +407,65 @@ def der_hilfs_funktion(f):
         else:
             # Für jeden elementaren operator explizit schreiben (z.B. (arctan(f))' = f' * 1/(1+f^2)
             return ["*", [der_hilfs_funktion(f[1]), elementare_ableitung_hilfs_funktion(f[0], f[1])]]
+#work in progress:
+def kuerze_listen(f):
+    if f[0]=="+":
+        list = f[1]
+        i=0
+        while i < len(list):
+            list[i] = kuerze_listen(list[i])
+            if list[i] == "0":
+                list.remove(list[i])
+            
+            i+=1
+        return ["+",list]
+
+    elif f[0]=="*":
+        list = f[1]
+        i=0
+        while i < len(list):
+            list[i] = kuerze_listen(list[i])
+            if list[i] == "0":
+                list = "0"
+                break
+            
+            i+=1
+        if list != "0":
+            return ["*",list]
+        else:
+            return "0"
+
+    elif f[0]=="/":
+        f[1] = kuerze_listen(f[1])
+        f[2] = kuerze_listen(f[2])
+        
+        if f[1] == "0":
+            return "0"
+        else:
+            return ["/",f[1],f[2]]
+    
+    elif f[0]=="^":
+        f[1] = kuerze_listen(f[1])
+        f[2] = kuerze_listen(f[2])
+        
+        if f[1] == "0":
+            return "0"
+        else:
+            return ["^",f[1],f[2]]
+    elif f[0] == "-":
+        f[1] = kuerze_listen(f[1])
+        if f[1] == "0":
+            return "0"
+        else:
+            ["-",f[1]]
+    else:
+        return f
+    
+    
 
 
 class function():
-    
+
     def __init__(self,str_or_list): #entweder string "x^2-1" oder Liste als definition einer Funktion
         if type(str_or_list) == str:
             self.str = str_or_list
@@ -419,36 +476,20 @@ class function():
             self.str = write(self.list)
             self.lam = lambda x: eval(self.str.replace("^", "**"))
 
-    def derivative(self):
+    def diff(self):
         list_of_derivative = der_hilfs_funktion(self.list)
         return function(list_of_derivative)
-       
+
 def add(f,g):
     return function(f.str+"+"+g.str)
-
 def mult(f,g):
     return function("("+f.str+")*("+g.str+")")
-
 def div(f,g):
     return function("("+f.str+")/("+g.str+")")
-
-def pow(f,g):
+def power(f,g):
     return function("("+f.str+")^("+g.str+")")
-
 def minus(f):
     return function("-"+f.str)
-
 def verkettet(f,g):
     return function(f.str.replace("x","("+g.str+")"))
 
-
-
-#f = function("cos(x^2)")
-#g = function("-sin(x)")
-#(definiere eine instanz der class "function")
-
-#h = verkettet(f,g)
-
-#print(h.str)
-#print(h.list)
-#print(h.lam(2))
