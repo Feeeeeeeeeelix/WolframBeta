@@ -177,3 +177,37 @@ def euclidean_algorithm(a,b):
         a = b
         b = rest
     return a #ggT von a,b nach dem euklidischen Algorithmus
+
+def eratosthenes(n):
+    x = [True] * (n + 3)
+    prime_list = []
+
+    for i in range(2, n + 1):
+
+        if x[i]:
+            prime_list.append(i)
+            a = 2 * i
+
+            while a <= n:
+                x[a] = False
+                a += i
+
+    return prime_list
+
+def isprime(n):
+    for i in range(2, int(sqrt(n)) + 1):
+        if n % i == 0:
+            return False
+    return True
+
+def prim_factors(n):
+    factors = []
+    temp = n
+
+    for i in range(2, temp):
+
+        while temp % i == 0:
+            temp = temp / i
+            factors.append(i)
+
+    return factors
