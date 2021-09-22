@@ -194,7 +194,6 @@ def tree(f):
                 else:
                     print("Input nicht verstanden")
 def w(f):
-
     if f[0] == "+":
         text = ""
         for i in range(len(f[1])):
@@ -289,7 +288,7 @@ def write(f):
     phrase = phrase.replace("*", " * ")
     phrase = phrase.replace("+", " + ")
     # phrase = phrase.replace("^"," ^ ")
-    phrase = phrase.replace("-", " - ")
+    # phrase = phrase.replace("-", " - ")
     phrase = phrase.replace("/", " / ")
     return phrase
 
@@ -409,26 +408,32 @@ def der_hilfs_funktion(f):
             return ["*", [der_hilfs_funktion(f[1]), elementare_ableitung_hilfs_funktion(f[0], f[1])]]
 #work in progress:
 def kuerze_listen(f):
+
     if f[0]=="+":
         list = f[1]
         i=0
         while i < len(list):
-            list[i] = kuerze_listen(list[i])
-            if list[i] == "0":
-                list.remove(list[i])
-            
-            i+=1
-        return ["+",list]
 
-    elif f[0]=="*":
+            list[i] = kuerze_listen(list[i])
+#Erzeugt Bugs: (es werden teile einfach weggelassen komischerweise)
+#           if list[i] == "0":
+#                list.remove(list[i])
+
+            i+=1
+        if len(list) > 1:
+            return ["+",list]
+        else:
+            return list[0]
+
+
+    if f[0]=="*":
         list = f[1]
         i=0
         while i < len(list):
             list[i] = kuerze_listen(list[i])
             if list[i] == "0":
                 list = "0"
-                break
-            
+                i = len(list)
             i+=1
         if list != "0":
             return ["*",list]
@@ -438,17 +443,19 @@ def kuerze_listen(f):
     elif f[0]=="/":
         f[1] = kuerze_listen(f[1])
         f[2] = kuerze_listen(f[2])
-        
+
         if f[1] == "0":
             return "0"
         else:
             return ["/",f[1],f[2]]
-    
+
     elif f[0]=="^":
         f[1] = kuerze_listen(f[1])
         f[2] = kuerze_listen(f[2])
-        
-        if f[1] == "0":
+
+        if f[2] == "0":
+            return "1"
+        elif f[1] == "0":
             return "0"
         else:
             return ["^",f[1],f[2]]
@@ -459,10 +466,13 @@ def kuerze_listen(f):
         else:
             return ["-",f[1]]
     else:
-        return [f[0],kuerze_listen(f[1])] if f[0] in operators else f
-    
-    
-
+        # zahl, variabeln und operatoren
+        if is_number(f) == True or f == "x":
+            return f
+        elif f[0] in operators:
+            return [f[0],kuerze_listen(f[1])]
+        else:
+            print("INPUT FEHLER")
 
 class function():
 
@@ -478,6 +488,7 @@ class function():
 
     def diff(self):
         list_of_derivative = der_hilfs_funktion(self.list)
+        list_of_derivative = kuerze_listen(list_of_derivative)
         return function(list_of_derivative)
 
 def add(f,g):
@@ -493,3 +504,6 @@ def minus(f):
 def verkettet(f,g):
     return function(f.str.replace("x","("+g.str+")"))
 
+f = function("cos(x^2)")
+
+print(f.diff().diff().str)
