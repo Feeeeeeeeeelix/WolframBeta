@@ -457,9 +457,9 @@ def kuerze_listen(f):
         if f[1] == "0":
             return "0"
         else:
-            ["-",f[1]]
+            return ["-",f[1]]
     else:
-        return f
+        return [f[0],kuerze_listen(f[1])] if f[0] in operators else f
     
     
 
