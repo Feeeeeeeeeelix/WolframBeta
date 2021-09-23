@@ -1,4 +1,1 @@
 # WolframBeta
-
-Beschreibung
-zweiter Text
