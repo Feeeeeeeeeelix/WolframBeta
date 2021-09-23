@@ -361,11 +361,8 @@ def der_hilfs_funktion(f):
         return ["+", [der_hilfs_funktion(summand) for summand in f[1]]]
 
     elif f[0] == "*":
-        #WÄRE SCHÖN wenn für 3*4*x^2 keine kettenregel verwendet wird!
         if len(f[1]) > 2:
-            #Fehler wurde behoben:
-            return ["+", [["*", [der_hilfs_funktion(factor), f[1].remove(factor)]] for factor in f[1]]]
-
+            return ["+", [["*", [der_hilfs_funktion(f[1][index])] + [f[1][i] for i in range(len(f[1])) if i != index]] for index in range(len(f[1]))]]
         else:
             return ["+", [["*", [der_hilfs_funktion(f[1][0]), f[1][1]]], ["*", [der_hilfs_funktion(f[1][1]), f[1][0]]]]]
 
@@ -535,6 +532,4 @@ def minus(f):
 def verkettet(f,g):
     return function(f.str.replace("x","("+g.str+")"))
 
-f = function("(cos(x) - sin(x) * x) * -sin(x * cos(x))")
-g = f.diff()
-print(g.str)
+#f = function("(cos(x) - sin(x) * x) * -sin(x * cos(x))")
