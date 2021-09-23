@@ -53,7 +53,13 @@ def tree(f):
     for letter_index in range(1, len(f)):
         if f[letter_index] == "-" and f[letter_index - 1] != "+":
             f = f[:letter_index] + '+' + f[letter_index:]
-
+            #FALSCH!!!!
+            # cos(x)*-sin(x) wird zu einer addition! dies ist aber falsch!!!
+                        #FALSCH!!!!
+            # cos(x)*-sin(x) wird zu einer addition! dies ist aber falsch!!!
+                        #FALSCH!!!!
+            # cos(x)*-sin(x) wird zu einer addition! dies ist aber falsch!!!
+            
     # störende Leerzeichen entfernen:
     f = f.replace(" ", "")
 
@@ -278,8 +284,10 @@ def w(f):
 
         # Sonst nur noch Zahlen möglich
         elif is_number(f) == True:
-            return f
-
+            if float(f) == int(float(f)):
+                return str(int(float(f)))  #schreibe 2 statt 2.0
+            else:
+                return f
         else:
             print("Fehler in der_hilfs_funktion Funktion!")
 def write(f):
@@ -410,35 +418,58 @@ def der_hilfs_funktion(f):
 def kuerze_listen(f):
 
     if f[0]=="+":
+        S=0
+        non_sumands = []
         list = f[1]
         i=0
         while i < len(list):
-
             list[i] = kuerze_listen(list[i])
-#Erzeugt Bugs: (es werden teile einfach weggelassen komischerweise)
-#           if list[i] == "0":
-#                list.remove(list[i])
-
+            if is_number(list[i]) == True:
+                S += float(list[i])
+            else:
+                non_sumands += [list[i]]
             i+=1
-        if len(list) > 1:
-            return ["+",list]
-        else:
-            return list[0]
 
+        if S != 0:
+            if len(non_sumands) >= 1:
+                return ["+",[str(S)] + non_sumands]
+            elif len(non_sumands) == 0:
+                return str(S)
+        else:
+            if len(non_sumands) > 1:
+                return ["+",non_sumands]
+            elif len(non_sumands) == 1:
+                return non_sumands[0]
+            elif len(non_sumands) == 0:
+                return "0"
 
     if f[0]=="*":
         list = f[1]
         i=0
+        non_factors = []
+        M = 1 
         while i < len(list):
             list[i] = kuerze_listen(list[i])
-            if list[i] == "0":
-                list = "0"
-                i = len(list)
+            if is_number(list[i]) == True:
+                M *= float(list[i])
+            else:
+                non_factors += [list[i]]
             i+=1
-        if list != "0":
-            return ["*",list]
-        else:
+
+        if M == 0:
             return "0"
+        elif M == 1:
+            if len(non_factors)>1:
+                return ["*",non_factors]
+            if len(non_factors) == 1:
+                return non_factors[0]
+            else:
+                return "1"
+        else:
+            if len(non_factors) >= 1:
+                return ["*",[str(M)] + non_factors]
+            else:
+                return str(M)
 
     elif f[0]=="/":
         f[1] = kuerze_listen(f[1])
@@ -504,6 +535,6 @@ def minus(f):
 def verkettet(f,g):
     return function(f.str.replace("x","("+g.str+")"))
 
-f = function("cos(x^2)")
-
-print(f.diff().diff().str)
+f = function("(cos(x) - sin(x) * x) * -sin(x * cos(x))")
+g = f.diff()
+print(g.str)
