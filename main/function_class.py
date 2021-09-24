@@ -49,19 +49,19 @@ def inner_and_outer_operation(f):
 
     return [outer_text, place_holders]
 def tree(f):
-    # - durch +- ersetzen, damit dies als "Summand" erkannt wird
-    for letter_index in range(1, len(f)):
-        if f[letter_index] == "-" and f[letter_index - 1] != "+":
-            f = f[:letter_index] + '+' + f[letter_index:]
-            #FALSCH!!!!
-            # cos(x)*-sin(x) wird zu einer addition! dies ist aber falsch!!!
-                        #FALSCH!!!!
-            # cos(x)*-sin(x) wird zu einer addition! dies ist aber falsch!!!
-                        #FALSCH!!!!
-            # cos(x)*-sin(x) wird zu einer addition! dies ist aber falsch!!!
-            
     # störende Leerzeichen entfernen:
     f = f.replace(" ", "")
+    
+    if f[0] =="-" and f[:2] !="-1":
+        f = "-1*" + f[1:]
+    
+    for letter_index in range(1, len(f)):
+        if f[letter_index] == "-" and f[letter_index - 1] == "*" and f[letter_index:letter_index+2] != "-1*":
+            f = f[:letter_index] + "-1*" + f[letter_index + 1 :]
+        elif f[letter_index] == "-" and f[letter_index - 1] != "*" and f[letter_index - 1] != "+" and f[letter_index:letter_index+2] != "-1*":
+            f = f[:letter_index] + "+-1*" + f[letter_index + 1 :]
+
+
 
     # Das innere von klammern wird ersetzt durch {} und wird in place_holders gespeichert.
     [simplified, place_holders] = inner_and_outer_operation(f)
@@ -452,7 +452,7 @@ def kuerze_listen(f):
             else:
                 non_factors += [list[i]]
             i+=1
-
+            
         if M == 0:
             return "0"
         elif M == 1:
@@ -462,6 +462,14 @@ def kuerze_listen(f):
                 return non_factors[0]
             else:
                 return "1"
+        elif M == -1:
+            if len(non_factors)>1:
+                return ["-",["*",non_factors]]
+            if len(non_factors) == 1:
+                return ["-",non_factors[0]]
+            else:
+                return "-1"
+            
         else:
             if len(non_factors) >= 1:
                 return ["*",[str(M)] + non_factors]
@@ -491,6 +499,8 @@ def kuerze_listen(f):
         f[1] = kuerze_listen(f[1])
         if f[1] == "0":
             return "0"
+        elif is_number(f[1]):
+            return str(-1*float(f[1]))
         else:
             return ["-",f[1]]
     else:
@@ -507,10 +517,11 @@ class function():
     def __init__(self,str_or_list): #entweder string "x^2-1" oder Liste als definition einer Funktion
         if type(str_or_list) == str:
             self.str = str_or_list
+            self.list = kuerze_listen(tree(self.str))
+            self.str = write(self.list)
             self.lam = lambda x: eval(self.str.replace("^", "**"))
-            self.list = tree(self.str)
         else: #Liste
-            self.list = str_or_list
+            self.list = kuerze_listen(str_or_list)
             self.str = write(self.list)
             self.lam = lambda x: eval(self.str.replace("^", "**"))
 
@@ -532,4 +543,6 @@ def minus(f):
 def verkettet(f,g):
     return function(f.str.replace("x","("+g.str+")"))
 
-#f = function("(cos(x) - sin(x) * x) * -sin(x * cos(x))")
+f = function("-1-cos(x)")
+print(f.str)
+
