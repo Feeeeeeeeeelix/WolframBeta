@@ -49,22 +49,26 @@ def inner_and_outer_operation(f):
 
     return [outer_text, place_holders]
 def tree(f):
-    # störende Leerzeichen entfernen:
-    f = f.replace(" ", "")
-    
-    if f[0] =="-" and f[:2] !="-1":
-        f = "-1*" + f[1:]
-    
-    for letter_index in range(1, len(f)):
-        if f[letter_index] == "-" and f[letter_index - 1] == "*" and f[letter_index:letter_index+2] != "-1*":
-            f = f[:letter_index] + "-1*" + f[letter_index + 1 :]
-        elif f[letter_index] == "-" and f[letter_index - 1] != "*" and f[letter_index - 1] != "+" and f[letter_index:letter_index+2] != "-1*":
-            f = f[:letter_index] + "+-1*" + f[letter_index + 1 :]
-
-
-
     # Das innere von klammern wird ersetzt durch {} und wird in place_holders gespeichert.
     [simplified, place_holders] = inner_and_outer_operation(f)
+
+    # störende Leerzeichen entfernen:
+    simplified = simplified.replace(" ", "")
+    
+    #minus-handeling für ersten eintrag
+    if simplified[0] =="-" and simplified[:2] !="-1":
+        simplified = "-1*" + simplified[1:]
+    
+    #minus-handeling für restliche Einträge
+    #Kommentar: das "while" ist nötig, da bei for i in range(1,len(simplified)) das "len(simplified)" nur ein mal berechnet wird, jedoch im Laufe der schleife sich verändert.
+    letter_index = 1
+    while letter_index < len(simplified):
+        if simplified[letter_index] == "-" and simplified[letter_index - 1] == "*" and simplified[letter_index:letter_index+2] != "-1*":
+            simplified = simplified[:letter_index] + "-1*" + simplified[letter_index + 1 :]
+        elif simplified[letter_index] == "-" and simplified[letter_index - 1] not in  ["*","+","("] and simplified[letter_index:letter_index+2] != "-1*":
+            simplified = simplified[:letter_index] + "+-1*" + simplified[letter_index + 1 :]
+        
+        letter_index += 1
 
     is_sum_or_prod = False
 
@@ -202,15 +206,28 @@ def tree(f):
 def w(f):
     if f[0] == "+":
         text = ""
-        for i in range(len(f[1])):
-
-            if f[1][i][0] != "-":
-                text += "+" + w(f[1][i])
+        for i in range(len(f[1])):            
+            if is_number(f[1][i]):
+                if float(f[1][i]) < 0:
+                    if float(f[1][i]) == int(float(f[1][i])):
+                        text +=  str(int(float(f[1][i])))
+                    else:
+                        text += f[1][i]
+                elif float(f[1][i]) > 0:
+                    if float(f[1][i]) == int(float(f[1][i])):
+                        text += " + "+str(int(float(f[1][i])))
+                    else:
+                        text += " + "+ f[1][i]  
+            elif f[1][i][0] != "-":
+                text += " + " + w(f[1][i])
             else:
-                text += w(f[1][i])
+                text += " - " + w(f[1][i][1])
                 # 2  - cos(x) anstatt 2 + -cos(x)
-
-        return text[1:] #das erste + entfernen
+        
+        if text[0] == "-":
+            return text
+        else:
+            return text[2:] #das erste + entfernen
 
     elif f[0] == "*":
 
@@ -294,7 +311,7 @@ def write(f):
     # Es werden Leerzeichen für besseres Lesen hinzugefügt:
     phrase = w(f)
     phrase = phrase.replace("*", " * ")
-    phrase = phrase.replace("+", " + ")
+    #phrase = phrase.replace("+", " + ")
     # phrase = phrase.replace("^"," ^ ")
     # phrase = phrase.replace("-", " - ")
     phrase = phrase.replace("/", " / ")
@@ -543,6 +560,7 @@ def minus(f):
 def verkettet(f,g):
     return function(f.str.replace("x","("+g.str+")"))
 
-f = function("-1-cos(x)")
+f = function("-1-cos(-x-1)+3*-cos(x)-2")
 print(f.str)
+print(f.list)
 
