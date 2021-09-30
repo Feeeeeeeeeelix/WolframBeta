@@ -56,7 +56,7 @@ def sinh(x):
 def tanh(x):
 	return sinh(x)/cosh(x)
 	
-def pow(a,n):	
+def pow(a,n):		## Wollen wir das im Programm lassen? (bissn unnötig)
 	nbin = bin(n)[2:]
 	teiler = [a]
 	b = a

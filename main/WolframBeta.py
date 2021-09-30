@@ -2,6 +2,7 @@ from tkinter import *
 
 from functions import *
 from FunctionClass import *
+from analysis import *
 	
 
 
@@ -26,9 +27,9 @@ def calculate(userinput):
 
 		
 		print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-		print(f"{userinput      = }")
-		print(f"\n{parsed         = }")
-		print(f"\n{difftree = }")
+		print(f"{userinput    = }")
+		print(f"\n{parsed       = }")
+		print(f"\n{difftree     = }")
 		print(f"\n{diffstr      = }")
 		return diffstr
 	else:

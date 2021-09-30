@@ -560,7 +560,10 @@ def minus(f):
 def verkettet(f,g):
     return function(f.str.replace("x","("+g.str+")"))
 
-f = function("-1-cos(-x-1)+3*-cos(x)-2")
-print(f.str)
-print(f.list)
-
+    
+if __name__ == "__main__":
+    f = function("-1-cos(-x-1)+3*-cos(x)-2")
+    print(f.str)
+    print(f.list)
+    
+    
