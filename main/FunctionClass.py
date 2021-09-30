@@ -14,7 +14,7 @@ def isfloat(n):
 numbers = "0123456789"
 var = x = "x"
 
-def inner_args(f):	# "f=(x+4)(x+6^x)ln(x)^2" ---> args=['x+4', 'x+6^x', 'x'], f='@@ln@^2')  
+def inner_args(f):	# "f=3(x+4)(x+6^x)ln(x)^2" ---> args=['3', 'x+4', 'x+6^x', 'x'], f='@@ln@^2'  
 
 	def find_arg(f, i):
 		arg, p = "", 0
@@ -29,7 +29,7 @@ def inner_args(f):	# "f=(x+4)(x+6^x)ln(x)^2" ---> args=['x+4', 'x+6^x', 'x'], f=
 	while i < len(f):
 		if f[i] == "(":
 			arg, i = find_arg(f, i+1)
-			args.append(arg)
+			args.append(arg)	
 		i += 1
 
 	for arg in args:
@@ -52,11 +52,33 @@ def parse(f):
 	
 	print(f"parse:{f}")
 	
-	if isfloat(f) or f == var:		# f = constante
-		print(f"constfound: {f=}")
-		return f
+	if isfloat(f):		# f = constante
+		return float(f) if int(f) != float(f) else int(f)
+	if f == var:		# f = var
+		return var
+	
 	
 	f, innerargs = inner_args(f)	#klammern und ihr inneres ersetzen
+
+	#2@@ln@^2+@ -> 2*@*@*ln@^2+@
+	i = 0
+	while i < len(f)-1:
+		# print(f"{i = }, {f[i] =  }, {f[i+1]=}")
+		if f[i] in numbers+var+"@" and f[i+1] == "@" or f[i]=="@" and f[i+1]in alphabet:
+			f = f[:i+1] + "*" + f[i+1:]
+			# print(f"mult: {f=}")
+		i += 1
+
+	
+	# for i, j in enumerate(f):
+		# print(f"{i=}, {j=}")
+		# if i<len(f)-1 and j in numbers+alphabet+"@" and f[i+1] == "@":
+			
+			
+		
+	
+
+
 	
 	print(f"{f=}, {innerargs=}")
 	
@@ -81,7 +103,8 @@ def parse(f):
 		factors = replace_arg(f.split("*"), innerargs)
 		print(f"{factors=}")			##
 		return ["*", [parse(s) for s in factors]]
-		
+	
+
 	if "/" in f:		
 		div = replace_arg(f.split("/"), innerargs)
 		print(f"{div=}")			##
@@ -97,8 +120,11 @@ def parse(f):
 		funcname = f[:-1]
 		if funcname in functions:
 			return [funcname, parse(innerargs[0])]
+		if f[-1] != "@":	#konstante
+			return f
 		else:
 			raise Exception("Unknown function: "+funcname)
+		
 		
 	
 	if f == "@":
@@ -117,11 +143,19 @@ def write(f):
 			args = [i for i in args if i != "0"] if f[0] in "+-" else args
 
 			if f[0] == "*":
+				if "0" in args:
+					return "0"
+					
+				# for fac in f[1]:
+					# print(f"{fac=}")
+					# if type(fac) == list and fac[0] in "+-":
+						# print("yey")
+						# args[f[1].index(fac)] = f"({fac})"
+						
 				for fac in args:
 					if "+" in fac or "-" in fac:
 						args[args.index(fac)] = f"({fac})"
-				if "0" in args:
-					return "0"
+						
 				while "1" in args:
 					args.remove("1")
 			
@@ -135,14 +169,15 @@ def write(f):
 		if f[0] == "^":
 			base = f"({write(f[1][0])})" if type(f[1][0]) == list and f[1][0][0] not in functions else write(f[1][0])
 			power = f"({write(f[1][1])})" if type(f[1][1]) == list else f[1][1]
+		
 			try:
 				power = eval(power)
 			except:
 				pass
-			return f"{base}^{power}"
+			return f"{base}^{power}" if power != 1 else base if power != 0 else 1
 				
 		if f[0] in functions:
-			return f[0] + "(" + write(f[1]) + ")"		
+			return f"{f[0]}({write(f[1])})"
 	else:
 		return f
 		
@@ -253,12 +288,14 @@ class Function:
 
 if __name__ == "__main__":
 		
-	func = "-(x+4+0-7)*(-x+6^x)*ln(-x)^2"
+	func = "(x+4)(x+6^x)ln(x)^2"
+	# func = "as*x^3+x^abc"
 	# func = "-sqrt(3*x)+3"
 	# func = "-tan(x)*x^3"
 	
-	
+	print("PARSE\n\n")
 	f = Function(func)
+	
 	baum = f.tree
 	
 	# ~ print(f"\nf(x) = {func}\n\nTree: {baum}\n\nwrite: {f.str}\n\nf'(x): {diffed.tree}\n\nf'(x) = {diffed.str}")
@@ -273,7 +310,7 @@ if __name__ == "__main__":
 	print(f"{diffed.str = }\n")
 	
 	
-	# dst = parse(diffed.str)
-	# print(f"\n{dst = }\n")
-	# dsts = write(dst)
-	# print(f"{dsts = }")
+	dst = parse(diffed.str)
+	print(f"\n{dst = }\n")
+	dsts = write(dst)
+	print(f"{dsts = }")
