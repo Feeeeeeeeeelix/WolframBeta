@@ -36,6 +36,8 @@ def log(x, base = "e"): #Patent
 	else:
 		return sum((-1)**(n+1)/n*(x-1)**n for n in range(1,12))
 
+ln = log
+
 def sin(x):
 	return sum([(-1)**i * (x%(2*pi))**(2*i+1) / fact(2*i+1) for i in range(19)])
 	
