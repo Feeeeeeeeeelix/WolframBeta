@@ -72,6 +72,19 @@ def nullstellen(f, a, b):
     return Nulls
 
 def maximum(f,a,b):
+    n=3000
+    x = a
+    max_fx = f.lam(x)
+    while x < b:
+        if f.lam(x) > max_fx:
+            max_fx = f.lam(x)
+            max_x = x
+        else:
+            x+= (b-a)/n
+    
+    return max_fx
+"""
+def maximum(f,a,b):
     
     #MAN MÜSSTE lokal um UNSTETIGKEITSSTELLEN ANALYSISEREN!
     extremstellen = [a,b]
@@ -85,7 +98,7 @@ def maximum(f,a,b):
             max_x = x
 
     return max_fx
-
+"""
 def minimum(f,a,b):
     #MAN MÜSSTE lokal um UNSTETIGKEITSSTELLEN ANALYSISEREN!
     extremstellen = [a,b]
@@ -145,12 +158,16 @@ def trapez_fehler(f,a,b):
 
 def simpson_fehler(f,a,b):
     h = (b-a)/5000
-    return abs(1/180*(b-a)*h**4*maximum(f.diff().diff().diff().diff(),a,b))
+    g = f.diff().diff().diff().diff()
+    print(g.str)
+    return abs(1/180*(b-a)*h**4*maximum(g,a,b))
 
 
-#f = function("x^9")
+f = function("x^9*cos(x^2)^3")
 
-#print("trapez",trapez(f,0,1),"Fehler-abschätzung:",trapez_fehler(f,0,1))
-#print("riemann",riemann(f,0,1))
-#print("simpson",simpson(f,0,1),"Fehler-abschätzung:",simpson_fehler(f,0,1))
+#print("trapez",trapez(f,0,10))
+#print("riemann",riemann(f,0,10))
+print("simpson",simpson(f,0,10))
 
+#print("t Fehler-abschätzung:",trapez_fehler(f,0,10))
+print("s Fehler-abschätzung:",simpson_fehler(f,0,10))

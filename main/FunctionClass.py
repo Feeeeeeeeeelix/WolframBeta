@@ -1,7 +1,17 @@
+from functions import *
 
+"""TO DO:
 
+- Vereinfachen
+- Parser mit "-" kompatibel
+- inverse hyperbolische Ableitung
+- 0 + 0 = tete a toto = nix
+-  ["-",[1,2,3]]
+- a/b/c  = a*c/b
 
-functions = ["exp", "ln", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "sqrt"]
+"""
+
+functions = ["sqrt", "exp", "ln", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh", "cosh", "sinh", "arccosh", "arcsinh", "arctanh"]
 alphabet = "qwertzuiopasdfghjklyxcvbnm"
 
 def isfloat(n):
@@ -14,7 +24,7 @@ def isfloat(n):
 numbers = "0123456789"
 var = x = "x"
 
-def inner_args(f):	# "f=3(x+4)(x+6^x)ln(x)^2" ---> args=['3', 'x+4', 'x+6^x', 'x'], f='@@ln@^2'  
+def inner_args(f):	# "f=3(x+4)(x+6^x)ln(x)^2" ---> args=['3', 'x+4', 'x+6^x', 'x'], f='3@@ln@^2'  
 
 	def find_arg(f, i):
 		arg, p = "", 0
@@ -49,6 +59,7 @@ def replace_arg(f, innerargs):
 
 def parse(f):
 	f = f.replace(" ", "")	#Leerzeichen entfernen
+	f = f.replace("**", "^")
 	
 	print(f"parse:{f}")
 	
@@ -56,6 +67,9 @@ def parse(f):
 		return float(f) if int(f) != float(f) else int(f)
 	if f == var:		# f = var
 		return var
+
+	if all(i in alphabet for i in f):
+		return f
 	
 	
 	f, innerargs = inner_args(f)	#klammern und ihr inneres ersetzen
@@ -68,15 +82,6 @@ def parse(f):
 			f = f[:i+1] + "*" + f[i+1:]
 			# print(f"mult: {f=}")
 		i += 1
-
-	
-	# for i, j in enumerate(f):
-		# print(f"{i=}, {j=}")
-		# if i<len(f)-1 and j in numbers+alphabet+"@" and f[i+1] == "@":
-			
-			
-		
-	
 
 
 	
@@ -99,6 +104,7 @@ def parse(f):
 			
 		return ["-", [parse(s) for s in subs]]
 
+
 	if "*" in f:		
 		factors = replace_arg(f.split("*"), innerargs)
 		print(f"{factors=}")			##
@@ -120,8 +126,6 @@ def parse(f):
 		funcname = f[:-1]
 		if funcname in functions:
 			return [funcname, parse(innerargs[0])]
-		if f[-1] != "@":	#konstante
-			return f
 		else:
 			raise Exception("Unknown function: "+funcname)
 		
@@ -133,7 +137,7 @@ def parse(f):
 
 
 
-
+["-", [1,2,3]]
 
 def write(f):
 	
@@ -272,33 +276,39 @@ class Function:
 			self.str = inputfunc
 			self.tree = parse(self.str)
 			self.str = write(self.tree)
+			self.lam = lambda x: eval(self.str.replace("^", "**"))
 		else:
 			self.tree = inputfunc
 			self.str = write(self.tree)
+			self.lam = lambda x: eval(self.str.replace("^", "**"))
 			
 	def diff(self, var = "x"):
 		return Function(diff(self.tree, var))
 	
-	def lam(self, var = "x"):
-		return lambda var: eval(self.str.replace("^", "**"))
-
-
+	# def lam(self, var = "x"):
+		# return lambda var: eval(self.str.replace("^", "**"))
 
 
 
 if __name__ == "__main__":
-		
+	
+	# f = Function("cosh(x)")
+	# print(f.lam(2))
+
 	func = "(x+4)(x+6^x)ln(x)^2"
-	# func = "as*x^3+x^abc"
-	# func = "-sqrt(3*x)+3"
-	# func = "-tan(x)*x^3"
+	func = "as*x^3+x^a*bc"
+	func = "-sqrt(3*x)+3"
+	func = "-tan(x)*x^3"
+	func = "0+0"
+	func = "sihn(x)"
+	func = "x^abc+ass"
 	
 	print("PARSE\n\n")
 	f = Function(func)
 	
 	baum = f.tree
 	
-	# ~ print(f"\nf(x) = {func}\n\nTree: {baum}\n\nwrite: {f.str}\n\nf'(x): {diffed.tree}\n\nf'(x) = {diffed.str}")
+	# print(f"\nf(x) = {func}\n\nTree: {baum}\n\nwrite: {f.str}\n\nf'(x): {diffed.tree}\n\nf'(x) = {diffed.str}")
 	
 	print()
 	print(f"{func = }\n")
@@ -310,7 +320,7 @@ if __name__ == "__main__":
 	print(f"{diffed.str = }\n")
 	
 	
-	dst = parse(diffed.str)
-	print(f"\n{dst = }\n")
-	dsts = write(dst)
-	print(f"{dsts = }")
+	# dst = parse(diffed.str)
+	# print(f"\n{dst = }\n")
+	# dsts = write(dst)
+	# print(f"{dsts = }")

@@ -359,11 +359,11 @@ def elementare_ableitung_hilfs_funktion(operator, innen):
         # 1/(1+x^2)
         return ["/", "1", ["+", ["1", ["^", innen, "2"]]]]
 
-    if operator == "arccos":
+    if operator == "arccosh":
         # 1/sqrt(x^2-1)
         return ["/", "1", ["^", ["+", ["-1", ["^", innen, "2"]]], "0.5"]]
 
-    if operator == "arcsin":
+    if operator == "arcsinh":
         # 1/sqrt(x^2+1)
         return ["/", "1", ["^", ["+", ["1", ["^", innen, "2"]]], "0.5"]]
 
@@ -563,6 +563,7 @@ def verkettet(f,g):
     
 if __name__ == "__main__":
     f = function("-1-cos(-x-1)+3*-cos(x)-2")
+    f = function("x")
     print(f.str)
     print(f.list)
     
