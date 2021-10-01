@@ -368,7 +368,7 @@ def elementare_ableitung_hilfs_funktion(operator, innen):
         return ["/", "1", ["^", ["+", ["1", ["^", innen, "2"]]], "0.5"]]
 
     if operator == "arctanh":
-        # 1/(1+x^2)
+        # 1/(1-x^2)
         return ["/", "1", ["+", ["1", ["-", ["^", innen, "2"]]]]]
 
     else:

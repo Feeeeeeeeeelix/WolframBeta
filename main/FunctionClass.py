@@ -4,7 +4,6 @@ from functions import *
 
 - Vereinfachen
 - Parser mit "-" kompatibel
-- inverse hyperbolische Ableitung
 - 0 + 0 = tete a toto = nix
 -  ["-",[1,2,3]]
 - a/b/c  = a*c/b
@@ -114,6 +113,13 @@ def parse(f):
 	if "/" in f:		
 		div = replace_arg(f.split("/"), innerargs)
 		print(f"{div=}")			##
+		
+		if len(div) == 2:
+			return ["/", [parse(s) for s in div]]
+		else:
+			return ["/", [div[0], ["*", [parse(s) for s in div[1:]]]]]
+
+		
 		return ["/", [parse(s) for s in div]]
 				
 	if "^" in f:
@@ -212,7 +218,11 @@ def diff(f, var = "x"):
 		darcsin = lambda u: ["/", [1, ["^", [["-",[1,  ["^",[u, "2"]]]], 0.5]]]]
 		darccos = lambda u: ["/", [-1, ["^", [["-",[1,  ["^",[u, "2"]]]], 0.5]]]]
 		darctan = lambda u: ["/", [1, ["+", [1, ["^", [u, 2]]]]]]
-		
+
+		darccosh = lambda u: ["/", [1, ["sqrt", ["-", [["^", [u, 2]], 1]]]]]
+		darcsinh = lambda u: ["/", [1, ["sqrt", ["+", [["^", [u, 2]], 1]]]]]
+		darctanh = lambda u: ["/", [1, ["-", [1, ["^", [u, 2]]]]]]
+
 		u = f[1] #innere Funktion
 		du = diff(u)
 
@@ -302,6 +312,8 @@ if __name__ == "__main__":
 	func = "0+0"
 	func = "sihn(x)"
 	func = "x^abc+ass"
+	func = "arctanh(x)"
+	func = "1/7/x"
 	
 	print("PARSE\n\n")
 	f = Function(func)
