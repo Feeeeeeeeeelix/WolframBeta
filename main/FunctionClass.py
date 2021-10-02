@@ -55,6 +55,18 @@ def replace_arg(f, innerargs):
 			n += 1
 	return eval(fstr)
 	
+def flint(x):
+	return float(x) if int(x) != float(x) else int(x)
+	
+def split_consts(f, test):
+	constants, functions = [], []
+	for arg in f:	
+		if test(arg):
+			constants.append(arg)
+		else:
+			functions.append(arg)
+	return constants, functions
+
 
 def parse(f):
 	f = f.replace(" ", "")	#Leerzeichen entfernen
@@ -62,11 +74,12 @@ def parse(f):
 	
 	print(f"parse:{f}")
 	
+	if f[0] in "*/^":
+		raise Exception (f"first character cannot be '{f[0]}'")
 	if isfloat(f):		# f = constante
-		return float(f) if int(f) != float(f) else int(f)
+		return flint(f)
 	if f == var:		# f = var
 		return var
-
 	if all(i in alphabet for i in f):
 		return f
 	
@@ -106,8 +119,19 @@ def parse(f):
 
 	if "*" in f:		
 		factors = replace_arg(f.split("*"), innerargs)
-		print(f"{factors=}")			##
-		return ["*", [parse(s) for s in factors]]
+		
+		# zwischen konstanten und funktionen unterscheiden, dann konstanten zsmmultiplizieren
+		consts, funcs = split_consts(factors, isfloat)
+
+		
+		consts = str(eval("*".join(consts))) if consts else ""
+		funcs = "*".join(funcs) if funcs else ""
+		print(f"45{consts=}, {funcs=}")	
+		return ["*", [eval("*".join(consts)), *[parse(s) for s in funcs]]] if consts and funcs else consts+funcs
+
+		
+				##
+		return ["*", [eval("*".join(constfactors)), *[parse(s) for s in funcfactors]]]
 	
 
 	if "/" in f:		
@@ -123,7 +147,7 @@ def parse(f):
 		return ["/", [parse(s) for s in div]]
 				
 	if "^" in f:
-		base, exp = replace_arg(f.split("^"), innerargs)
+		base, exp = replace_arg(f.split("^", 1), innerargs)
 		print(f"{base=}, {exp=}")			##
 		return ["^", [parse(base), parse(exp)]]
 
@@ -139,37 +163,57 @@ def parse(f):
 	
 	if f == "@":
 		return parse(innerargs[0])
-		
 
 
 
-["-", [1,2,3]]
+
+
+
+
+
+
 
 def write(f):
+	print(f"write: {f=}")
 	
 	if type(f) == list:
-		if f[0] in "+-*":		
-			args = [str(write(i)) for i in f[1]]
-			args = [i for i in args if i != "0"] if f[0] in "+-" else args
 
-			if f[0] == "*":
-				if "0" in args:
-					return "0"
-					
-				# for fac in f[1]:
-					# print(f"{fac=}")
-					# if type(fac) == list and fac[0] in "+-":
-						# print("yey")
-						# args[f[1].index(fac)] = f"({fac})"
-						
-				for fac in args:
-					if "+" in fac or "-" in fac:
-						args[args.index(fac)] = f"({fac})"
-						
-				while "1" in args:
-					args.remove("1")
+		if f[0] in "+-":
 			
-			return {"+":" + ", "-":" - ", "*":"*"}[f[0]].join(args)
+			args = [write(i) for i in f[1] if str(i) != "0"]
+			
+			print(f"sumargs: {args}")
+			
+			consts, funcs = split_consts(args, isfloat)
+			
+			print(f"{consts=}, {funcs=}")
+			
+			consts = eval(f[0].join([str(i) for i in consts]))
+			
+			if consts:
+				return {"+":" + ", "-":" - "}[f[0]].join([str(consts)]+funcs) if funcs else consts
+			else:
+				return  {"+":" + ", "-":" - "}[f[0]].join(funcs) if funcs else 0
+
+		
+		if f[0] == "*":
+			
+			args = []
+			for i in f[1]:
+				factor = str(write(i))
+
+				if factor == "0":
+					return 0
+				if type(i) == list and i[0] in "+-":
+					factor = f"({factor})"
+				if factor != "1":
+					args.append(factor)
+					
+			consts, funcs = split_consts(args, isfloat)
+			consts = str(eval("*".join(consts))) if consts else ""
+			funcs = "*".join(funcs) if funcs else ""
+ 			
+			return "*".join([consts, funcs]) if consts and funcs else consts+funcs
 				
 		if f[0] == "/":
 			num = f"({write(f[1][0])})" if type(f[1][0]) == list else f[1][0]
@@ -236,19 +280,25 @@ def diff(f, var = "x"):
 	
 	def isconst(a):
 		return not var in str(a)
-	
+
+# ['+', [['*', [['*', [['+', [['*', [1, ['ln', 'x']]], ['*', [['/', [1, 'x']], 'x']]]], ['^', ['x', 'x']]]], ['ln', 'x']]], ['*', [['/', [1, 'x']], ['^', ['x', 'x']]]]]]
+
+
 	if type(f) == list:
 		if f[0] == "*": #2*4*sinx*x
-			constfactors = [factor for factor in f[1] if isconst(factor)]
-			funcfactors = [factor for factor in f[1] if factor not in constfactors]
+			constfactors, funcfactors = split_consts(f[1], isconst)
 			
 			# ~ print(f"{constfactors=}, {funcfactors=}")
 
 			if len(funcfactors) == 1:
 				return ["*", [*constfactors, diff(funcfactors[0])]]
 			else:
-				return ["*", [*constfactors, ["+", [["*", [diff(f), *[g for g in funcfactors if g != f]]] for f in funcfactors]]]]
-	
+				if constfactors:
+					return ["*", [*constfactors, ["+", [["*", [diff(f), *[g for g in funcfactors if g != f]]] for f in funcfactors]]]]
+				else:
+					return ["+", [["*", [diff(f), *[g for g in funcfactors if g != f]]] for f in funcfactors]]
+
+
 		elif f[0] == "/":
 			if isconst(f[1][0]):							#case (k/u)' = k*(u^-1)'
 				return ["*", [f[1][0], diff(["^", [f[1][1], -1]])]]
@@ -256,7 +306,8 @@ def diff(f, var = "x"):
 				return ["/", [["-", [["*", [f[1][0], diff(f[1][1])]], ["*", [f[1][1], diff(f[1][0])]]]], ["^", [f[1][1], 2]]]]
 		
 		elif f[0] == "+":
-			return ["+", [diff(i) for i in f[1] if not isconst(i)]]			#(u+v)' = u' + v'
+			summands = [diff(i) for i in f[1] if not isconst(i)]
+			return ["+", summands] if len(summands) > 1 else summands[0] if summands else 0
 			
 		elif f[0] == "-":
 			return ["-", [diff(i) for i in f[1] if not isconst(i)]]			#(u-v)' = u' - v'
@@ -309,11 +360,14 @@ if __name__ == "__main__":
 	func = "as*x^3+x^a*bc"
 	func = "-sqrt(3*x)+3"
 	func = "-tan(x)*x^3"
-	func = "0+0"
-	func = "sihn(x)"
-	func = "x^abc+ass"
-	func = "arctanh(x)"
-	func = "1/7/x"
+	func = "3*4*x"
+	# func = "0+0"
+	# func = "sihn(x)"
+	# func = "x^abc+ass"
+	# func = "arctanh(x)"
+	# func = "1/7/x"
+	# func = "x^x^x"
+	# func = "2*x+3*x+34"
 	
 	print("PARSE\n\n")
 	f = Function(func)
@@ -328,7 +382,7 @@ if __name__ == "__main__":
 	print(f"{f.str = }\n")
 	
 	diffed = f.diff()
-	print(f"{diffed.tree = }\n")
+	print(f"\n\n{diffed.tree = }\n")
 	print(f"{diffed.str = }\n")
 	
 	
