@@ -12,6 +12,11 @@ from functions import *
 
 functions = ["sqrt", "exp", "ln", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh", "cosh", "sinh", "arccosh", "arcsinh", "arctanh"]
 alphabet = "qwertzuiopasdfghjklyxcvbnm"
+numbers = "0123456789"
+var = x = "x"
+
+
+
 
 def isfloat(n):
     try: 
@@ -20,8 +25,28 @@ def isfloat(n):
         return False
     return True
     
-numbers = "0123456789"
-var = x = "x"
+def prod(iterable):
+	prod = 1
+	for factor in iterable:
+		try:
+			prod *= int(factor)
+		except ValueError:
+			raise ValueError ("non-int factor found: "+factor)
+	return prod
+   
+def flint(x):
+	return float(x) if int(x) != float(x) else int(x)
+	
+def split_consts(f, test):
+	constants, functions = [], []
+	for arg in f:	
+		if test(arg):
+			constants.append(arg)
+		else:
+			functions.append(arg)
+	return constants, functions
+
+
 
 def inner_args(f):	# "f=3(x+4)(x+6^x)ln(x)^2" ---> args=['3', 'x+4', 'x+6^x', 'x'], f='3@@ln@^2'  
 
@@ -54,18 +79,11 @@ def replace_arg(f, innerargs):
 			fstr = fstr.replace("@", f"({innerargs[n]})", 1)
 			n += 1
 	return eval(fstr)
-	
-def flint(x):
-	return float(x) if int(x) != float(x) else int(x)
-	
-def split_consts(f, test):
-	constants, functions = [], []
-	for arg in f:	
-		if test(arg):
-			constants.append(arg)
-		else:
-			functions.append(arg)
-	return constants, functions
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~ PARSE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 
 def parse(f):
@@ -121,17 +139,14 @@ def parse(f):
 		factors = replace_arg(f.split("*"), innerargs)
 		
 		# zwischen konstanten und funktionen unterscheiden, dann konstanten zsmmultiplizieren
+		
 		consts, funcs = split_consts(factors, isfloat)
+		consts = [prod(consts)] if consts else []
+		factors = consts + [parse(s) for s in funcs]
 
-		
-		consts = str(eval("*".join(consts))) if consts else ""
-		funcs = "*".join(funcs) if funcs else ""
-		print(f"45{consts=}, {funcs=}")	
-		return ["*", [eval("*".join(consts)), *[parse(s) for s in funcs]]] if consts and funcs else consts+funcs
+		print(f"{factors=}")		
+		return ["*", factors] if len(factors) > 1 else factors[0] #if factors else 1
 
-		
-				##
-		return ["*", [eval("*".join(constfactors)), *[parse(s) for s in funcfactors]]]
 	
 
 	if "/" in f:		
@@ -167,9 +182,7 @@ def parse(f):
 
 
 
-
-
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~ WRITE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
@@ -183,7 +196,9 @@ def write(f):
 			args = [write(i) for i in f[1] if str(i) != "0"]
 			
 			print(f"sumargs: {args}")
-			
+			if not args:
+				return 0
+				
 			consts, funcs = split_consts(args, isfloat)
 			
 			print(f"{consts=}, {funcs=}")
@@ -210,11 +225,11 @@ def write(f):
 					args.append(factor)
 					
 			consts, funcs = split_consts(args, isfloat)
-			consts = str(eval("*".join(consts))) if consts else ""
-			funcs = "*".join(funcs) if funcs else ""
- 			
-			return "*".join([consts, funcs]) if consts and funcs else consts+funcs
-				
+			consts = [str(prod(consts))] if consts else []
+			# funcs = "*".join(funcs) if funcs else ""
+			
+			return "*".join(consts+funcs) if consts+funcs else 1
+	
 		if f[0] == "/":
 			num = f"({write(f[1][0])})" if type(f[1][0]) == list else f[1][0]
 			denom = f"({write(f[1][1])})" if type(f[1][1]) == list else f[1][1]
@@ -239,7 +254,7 @@ def write(f):
 
 
 
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~ DIFF ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 def diff(f, var = "x"):
@@ -288,7 +303,7 @@ def diff(f, var = "x"):
 		if f[0] == "*": #2*4*sinx*x
 			constfactors, funcfactors = split_consts(f[1], isconst)
 			
-			# ~ print(f"{constfactors=}, {funcfactors=}")
+			print(f"diff:{constfactors=}, {funcfactors=}")
 
 			if len(funcfactors) == 1:
 				return ["*", [*constfactors, diff(funcfactors[0])]]
@@ -331,19 +346,27 @@ def diff(f, var = "x"):
 
 
 
+
+
+
+
 class Function:
 	def __init__(self, inputfunc):
 		if type(inputfunc) == str:
 			self.str = inputfunc
+			print("\nPARSING STR..")
 			self.tree = parse(self.str)
+			print("\nWRITING TREE..")
 			self.str = write(self.tree)
 			self.lam = lambda x: eval(self.str.replace("^", "**"))
 		else:
 			self.tree = inputfunc
+			print("\nWRITING TREE..")
 			self.str = write(self.tree)
 			self.lam = lambda x: eval(self.str.replace("^", "**"))
 			
 	def diff(self, var = "x"):
+		print("DIFF FUNC..")
 		return Function(diff(self.tree, var))
 	
 	# def lam(self, var = "x"):
@@ -361,7 +384,7 @@ if __name__ == "__main__":
 	func = "-sqrt(3*x)+3"
 	func = "-tan(x)*x^3"
 	func = "3*4*x"
-	# func = "0+0"
+	func = "x+sin(x)+1"
 	# func = "sihn(x)"
 	# func = "x^abc+ass"
 	# func = "arctanh(x)"
@@ -369,12 +392,8 @@ if __name__ == "__main__":
 	# func = "x^x^x"
 	# func = "2*x+3*x+34"
 	
-	print("PARSE\n\n")
 	f = Function(func)
-	
 	baum = f.tree
-	
-	# print(f"\nf(x) = {func}\n\nTree: {baum}\n\nwrite: {f.str}\n\nf'(x): {diffed.tree}\n\nf'(x) = {diffed.str}")
 	
 	print()
 	print(f"{func = }\n")
