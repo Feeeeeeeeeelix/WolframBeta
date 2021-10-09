@@ -58,7 +58,7 @@ class Polynomial():
 
     def __add__(self, val):
         if isinstance(val, Polynomial):
-            if len(self.coeffs) > len(val.coeffs):
+            if len(self.coeffs) >= len(val.coeffs):
                 res = self.coeffs
                 for i in range(len(val.coeffs)):
                     res[i] += val.coeffs[i]
@@ -158,6 +158,6 @@ class Polynomial():
     
     
 p = Polynomial("x^2+3x-2")
-q = Polynomial("1")
+q = Polynomial("x")
 
-print(((p*q + 2*p) - q^4) + 4)  #leider ist a+b+c nicht definiert, da python nicht weiß, ob mein __add__ assoziativ ist.
+print(((p*q + 2*p) - q**4) + 4)  #leider ist a+b+c nicht definiert, da python nicht weiß, ob mein __add__ assoziativ ist.
