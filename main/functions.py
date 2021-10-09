@@ -206,10 +206,22 @@ def prim_factors(n):
     factors = []
     temp = n
 
-    for i in range(2, temp):
+    for i in range(2, sqrt(temp)+1):
 
         while temp % i == 0:
             temp = temp / i
             factors.append(i)
 
     return factors
+
+def partition(n):
+    part=[[1 if i == j or j == 0 else 0 for j in range(i+1)] for i in range(n+1)]
+
+    for i in range(1,n+1):
+        for j in range(1,i):
+            if i - j >= 0 and i - j >= j:
+                part[i][j] += part[i-j][j]
+            if i - 1 > 0 and j - 1 > 0:
+                part[i][j] += part[i-1][j-1]
+
+    return sum(part[n][k] for k in range(1,n+1))
