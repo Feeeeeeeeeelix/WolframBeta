@@ -155,9 +155,34 @@ class Polynomial():
         
     def derivative(self):
         return self.__class__([self.coeffs[i]*i     for i in range(1,len(self.coeffs))])
+
+
+def neville(list_of_pairs):    
+    n = len(list_of_pairs)
     
+    x = [term[0] for term in list_of_pairs]
+    y = [term[1] for term in list_of_pairs]
+
+    p = [[0 for j in range(n)] for i in range(n)]
+    
+    for i in range(n):
+        p[i][0] = y[i]
+
+    for j in range(1,n):
+        for i in range(n-j):
+            p[i][j] = 1/(x[i+j]-x[i])*(Polynomial([-x[i],1])*p[i+1][j-1]  - Polynomial([-x[i+j],1])*p[i][j-1])
+    
+    return p[0][n-1]
     
 p = Polynomial("x^2+3x-2")
 q = Polynomial("x")
 
 print(((p*q + 2*p) - q**4) + 4)  #leider ist a+b+c nicht definiert, da python nicht weiß, ob mein __add__ assoziativ ist.
+
+
+
+nev = neville([[1,1],[2,3],[4,-2]])  #Eindeutiges Polynom p zweiten Grades bestimmen mit p(1)=1, p(2)=3, p(4)=-2
+
+print(nev)
+print(nev(1),nev(2),nev(4)) #Überprüfung. Es ist korrekt :)
+    
