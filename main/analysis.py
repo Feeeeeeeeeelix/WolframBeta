@@ -76,12 +76,21 @@ def maximum(f,a,b):
     x = a
     max_fx = f.lam(x)
     while x < b:
+        x += (b-a)/n
         if f.lam(x) > max_fx:
             max_fx = f.lam(x)
-            max_x = x
-        else:
-            x+= (b-a)/n
-    
+            #max_x = x
+    return max_fx
+
+def minimum(f,a,b):
+    n=3000
+    x = a
+    min_fx = f.lam(x)
+    while x < b:
+        x+= (b-a)/n
+        if f.lam(x) < min_fx:
+            min_fx = f.lam(x)
+            #min_x = x
     return max_fx
 """
 def maximum(f,a,b):
@@ -98,7 +107,7 @@ def maximum(f,a,b):
             max_x = x
 
     return max_fx
-"""
+
 def minimum(f,a,b):
     #MAN MÜSSTE lokal um UNSTETIGKEITSSTELLEN ANALYSISEREN!
     extremstellen = [a,b]
@@ -112,7 +121,7 @@ def minimum(f,a,b):
             min_x = x
     
     return min_fx
-
+"""
 def riemann(f,a,b):
     n = 5000
     Int = 0
