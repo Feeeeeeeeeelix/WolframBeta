@@ -25,12 +25,13 @@ def calculate(userinput):
 		difftree = diffed.tree
 		diffstr = diffed.str
 
-		
-		print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+	
 		print(f"{userinput    = }")
 		print(f"\n{parsed       = }")
 		print(f"\n{difftree     = }")
 		print(f"\n{diffstr      = }")
+		print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+		
 		return diffstr
 	else:
 		return ""
@@ -75,7 +76,7 @@ def Create_Screen():
 	
 	
 		#Solve Button
-	solve_button = Button(root, text="=", font=("times", 24, "bold"), width=10, command=show_answer)
+	solve_button = Button(root, text="=", font=("Times", 24, "bold"), width=10, command=show_answer)
 	solve_button.grid(row=2, column=2)
 
 	

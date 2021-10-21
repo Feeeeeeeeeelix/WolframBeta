@@ -203,7 +203,7 @@ def write(f):
 			
 			print(f"{consts=}, {funcs=}")
 			
-			consts = eval(f[0].join([str(i) for i in consts]))
+			consts = eval(f[0].join([str(i) for i in consts])) if consts else 0
 			
 			if consts:
 				return {"+":" + ", "-":" - "}[f[0]].join([str(consts)]+funcs) if funcs else consts
@@ -384,7 +384,7 @@ if __name__ == "__main__":
 	func = "-sqrt(3*x)+3"
 	func = "-tan(x)*x^3"
 	func = "3*4*x"
-	func = "x+sin(x)+1"
+	func = "x+sin(x)"
 	# func = "sihn(x)"
 	# func = "x^abc+ass"
 	# func = "arctanh(x)"

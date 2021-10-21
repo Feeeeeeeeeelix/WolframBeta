@@ -171,12 +171,13 @@ def simpson_fehler(f,a,b):
     print(g.str)
     return abs(1/180*(b-a)*h**4*maximum(g,a,b))
 
-
-f = function("x^9*cos(x^2)^3")
-
-#print("trapez",trapez(f,0,10))
-#print("riemann",riemann(f,0,10))
-print("simpson",simpson(f,0,10))
-
-#print("t Fehler-abschätzung:",trapez_fehler(f,0,10))
-print("s Fehler-abschätzung:",simpson_fehler(f,0,10))
+if __name__ == "__main__":
+    f = function("x^9*cos(x^2)^3")
+    
+    #print("trapez",trapez(f,0,10))
+    #print("riemann",riemann(f,0,10))
+    print("simpson",simpson(f,0,10))
+    
+    #print("t Fehler-abschätzung:",trapez_fehler(f,0,10))
+    print("s Fehler-abschätzung:",simpson_fehler(f,0,10))
+    
