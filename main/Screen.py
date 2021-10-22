@@ -1,68 +1,20 @@
 from tkinter import *
-# from tkinter import ttk
-
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
 matplotlib.use('TkAgg')
-
 plt.rcParams["mathtext.fontset"] = "cm"
 
 
 
-# win = Tk()
-
-# # Set the size of the window
-# # win.geometry("700x350")
-
-# # Set the title of the window
-# # win.title("LaTex Viewer")
-
-# # Define a function to get the figure output
-# def graph(text):
-   # # Get the Entry Input
-   # tmptext = entry.get()
-   # tmptext = r"$"+tmptext+"$"
-   # # Clear any previous Syntax from the figure
-   # wx.clear()
-   # wx.text(0.2, 0.6, tmptext, fontsize = 20)
-   # canvas.draw()
-# # Create a Frame object
-# frame = Frame(win)
-# frame.pack()
-# # Create an Entry widget
-# var = StringVar()
-# entry = Entry(frame, width=70, textvariable=var)
-# entry.pack()
-
-# # Add a label widget in the frame
-# label = Label(frame)
-# label.pack()
-
-# # Define the figure size and plot the figure
-# fig = matplotlib.figure.Figure(figsize=(7, 4), dpi=200)
-# wx = fig.add_subplot(111)
-# canvas = FigureCanvasTkAgg(fig, master=label)
-# canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
-# canvas._tkcanvas.pack(side=TOP, fill=BOTH, expand=1)
-
-# # Set the visibility of the Canvas figure
-# wx.get_xaxis().set_visible(False)
-# wx.get_yaxis().set_visible(False)
-
-# entry.insert(0, r"\sin(x) = \sum_{n=0}^\infty (-1)^n\cdot  \frac{x^{2n+1} } {(2n+1)!}")
-# graph(None)
-
-# win.bind('<Return>', graph)
-# win.mainloop()
-
-
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+def show():
+	text = inputentry.get()
+	text = r"$"+text+"$"
+	wx.clear()
+	wx.text(0.1, 0.5, text, fontsize = 8)
+	canvas.draw()
 
 
 root = Tk()
@@ -71,61 +23,77 @@ sw = root.winfo_screenwidth()		#1680
 sh = root.winfo_screenheight()		#1050
 
 root.geometry(f"{sw}x{sh}")
-root.title("WolframBeta")
-
-title = Label(root, text="WolframBeta   " + r"$\pi = 3$")
-title.pack()
+root.title("Wolframbeta")
 
 
 
+	# Topframe
+topframe = Frame(root, borderwidth=3, relief="raised")
+topframe.place(y = 0, relx = 0.1, relheight = 0.1, relwidth=0.9)
+
+logopic = PhotoImage(file="logo.png").subsample(2,2)
+logo = Label(topframe, image=logopic)
+logo.place(relx = 0.45, rely = 0.35)
+
+
+	# Leftframe
+leftframe = Frame(root, borderwidth=3, bg="#1e3799")
+leftframe.place(y = 0, x = 0, relheight = 1, relwidth = 0.1)
+
+bttn1 = Button(leftframe, text = "Analysis", bg = "#1e3799", fg = "white", highlightthickness = 0, highlightbackground = "#1e3799")
+bttn1.place(rely = 0.001, x = 0, relwidth = 1, relheight = 0.09)
+
+bttn2 = Button(leftframe, text = "Algebra", bg = "#1e3799", fg = "white", highlightthickness = 0)
+bttn2.place(rely = 0.101, x = 0, relwidth = 1, relheight = 0.09)
+
+bttn3 = Button(leftframe, text = "Numbers", bg = "#1e3799", fg = "white")
+bttn3.place(rely = 0.201, x = 0, relwidth = 1, relheight = 0.09)
+
+
+	# Mittleframe
+mittleframe = Frame(root, borderwidth=3, relief="raised")
+mittleframe.place(rely = 0.1, relx = 0.1, relheight = 0.8, relwidth=0.9)
+
+
+
+
+inputframe = Frame(mittleframe, highlightbackground = "#1e3799", highlightthickness = 3)
+inputframe.place(relx = 0.1, rely = 0.2, relwidth = 0.3, relheight = 0.6)
+
+inputentry = Entry(inputframe)
+inputentry.place(x = 0, y = 0, relwidth = 1, relheight = 1)
+inputentry.insert(0, "\sin(x) = \sum_{n=0}^\infty (-1)^n\cdot \\frac{x^{2n+1}}{(2n+1)!}")
+
+
+equal_bttn = Frame(mittleframe)#, highlightbackground = "#1e3799", highlightthickness = 3)
+equal_bttn.place(relx = 0.45, rely = 0.45, relwidth = 0.1, relheight=0.1)
+bttn = Button(equal_bttn, text = "=", command = show, highlightbackground = "#1e3799", highlightthickness = 3)
+bttn.pack(expand=1, fill="both")
+
+outputframe = Frame(mittleframe, highlightbackground = "#1e3799", highlightthickness = 3)
+outputframe.place(relx = 0.6, rely = 0.2, relwidth = 0.3, relheight=0.6)
+
+fig = matplotlib.figure.Figure(figsize=(1,1), dpi=200)
+wx = fig.add_subplot(111)
+canvas = FigureCanvasTkAgg(fig, master=outputframe)
+canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=0)
+canvas._tkcanvas.pack(side=TOP, fill=BOTH, expand=1)
+wx.get_xaxis().set_visible(False)
+wx.get_yaxis().set_visible(False)
+
+
+show()
+
+	# Bottomframe
+bottomframe = Label(root, borderwidth=3, relief="raised")
+bottomframe.place(relx = 0.1, rely = 0.9, relwidth = 0.9, relheight = 0.1)
+
+exitbutton = Button(bottomframe, text = "Exit", command = exit, highlightthickness=1.5, highlightbackground="red")
+exitbutton.place(relx = 0.85, rely = 0.2, relwidth=0.1, relheight=0.6)
 
 
 
 
 
-
-
-"""
-for i in range(5):
-	root.rowconfigure(i, weight=1)
-	root.columnconfigure(i, weight=i%2+1)
-	
-	[Frame(root, borderwidth=0, relief="sunken").grid(row=i, column=j, sticky="news") for j in range(5)]
-
-
-	#Entry
-entry_frame = Frame(root, borderwidth=4, relief="raised")
-entry_frame.grid(row=1, column=1, sticky="news", rowspan=3)
-
-global entryspace
-entryspace = Entry(root, justify="center", font=(50))
-entryspace.grid(row=2, column=1, sticky="news", padx=10)
-
-Label(entry_frame, text="Input", font=("Times", 20, "bold"), height=2).pack()
-
-
-	#Solve Button
-solve_button = Button(root, text="=", font=("Times", 24, "bold"), width=10, command=show_answer)
-solve_button.grid(row=2, column=2)
-
-
-	#Output
-output_frame = Frame(root, borderwidth=4, relief="raised")
-output_frame.grid(row=1, column=3, sticky="news", rowspan=3)
-
-Label(output_frame, text="Ouput", font=("times", 20, "bold"), height=2).pack()
-Frame(root, bg="white").grid(row=2, column=3, sticky="news", padx=10)
-
-global userout_label
-userout_label = Label(root, bg="white", font=20)
-userout_label.grid(row=2, column=3)
-
-	
-	#Close
-close_button = Button(root, text ="Close", command=exit)
-close_button.grid(row=4, column=4)
-root.bind("<KP_Enter>", exit)
-root.bind("<Return>", show_answer)
-"""
-
+root.bind("<Return>", quit)
 root.mainloop()
