@@ -21,6 +21,9 @@ root = Tk()
 
 sw = root.winfo_screenwidth()		#1680
 sh = root.winfo_screenheight()		#1050
+sw = 700
+sh = 500
+
 
 root.geometry(f"{sw}x{sh}")
 root.title("Wolframbeta")
@@ -45,47 +48,59 @@ leftframe.place(y = 0, x = 0, relheight = 1, relwidth = 0.1)
 whitebg = Label(leftframe)
 whitebg.place(rely = 0.01, relx = 0.05, relwidth = 0.9, relheight = 0.29)
 
-class SelectionButtons:
-	def __init__(self, container, function, *names):
-		print(names)
-		for i, name in enumerate(names):
-			button = Button(container, text = name, bg = "#1e3799", fg = "white", highlightthickness = 0, bd = 0, activebackground="#0c2461", activeforeground="white", command = lambda: eval(f"{function}({i+1})"))
-			button.place(rely = i/10, x = 0, relwidth = 1, relheight = 0.099)
+sep = Label(leftframe, bg = "white")
+sep.place(x = 0, rely = 0.299, relwidth = 1, height = 2)
 
-
-
-bttn = SelectionButtons(leftframe, "select", "Analysis", "Algebra", "Numbers")
-
-# bttn1 = Button(leftframe, text = "Analysis", bg = "#1e3799", fg = "white", highlightthickness = 0, bd = 0, activebackground="#0c2461", activeforeground="white", command = lambda: select(1))
-# bttn1.place(rely = 0, x = 0, relwidth = 1, relheight = 0.099)
-
-# bttn2 = Button(leftframe, text = "Algebra", bg = "#1e3799", fg = "white", highlightthickness = 0, bd = 0, activebackground="#0c2461", activeforeground="white", command = lambda: select(2))
-# bttn2.place(rely = 0.1, x = 0, relwidth = 1, relheight = 0.099)
-
-# bttn3 = Button(leftframe, text = "Numbers", bg = "#1e3799", fg = "white", highlightthickness = 0, bd = 0, activebackground="#0c2461", activeforeground="white", command = lambda: select(3))
-# bttn3.place(rely = 0.2, x = 0, relwidth = 1, relheight = 0.099)
-
-selectframe = Frame(leftframe)
+selectframe = Frame(leftframe, bg="#1e3799")
 selectframe.place(x = 0, rely = 0.301, relwidth = 1, relheight = 0.69)
+
+
+def SelectionButtons(container, function, *names):
+	buttons = []
+	for i, name in enumerate(names):
+		button = Button(container, text = name, bg = "#1e3799", fg = "white", highlightthickness = 0, bd = 0, activebackground="#0c2461", activeforeground="white", command = lambda n=i+1: eval(function)(n))
+		buttons.append(button)
+		button.place(rely = i/10, x = 0, relwidth = 1, relheight = 0.0985)
+	return buttons
+	
+def clear_frame():
+	for widget in selectframe.winfo_children():
+		widget.destroy()
 
 selection = 0
 def select(topic):
 	global selection
 	selection = topic if selection != topic else 0
-	eval(["emptysel", "analysis", "algebra", "numbers"][selection])()
 	
-def analysis():
-	pass
-	
-def algebra():
-	print("algebra")
-	
-def numbers():
-	print("numbers")
+	clear_frame()
+	for i in range(3):
+		buttons[i]["bg"] = "#1e3799"
+		
+	if selection == 1:
+		buttons[0]["bg"] = "#0c2461"
+		SelectionButtons(selectframe, "analysis", "Ableitung", "Integral", "Grenzwert", "Graph")
+	if selection == 2:
+		buttons[1]["bg"] = "#0c2461"
+		SelectionButtons(selectframe, "algebra", "Matrizen")
+	if selection == 3:
+		buttons[2]["bg"] = "#0c2461"
+		SelectionButtons(selectframe, "numbers", "Zahlentheorie")
 
-def emptysel():
-	print("empty")
 
+	
+def analysis(n):
+	print("ana: ", n)
+	
+def algebra(n):
+	print("algebra: ", n)
+	
+def numbers(n):
+	print("numbers: ", n)
+
+
+	
+buttons = SelectionButtons(leftframe, "select", "Analysis", "Algebra", "Numbers")
+print(buttons)
 
 
 	# Mittleframe
