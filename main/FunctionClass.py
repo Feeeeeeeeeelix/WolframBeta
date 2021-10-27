@@ -10,9 +10,9 @@ from functions import *
 
 """
 
-functions = ["sqrt", "exp", "ln", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh", "cosh", "sinh", "arccosh", "arcsinh", "arctanh"]
-alphabet = "qwertzuiopasdfghjklyxcvbnm"
-numbers = "0123456789"
+FUNCTIONS = ["sqrt", "exp", "ln", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh", "cosh", "sinh", "arccosh", "arcsinh", "arctanh"]
+ALPHABET = "qwertzuiopasdfghjklyxcvbnm"
+NUMBERS = "0123456789"
 var = x = "x"
 
 
@@ -90,15 +90,17 @@ def parse(f):
 	f = f.replace(" ", "")	#Leerzeichen entfernen
 	f = f.replace("**", "^")
 	
-	print(f"parse:{f}")
+	# print(f"parse:{f}")
 	
 	if f[0] in "*/^":
-		raise Exception (f"first character cannot be '{f[0]}'")
+		raise SyntaxError (f"first character cannot be '{f[0]}'")
+	if f[-1] in "+-*/^":
+		raise SyntaxError (f"last character cannot be '{f[0]}'")
 	if isfloat(f):		# f = constante
 		return flint(f)
 	if f == var:		# f = var
 		return var
-	if all(i in alphabet for i in f):
+	if all(i in ALPHABET for i in f):
 		return f
 	
 	
@@ -108,28 +110,28 @@ def parse(f):
 	i = 0
 	while i < len(f)-1:
 		# print(f"{i = }, {f[i] =  }, {f[i+1]=}")
-		if f[i] in numbers+var+"@" and f[i+1] == "@" or f[i]=="@" and f[i+1]in alphabet:
+		if f[i] in NUMBERS+var+"@" and f[i+1] == "@" or f[i] in "@"+NUMBERS and f[i+1]in ALPHABET:
 			f = f[:i+1] + "*" + f[i+1:]
 			# print(f"mult: {f=}")
 		i += 1
 
 
 	
-	print(f"{f=}, {innerargs=}")
+	# print(f"{f=}, {innerargs=}")
 	
 	# Summe
 	if "+" in f:		
 		summands = replace_arg(f.split("+"), innerargs)	
-		print(f"{summands=}")				##
+		# print(f"{summands=}")				##
 		return ["+", [parse(s) for s in summands]]
 		
 	# Substraktion
 	if "-" in f:
 		subs = replace_arg(f.split("-"), innerargs)	
-		print(f"{subs=}")
+		# print(f"{subs=}")
 		
 		if len(subs) == 2 and subs[0] == "":
-			print("minus")
+			# print("minus")
 			return ["*", [-1, parse(subs[1])]]
 			
 		return ["-", [parse(s) for s in subs]]
@@ -144,14 +146,14 @@ def parse(f):
 		consts = [prod(consts)] if consts else []
 		factors = consts + [parse(s) for s in funcs]
 
-		print(f"{factors=}")		
+		# print(f"{factors=}")		
 		return ["*", factors] if len(factors) > 1 else factors[0] #if factors else 1
 
 	
 
 	if "/" in f:		
 		div = replace_arg(f.split("/"), innerargs)
-		print(f"{div=}")			##
+		# print(f"{div=}")			##
 		
 		if len(div) == 2:
 			return ["/", [parse(s) for s in div]]
@@ -163,13 +165,13 @@ def parse(f):
 				
 	if "^" in f:
 		base, exp = replace_arg(f.split("^", 1), innerargs)
-		print(f"{base=}, {exp=}")			##
+		# print(f"{base=}, {exp=}")			##
 		return ["^", [parse(base), parse(exp)]]
 
 	# Funktion
 	if f[0] in "sctela":
 		funcname = f[:-1]
-		if funcname in functions:
+		if funcname in FUNCTIONS:
 			return [funcname, parse(innerargs[0])]
 		else:
 			raise Exception("Unknown function: "+funcname)
@@ -187,7 +189,7 @@ def parse(f):
 
 
 def write(f):
-	print(f"write: {f=}")
+	# print(f"write: {f=}")
 	
 	if type(f) == list:
 
@@ -195,13 +197,13 @@ def write(f):
 			
 			args = [write(i) for i in f[1] if str(i) != "0"]
 			
-			print(f"sumargs: {args}")
+			# print(f"sumargs: {args}")
 			if not args:
 				return 0
 				
 			consts, funcs = split_consts(args, isfloat)
 			
-			print(f"{consts=}, {funcs=}")
+			# print(f"{consts=}, {funcs=}")
 			
 			consts = eval(f[0].join([str(i) for i in consts])) if consts else 0
 			
@@ -221,7 +223,7 @@ def write(f):
 					return 0
 				if type(i) == list and i[0] in "+-":
 					factor = f"({factor})"
-				if factor != "1":
+				if factor != "1" and factor != "ln(e)":
 					args.append(factor)
 					
 			consts, funcs = split_consts(args, isfloat)
@@ -236,16 +238,17 @@ def write(f):
 			return f"{num}/{denom}"
 		
 		if f[0] == "^":
-			base = f"({write(f[1][0])})" if type(f[1][0]) == list and f[1][0][0] not in functions else write(f[1][0])
+			base = f"({write(f[1][0])})" if type(f[1][0]) == list and f[1][0][0] not in FUNCTIONS else write(f[1][0])
 			power = f"({write(f[1][1])})" if type(f[1][1]) == list else f[1][1]
 		
 			try:
-				power = eval(power)
+				power = eval(power)# if "-" in power else power
+				# print("EVAL: ", power)
 			except:
 				pass
-			return f"{base}^{power}" if power != 1 else base if power != 0 else 1
+			return f"{base}^{power}" if power != 1 and power != "(1)" else base if int(power) != 0 else 1
 				
-		if f[0] in functions:
+		if f[0] in FUNCTIONS:
 			return f"{f[0]}({write(f[1])})"
 	else:
 		return f
@@ -257,8 +260,9 @@ def write(f):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~ DIFF ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-def diff(f, var = "x"):
-
+def diff(f, VAR = "x"):
+	print(f"diff: {f} {VAR=}")
+	
 	def funcderivative(f):
 	
 		dln = lambda u: ["/", [1, u]]
@@ -283,7 +287,7 @@ def diff(f, var = "x"):
 		darctanh = lambda u: ["/", [1, ["-", [1, ["^", [u, 2]]]]]]
 
 		u = f[1] #innere Funktion
-		du = diff(u)
+		du = diff(u, VAR)
 
 		if du == 0:
 			return 0
@@ -294,54 +298,54 @@ def diff(f, var = "x"):
 
 	
 	def isconst(a):
-		return not var in str(a)
+		return not VAR in str(a)
 
-# ['+', [['*', [['*', [['+', [['*', [1, ['ln', 'x']]], ['*', [['/', [1, 'x']], 'x']]]], ['^', ['x', 'x']]]], ['ln', 'x']]], ['*', [['/', [1, 'x']], ['^', ['x', 'x']]]]]]
-
+	if isconst(f):
+		return 0
 
 	if type(f) == list:
 		if f[0] == "*": #2*4*sinx*x
 			constfactors, funcfactors = split_consts(f[1], isconst)
 			
-			print(f"diff:{constfactors=}, {funcfactors=}")
+			# print(f"diff:{constfactors=}, {funcfactors=}")
 
 			if len(funcfactors) == 1:
-				return ["*", [*constfactors, diff(funcfactors[0])]]
+				return ["*", [*constfactors, diff(funcfactors[0], VAR)]]
 			else:
 				if constfactors:
-					return ["*", [*constfactors, ["+", [["*", [diff(f), *[g for g in funcfactors if g != f]]] for f in funcfactors]]]]
+					return ["*", [*constfactors, ["+", [["*", [diff(f, VAR), *[g for g in funcfactors if g != f]]] for f in funcfactors]]]]
 				else:
-					return ["+", [["*", [diff(f), *[g for g in funcfactors if g != f]]] for f in funcfactors]]
+					return ["+", [["*", [diff(f, VAR), *[g for g in funcfactors if g != f]]] for f in funcfactors]]
 
 
 		elif f[0] == "/":
 			if isconst(f[1][0]):							#case (k/u)' = k*(u^-1)'
-				return ["*", [f[1][0], diff(["^", [f[1][1], -1]])]]
+				return ["*", [f[1][0], diff(["^", [f[1][1], -1]], VAR)]]
 			else:		# (u/v)' = (v*u' - v'u)/v²
-				return ["/", [["-", [["*", [f[1][0], diff(f[1][1])]], ["*", [f[1][1], diff(f[1][0])]]]], ["^", [f[1][1], 2]]]]
+				return ["/", [["-", [["*", [f[1][0], diff(f[1][1], VAR)]], ["*", [f[1][1], diff(f[1][0], VAR)]]]], ["^", [f[1][1], 2]]]]
 		
 		elif f[0] == "+":
-			summands = [diff(i) for i in f[1] if not isconst(i)]
+			summands = [diff(i, VAR) for i in f[1] if not isconst(i)]
 			return ["+", summands] if len(summands) > 1 else summands[0] if summands else 0
 			
 		elif f[0] == "-":
-			return ["-", [diff(i) for i in f[1] if not isconst(i)]]			#(u-v)' = u' - v'
+			return ["-", [diff(i, VAR) for i in f[1] if not isconst(i)]]			#(u-v)' = u' - v'
 			
 		elif f[0] == "^":
 			base = f[1][0]
 			exp = f[1][1]
 			
-			if var in str(base) and not var in str(exp):	# x^a
-				return ["*", [exp, diff(base), ["^", [base, ["-", [exp, 1]]]]]]
-			if var in str(exp) and not var in str(base):	# a^x
-				return ["*", [["ln", base], diff(exp), ["^", [base, exp]]]]
+			if VAR in str(base) and not VAR in str(exp):	# x^a
+				return ["*", [exp, diff(base, VAR), ["^", [base, ["-", [exp, 1]]]]]]
+			if VAR in str(exp) and not VAR in str(base):	# a^x
+				return ["*", [["ln", base], diff(exp, VAR), ["^", [base, exp]]]]
 			else:	#x^x
-				return ["*", [diff(["*", [exp, ["ln", base]]]), ["^", [base, exp]]]]
+				return ["*", [diff(["*", [exp, ["ln", base]]], VAR), ["^", [base, exp]]]]
 				
-		elif f[0] in functions:
+		elif f[0] in FUNCTIONS:
 			return funcderivative(f)
 		
-	return 1 if f == var else 0
+	return 1 if f == VAR else 0
 	
 
 
@@ -354,25 +358,27 @@ class Function:
 	def __init__(self, inputfunc):
 		if type(inputfunc) == str:
 			self.str = inputfunc
-			print("\nPARSING STR..")
+			# print("\nPARSING STR..")
 			self.tree = parse(self.str)
-			print("\nWRITING TREE..")
+			# print("\nWRITING TREE..")
 			self.str = write(self.tree)
 			self.lam = lambda x: eval(self.str.replace("^", "**"))
 		else:
 			self.tree = inputfunc
-			print("\nWRITING TREE..")
+			# print("\nWRITING TREE..")
 			self.str = write(self.tree)
 			self.lam = lambda x: eval(self.str.replace("^", "**"))
 			
 	def diff(self, var = "x"):
-		print("DIFF FUNC..")
+		# print("\nDIFF FUNC..")
 		return Function(diff(self.tree, var))
 	
 	# def lam(self, var = "x"):
 		# return lambda var: eval(self.str.replace("^", "**"))
-
-
+	def __str__(self):
+		return self.str
+	def __repr__(self):
+		return self.str
 
 if __name__ == "__main__":
 	
@@ -402,7 +408,7 @@ if __name__ == "__main__":
 	
 	diffed = f.diff()
 	print(f"\n\n{diffed.tree = }\n")
-	print(f"{diffed.str = }\n")
+	print(f"{diffed = }\n")
 	
 	
 	# dst = parse(diffed.str)
