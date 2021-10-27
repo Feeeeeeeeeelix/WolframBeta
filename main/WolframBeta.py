@@ -10,10 +10,16 @@ from analysis import *
 
 
 def calculate(userinput):
+	f = f.replace(" ", "")	#Leerzeichen entfernen
+	f = f.replace("**", "^")
+	f = f.lower()
+
 	for i, j in enumerate(userinput):
 		if j not in "+-*/()^`' "+NUMBERS+ALPHABET:
 			return f"Invalid input: '{userinput[i]}'"
 			
+	
+	f = f.replace("pi", "π")
 
 	userinput = userinput.lstrip().rstrip()
 	answer = userinput
@@ -22,13 +28,15 @@ def calculate(userinput):
 	
 		#Derivative
 	def derivative(userinput, var):	
-		F = Function(userinput)
+		
 		print(userinput)
 		try:
-			answer = F.diff(var).str
-			return answer
-		except Exception as e:
-			return e
+			F = Function(userinput, var)
+			answer = F.diff().str
+			
+		except SyntaxError as error:
+			return error
+		return answer
 	
 	
 	if userinput.startswith("d/d"):
@@ -48,7 +56,11 @@ def calculate(userinput):
 		userinput = userinput[:-1]
 		return derivative(userinput, "x")
 	
-
+	try:
+		F = Function(userinput, "x")
+		answer = F
+	except SyntaxError as error:
+		return error
 				
 	return answer
 
@@ -62,7 +74,7 @@ def calculate(userinput):
 
 def show_answer(event=None):
 	
-	userinput = inputentry.get()
+	userinput = inputentry.get().lower()
 	answer = calculate(userinput)
 	
 	# text = r"${}$".format(answer)
@@ -82,7 +94,7 @@ root = Tk()
 
 sw = root.winfo_screenwidth()		#1680
 sh = root.winfo_screenheight()		#1050
-# sh, sw = 500, 700
+sh, sw = 500, 700
 
 
 root.geometry(f"{sw}x{sh}")
@@ -221,7 +233,7 @@ exitbutton = Button(bottomframe, text = "Exit", command = exit, highlightthickne
 exitbutton.place(relx = 0.85, rely = 0.2, relwidth=0.1, relheight=0.6)
 
 
-analysis(1)
+# analysis(1)
 
 
 # root.bind_all("<Return>", quit)

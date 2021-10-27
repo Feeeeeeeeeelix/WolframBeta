@@ -563,7 +563,7 @@ def verkettet(f,g):
     
 if __name__ == "__main__":
     f = function("-1-cos(-x-1)+3*-cos(x)-2")
-    f = function("x")
+    # f = function("x")
     print(f.str)
     print(f.list)
     
