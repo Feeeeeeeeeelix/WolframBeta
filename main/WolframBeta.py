@@ -10,31 +10,29 @@ from analysis import *
 
 
 def calculate(userinput):
-	f = f.replace(" ", "")	#Leerzeichen entfernen
-	f = f.replace("**", "^")
-	f = f.lower()
+	userinput = userinput.replace(" ", "").replace("**", "^").lower()
 
 	for i, j in enumerate(userinput):
-		if j not in "+-*/()^`' "+NUMBERS+ALPHABET:
+		if j not in ".,+-*/()^`' "+NUMBERS+ALPHABET:
 			return f"Invalid input: '{userinput[i]}'"
-			
 	
-	f = f.replace("pi", "π")
+	if userinput.count("(") != userinput.count(")"):
+		return "unmatches parentheses"
+	
+	
+	userinput = userinput.replace("pi", "π")
 
 	userinput = userinput.lstrip().rstrip()
 	answer = userinput
-
+	
 
 	
 		#Derivative
 	def derivative(userinput, var):	
-		
-		print(userinput)
 		try:
 			F = Function(userinput, var)
-			answer = F.diff().str
-			
-		except SyntaxError as error:
+			answer = F.diff().str		
+		except Exception as error:
 			return error
 		return answer
 	
@@ -58,10 +56,15 @@ def calculate(userinput):
 	
 	try:
 		F = Function(userinput, "x")
-		answer = F
-	except SyntaxError as error:
+		answer = F.str
+	except Exception as error:
 		return error
-				
+		
+	try:
+		answer += f"\n\n≈{eval(answer)}"
+	except Exception:
+		pass
+	
 	return answer
 
 	
