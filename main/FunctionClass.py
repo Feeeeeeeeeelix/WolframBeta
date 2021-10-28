@@ -6,8 +6,8 @@ from functions import *
 - 1/x*x -> 1
 """
 
-FUNCTIONS = ["sqrt", "exp", "ln", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh", "cosh", "sinh", "arccosh", "arcsinh", "arctanh"]
-ALPHABET = "qwertzuiopasdfghjklyxcvbnm"
+FUNCTIONS = ["sqrt", "exp", "ln", "log", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh", "cosh", "sinh", "arccosh", "arcsinh", "arctanh"]
+ALPHABET = "qwertzuiopasdfghjklyxcvbnmπ"
 NUMBERS = "0123456789"
 
 
@@ -110,7 +110,7 @@ def parse(f: str) -> list:
 	if f[0] in "*/^":
 		raise SyntaxError (f"first character cannot be '{f[0]}'")
 	if f[-1] in "+-*/^":
-		raise SyntaxError (f"last character cannot be '{f[0]}'")
+		raise SyntaxError (f"last character cannot be '{f[-1]}'")
 	
 	
 	f0 = f
@@ -209,7 +209,11 @@ def parse(f: str) -> list:
 	if f[0] in ALPHABET and f[-1] == "@":
 		funcname = f[:-1]
 		if funcname in FUNCTIONS:
-			return [funcname, parse(innerargs[0])]
+			args = innerargs[0].split(",")
+			if len(args) > 2:
+				raise TypeError (f"{funcname} takes at most 2 arguments")
+			return [funcname, *[parse(a) for a in args]]
+			
 		else:
 			raise SyntaxError("Unknown function: "+funcname)
 
@@ -226,75 +230,76 @@ def parse(f: str) -> list:
 
 
 def write(f: list) -> str:
+	
 	print(f"write: {f=}")
 	
-	if type(f) == list:
-
-		if f[0] == "+":
-			
-			args = [write(i) for i in f[1] if str(i) != "0"]
-			
-			print(f"sumargs: {args}")
-			if not args:
-				return 0
-				
-			consts, funcs = split_consts(args, isfloat)
-			print(f"{consts=}, {funcs=}")
-			
-			consts = [str(sum(int(c) for c in consts))] if consts else []
-			summands = consts + funcs
-			sum_ = summands[0]
-			for s in summands[1:]:
-				sum_ += f" + {s}" if s[0] != "-" else f" - {s[1:]}"
-			return sum_
-
-		
-		if f[0] == "*":
-			
-			args = []
-			for i in f[1]:
-				factor = str(write(i))
-
-				if factor == "0":
-					return 0
-				if type(i) == list and i[0] in "+-":
-					factor = f"({factor})"
-				if factor != "1" and factor != "ln(e)":
-					args.append(factor)
-					
-			consts, funcs = split_consts(args, isfloat)
-			consts = [str(prod(consts))] if consts else []
-			# funcs = "*".join(funcs) if funcs else ""
-			
-			return "*".join(consts+funcs) if consts+funcs else 1
-	
-		if f[0] == "/":			
-			num = f[1][0]
-			if type(num) == list:
-				num = f"({write(num)})" if num[0] == "+" else write(num)
-				
-			denom = f[1][1]
-			if type(denom) == list:
-				denom = f"({write(denom)})" if denom[0] in "+*/" else write(denom)
-			if not denom: raise ZeroDivisionError
-			return 1 if num == denom else f"{num}/{denom}"
-		
-		if f[0] == "^":
-			base = f"({write(f[1][0])})" if type(f[1][0]) == list and f[1][0][0] not in FUNCTIONS else write(f[1][0])
-			power = f"({write(f[1][1])})" if type(f[1][1]) == list else f[1][1]
-			print(f"{base=}, {power=}")
-			try:
-				
-				power = eval(power)# if "-" in power else power
-				print("EVAL: ", power)
-			except:
-				pass
-			return f"{base}^{power}" if power != 1 and power != "(1)" else base if int(power) != 0 else 1
-				
-		if f[0] in FUNCTIONS:
-			return f"{f[0]}({write(f[1])})"
-	else:
+	if type(f) != list:
 		return f
+
+	if f[0] == "+":
+		
+		args = [write(i) for i in f[1] if str(i) != "0"]
+		
+		print(f"sumargs: {args}")
+		if not args:
+			return 0
+			
+		consts, funcs = split_consts(args, isfloat)
+		print(f"{consts=}, {funcs=}")
+		
+		consts = [str(sum(int(c) for c in consts))] if consts else []
+		summands = consts + funcs
+		sum_ = summands[0]
+		for s in summands[1:]:
+			sum_ += f" + {s}" if s[0] != "-" else f" - {s[1:]}"
+		return sum_
+
+	
+	if f[0] == "*":
+		
+		args = []
+		for i in f[1]:
+			factor = str(write(i))
+
+			if factor == "0":
+				return 0
+			if type(i) == list and i[0] in "+-":
+				factor = f"({factor})"
+			if factor != "1" and factor != "ln(e)":
+				args.append(factor)
+				
+		consts, funcs = split_consts(args, isfloat)
+		consts = [str(prod(consts))] if consts else []
+		
+		return "*".join(consts+funcs) if consts+funcs else 1
+
+	if f[0] == "/":			
+		num = f[1][0]
+		if type(num) == list:
+			num = f"({write(num)})" if num[0] == "+" else write(num)
+			
+		denom = f[1][1]
+		if type(denom) == list:
+			denom = f"({write(denom)})" if denom[0] in "+*/" else write(denom)
+		if not denom: raise ZeroDivisionError
+		return 1 if num == denom else f"{num}/{denom}"
+	
+	if f[0] == "^":
+		base = f"({write(f[1][0])})" if type(f[1][0]) == list and f[1][0][0] not in FUNCTIONS else write(f[1][0])
+		power = f"({write(f[1][1])})" if type(f[1][1]) == list else f[1][1]
+		print(f"{base=}, {power=}")
+		try:
+			
+			power = eval(power)# if "-" in power else power
+			print("EVAL: ", power)
+		except:
+			pass
+		return f"{base}^{power}" if power != 1 and power != "(1)" else base if int(power) != 0 else 1
+			
+	if f[0] in FUNCTIONS:
+		args = ", ".join([str(write(arg)) for arg in f[1:]])
+		return f"{f[0]}({args})"
+
 		
 
 
@@ -309,7 +314,7 @@ def diff(f: list) -> list:
 	def funcderivative(f):
 	
 		dln = lambda u: ["/", [1, u]]
-		dlog = lambda u: ["/", [1, u]]
+		dlog = lambda u, base: ["/", [1, ["*", [u, ["ln", base]]]]]
 		dexp = lambda u: ["exp", u]
 		dsqrt = lambda u: ["/", [1, ["*", [2, ["sqrt", u]]]]]
 		
@@ -331,69 +336,77 @@ def diff(f: list) -> list:
 
 		u = f[1] #innere Funktion
 		du = diff(u)
+		
+		second = None
+		if len(f) == 3:
+			second = f[2]
+		elif f[0] == "log": #falls basis nicht gegeben
+			second = "e"
+		elif f[0] == "root":
+			second = 2
 
 		if du == 0:
 			return 0
 		elif du == 1:
-			return eval(f"d{f[0]}")(u)	
+			return eval(f"d{f[0]}")(u, second) if second else eval(f"d{f[0]}")(u)
 		else:
-			return ["*", [du, eval("d"+f[0])(u)]]
+			return ["*", [du, eval("d"+f[0])(u, second)]] if second else["*", [du, eval("d"+f[0])(u)]]
 
 	
 	def isconst(a):
-		return not VAR in str(a)
+		return VAR not in str(a)
 
 	if isconst(f):
 		return 0
 
-	if type(f) == list:
-		if f[0] == "*": #2*4*sinx*x
-			constfactors, funcfactors = split_consts(f[1], isconst)
-			
-			print(f"diff:{constfactors=}, {funcfactors=}")
 
-			
-			if len(funcfactors) > 1:
-				fpairs = []
-				for i in range(len(funcfactors)): #funktionen können gleich sein, also mit index loopen
-					fpairs.append(["*", [diff(funcfactors[i]), *funcfactors[:i], *funcfactors[i+1:]]])
-				funcfactors = ["+", fpairs]
-			else:
-				funcfactors = diff(funcfactors[0])
-
-				
-			print(funcfactors)
-			return ["*", [*constfactors, funcfactors]] if constfactors else funcfactors
-
-
-		elif f[0] == "/":
-			if isconst(f[1][0]):			# (k/u)' = (-1*k*du)/u^2
-				return ["/", [["*", [-1, diff(f[1][1]), f[1][0]]], ["^", [f[1][1], 2]]]]
-			elif isconst(f[1][1]):			# (u/k)' = u'/k
-				return ["/", [diff(f[1][0]), f[1][1]]]
-			else:							# (u/v)' = (v*u' - v'u)/v²
-				return ["/", [["+", [["*", [diff(f[1][0]), f[1][1]]], ["*", [-1, diff(f[1][1]), f[1][0]]]]], ["^", [f[1][1], 2]]]]
+	if type(f) != list:
+		return 1 if f == VAR else 0
+	
+	
+	if f[0] == "*":
+		constfactors, funcfactors = split_consts(f[1], isconst)
 		
-		elif f[0] == "+":
-			summands = [diff(i) for i in f[1] if not isconst(i)]
-			return ["+", summands] if len(summands) > 1 else summands[0] if summands else 0
-			
-			
-		elif f[0] == "^":
-			base = f[1][0]
-			exp = f[1][1]
-			
-			if VAR in str(base) and not VAR in str(exp):	# x^a
-				return ["*", [exp, diff(base), ["^", [base, ["+", [exp, -1]]]]]]
-			if VAR in str(exp) and not VAR in str(base):	# a^x
-				return ["*", [["ln", base], diff(exp), ["^", [base, exp]]]]
-			else:	#x^x
-				return ["*", [diff(["*", [exp, ["ln", base]]]), ["^", [base, exp]]]]
-				
-		elif f[0] in FUNCTIONS:
-			return funcderivative(f)
+		print(f"diff:{constfactors=}, {funcfactors=}")
+
 		
-	return 1 if f == VAR else 0
+		if len(funcfactors) > 1:
+			fpairs = [["*", [diff(funcfactors[i]), *funcfactors[:i], *funcfactors[i+1:]]] for i in range(len(funcfactors))]
+			funcfactors = ["+", fpairs]
+		else:
+			funcfactors = diff(funcfactors[0])
+
+		print(f"diff:{constfactors=}, {funcfactors=}")
+		return ["*", [*constfactors, funcfactors]] if constfactors else funcfactors
+
+
+	elif f[0] == "/":
+		if isconst(f[1][0]):			# (k/u)' = (-1*k*du)/u^2
+			return ["/", [["*", [-1, diff(f[1][1]), f[1][0]]], ["^", [f[1][1], 2]]]]
+		elif isconst(f[1][1]):			# (u/k)' = u'/k
+			return ["/", [diff(f[1][0]), f[1][1]]]
+		else:							# (u/v)' = (v*u' - v'u)/v²
+			return ["/", [["+", [["*", [diff(f[1][0]), f[1][1]]], ["*", [-1, diff(f[1][1]), f[1][0]]]]], ["^", [f[1][1], 2]]]]
+	
+	elif f[0] == "+":
+		summands = [diff(i) for i in f[1] if not isconst(i)]
+		return ["+", summands] if len(summands) > 1 else summands[0] if summands else 0
+		
+		
+	elif f[0] == "^":
+		base = f[1][0]
+		exp = f[1][1]
+		
+		if VAR in str(base) and not VAR in str(exp):	# x^a
+			return ["*", [exp, diff(base), ["^", [base, ["+", [exp, -1]]]]]]
+		if VAR in str(exp) and not VAR in str(base):	# a^x
+			return ["*", [["ln", base], diff(exp), ["^", [base, exp]]]]
+		else:	#x^x
+			return ["*", [diff(["*", [exp, ["ln", base]]]), ["^", [base, exp]]]]
+			
+	elif f[0] in FUNCTIONS:
+		return funcderivative(f)
+		
 	
 
 
@@ -450,6 +463,7 @@ if __name__ == "__main__":
 	func = "2*x*sin(x)*x"
 	func = "2.4*4*x*45"
 	func = "2+3+sin(2x+1-1)+sin(2x+0)"
+	func = "log(-4, 10)x"
 
 
 	
