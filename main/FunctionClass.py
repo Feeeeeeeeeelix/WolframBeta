@@ -3,37 +3,40 @@ from functions import *
 """TO DO:
 
 - Vereinfachen
-- Parser mit "-" kompatibel ["-",[1,2,3]]
 - 1/x*x -> 1
 """
 
 FUNCTIONS = ["sqrt", "exp", "ln", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh", "cosh", "sinh", "arccosh", "arcsinh", "arctanh"]
 ALPHABET = "qwertzuiopasdfghjklyxcvbnm"
 NUMBERS = "0123456789"
-# var = x = "x"
 
 
 
 
-def isfloat(n):
+def isfloat(n: str or int or float) -> bool:
     try: 
         float(n)
     except ValueError: 
         return False
     return True
-    
+
+
 def prod(iterable):
 	prod = 1
 	for factor in iterable:
 		try:
-			prod *= int(factor)
-		except ValueError:
-			raise ValueError ("non-int factor found: "+factor)
+			prod *= flint(factor)
+		except ValueError as ve:
+			raise ve #ValueError ("non-float factor found: "+factor)
 	return prod
 
-def flint(x):
-	return float(x) if int(x) != float(x) else int(x)
-	
+
+def flint(x: int or float) -> int if int else float:
+	x = float(x)
+	return x if int(x) != x else int(x)
+
+
+
 def split_consts(f, test):
 	constants, functions = [], []
 	for arg in f:	
@@ -44,8 +47,8 @@ def split_consts(f, test):
 	return constants, functions
 
 
-
-def inner_args(f):	# "f=3(x+4)(x+6^x)ln(x)^2" ---> args=['3', 'x+4', 'x+6^x', 'x'], f='3@@ln@^2'  
+def extract_args(f):	
+	# f = "3(x+4)(x+6^x)ln(x)^2" -->  f = "3@@ln@^2", args = ['3', 'x+4', 'x+6^x', 'x']
 
 	def find_arg(f, i):
 		arg, p = "", 0
@@ -67,8 +70,10 @@ def inner_args(f):	# "f=3(x+4)(x+6^x)ln(x)^2" ---> args=['3', 'x+4', 'x+6^x', 'x
 		f = f.replace(f"({arg})", "@")
 		
 	return f, args
-	
-def replace_arg(f, innerargs):
+
+
+def insert_args(f, innerargs):
+	# f = "3@@ln@^2", innerargs = ['3', 'x+4', 'x+6^x', 'x'] -->   f = "3(x+4)(x+6^x)ln(x)^2"
 	if innerargs:
 		n = 0
 		fstr = str(f)
@@ -87,26 +92,32 @@ def replace_arg(f, innerargs):
 
 
 
-def parse(f):
-	f = f.replace(" ", "")
-	
+def parse(f: str) -> list:
 	print(f"parse:{f}")
 	
-	if isfloat(f):		# f = constante
+	# Leerzeichen entfernen
+	f = f.replace(" ", "")
+	
+	
+	if isfloat(f):
+		# f = constante
 		return flint(f)
-	if f[0] in "*/^":
-		raise SyntaxError (f"first character cannot be '{f[0]}'")
-	if f[-1] in "+-*/^":
-		raise SyntaxError (f"last character cannot be '{f[0]}'")
 	# if f == "e" or f == "π":
 		# return 3
 	if f in ALPHABET:
 		return f
 		
+	if f[0] in "*/^":
+		raise SyntaxError (f"first character cannot be '{f[0]}'")
+	if f[-1] in "+-*/^":
+		raise SyntaxError (f"last character cannot be '{f[0]}'")
+	
+	
 	f0 = f
-	f, innerargs = inner_args(f)	#klammern und ihr inneres ersetzen
+	f, innerargs = extract_args(f)	#klammern und ihr inneres ersetzen
 	
 	if f == "@":
+		# unnötige klammer
 		return parse(innerargs[0])
 
 
@@ -133,48 +144,50 @@ def parse(f):
 			f = f[:i] + "+" + f[i:]
 		
 
-	
+	def find_repeated_args(args: list, operation) -> list:
+		arg_list = []
+		for arg in args:
+			count = args.count(arg)
+			if count > 1:
+				arg_list.append(["^", [arg, count]]) if operation == "mult" else arg_list.append(["*", [count, arg]])
+				while arg in args:
+					args.remove(arg)
+			else:
+				arg_list.append(arg)
+		return arg_list
 	
 
 	if "+" in f:		
-		summands = replace_arg(f.split("+"), innerargs)
+		summands = insert_args(f.split("+"), innerargs)
 
 		consts, funcs = split_consts(summands, isfloat)
-		consts = [sum([flint(s) for s in consts])] if consts else []
-		summands = consts + [parse(s) for s in funcs]
+		consts = sum([flint(s) for s in consts])
+		consts = [str(consts)] if consts else []
 
+		summands = [parse(s) for s in consts + funcs]
+		summands = find_repeated_args(summands, "sum") if len(summands) > 2 else summands
+		
+		
 		print(f"{summands=}, {consts = }, {funcs = }")				##
-		return ["+", summands] if len(summands) > 1 else summands[1]
+		return ["+", summands] if len(summands) > 1 else summands[0]
 
 
 	if "*" in f:		
-		factors = replace_arg(f.split("*"), innerargs)
+		factors = insert_args(f.split("*"), innerargs)
 
 		consts, funcs = split_consts(factors, isfloat)
-		consts = [prod(consts)] if consts else []
-	
-		factors_ = {}
-		for f in funcs:
-			if f in factors_:
-				factors_[f] += 1
-			else:
-				factors_[f] = 1
-				
-		factors = consts
-		for s in factors_:
-			if factors_[s] > 1:
-				factors.append(["^", [parse(s), factors_[s]]])
-			else:
-				factors.append(parse(s))
+		consts = prod(consts)
+		consts = [str(consts)] if consts else []
 		
-		# factors = consts + funcs if consts != [1] else funcs
-
-		print(f"{factors=}")		
-		return ["*", factors] if len(factors) > 1 else factors[0] if 0 not in factors else 0
+		factors = [parse(f) for f in consts+funcs]
+		factors = find_repeated_args(factors, "mult") if len(factors) > 2 else factors
+		
+		print(f"{factors=}, {consts = }, {funcs = }")		
+		return ["*", factors] if len(factors) > 1 else factors[0]  if 0 not in factors else 0
 
 	
 	if "/" in f:		
-		div = replace_arg(f.split("/", 1), innerargs)
+		div = insert_args(f.split("/", 1), innerargs)
 		print(f"{div = }")
 	
 		num, denom = parse(div[0]), parse(div[1])
@@ -183,7 +196,7 @@ def parse(f):
 
 	
 	if "^" in f:
-		base, exp = replace_arg(f.split("^", 1), innerargs)
+		base, exp = insert_args(f.split("^", 1), innerargs)
 		print(f"{base=}, {exp=}")			##
 		return ["^", [parse(base), parse(exp)]]
 
@@ -212,7 +225,7 @@ def parse(f):
 
 
 
-def write(f):
+def write(f: list) -> str:
 	print(f"write: {f=}")
 	
 	if type(f) == list:
@@ -290,7 +303,7 @@ def write(f):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~ DIFF ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-def diff(f):
+def diff(f: list) -> list:
 	print(f"diff: {f}")
 	
 	def funcderivative(f):
@@ -390,25 +403,20 @@ def diff(f):
 
 
 class Function:
-	def __init__(self, inputfunc, var):
+	def __init__(self, inputfunc: str or list, var: str):
 		global VAR
 		VAR = var
 		if type(inputfunc) == str:
 			self.str = inputfunc
-			
 			print("\nPARSING STR..")
 			self.tree = parse(self.str)
-			
 			print("\nWRITING TREE..")
 			self.str = write(self.tree)
-		
 			self.lam = lambda x: eval(self.str.replace("^", "**"))
 		else:
 			self.tree = inputfunc
-			
 			print("\nWRITING TREE..")
 			self.str = write(self.tree)
-			
 			self.lam = lambda x: eval(self.str.replace("^", "**"))
 			
 	def diff(self):
@@ -440,6 +448,8 @@ if __name__ == "__main__":
 	# func = "--1"
 	func = "-2cos(x)-3x+e^-3x"
 	func = "2*x*sin(x)*x"
+	func = "2.4*4*x*45"
+	func = "2+3+sin(2x+1-1)+sin(2x+0)"
 
 
 	
