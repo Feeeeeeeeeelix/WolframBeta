@@ -9,6 +9,7 @@ from analysis import *
 
 
 
+
 def calculate(userinput):
 	userinput = userinput.replace(" ", "").replace("**", "^").lower()
 
