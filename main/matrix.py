@@ -48,7 +48,9 @@ class Matrix():
         
             def __rmul__(self, val):
                 return self.__class__([val * self.vector[i] for i in range(len(self))])
-        
+            
+            def __mul__(self, val):
+                return self.__class__([val * self.vector[i] for i in range(len(self))])
         
             def __neg__(self):
                 return -1*self
@@ -65,13 +67,19 @@ class Matrix():
         self.cols = len(args[0])
 
     def __getitem__(self, i):
-        return self.row[i]
+        try:
+            return self.row[i]
+        except:
+            print("Der gegebene Index ist falsch")
 
     def __setitem__(self, idx, val):
-        if len(val) == self.cols:
-            self.row[idx] = val
-        else:
-            raise ValueError
+        try:
+            if len(val) == self.cols:
+                self.row[idx] = val
+            else:
+                raise ValueError
+        except:
+            print("Der gegebene Index ist falsch, oder die gegebene Zeile nicht korrekt formatiert")
 
     def __str__(self):
         text = ""
@@ -89,14 +97,17 @@ class Matrix():
 
 
     def __add__(self,val):
-        if self.rows == val.rows and self.cols == val.cols:
-            return self.__class__([[self[i][j] + val[i][j] for j in range(self.cols)] for i in range(self.rows)])
-        else:
-            raise ValueError
-
-    def __rmul__(self,val):
+        try:
+            if self.rows == val.rows and self.cols == val.cols:
+                return self.__class__([[self[i][j] + val[i][j] for j in range(self.cols)] for i in range(self.rows)])
+            else:
+                raise ValueError
+        except:
+            print("Die gegebenen Matrizen können nicht addiert werden")
+            
+    def __rmul__(self, val):
         return self.__class__([[val * self[i][j] for j in range(self.cols)] for i in range(self.rows)])
-
+    
     def __neg__(self):
         return -1*self
 
@@ -107,10 +118,17 @@ class Matrix():
         return self.matrix == val.matrix
 
     def __mul__(self, val):
-        if self.cols == val.rows:
-            return self.__class__([[sum(self[i][k]*val[k][j] for k in range(self.cols)) for j in range(val.cols)] for i in range(self.rows)])
-        else:
-            raise ValueError
+        try:
+            if type(val) == float or type(val) == int:
+                return self.__class__([[val * self[i][j] for j in range(self.cols)] for i in range(self.rows)])
+            
+            elif self.cols == val.rows:
+                return self.__class__([[sum(self[i][k]*val[k][j] for k in range(self.cols)) for j in range(val.cols)] for i in range(self.rows)])
+            
+            else:
+                raise ValueError
+        except:
+            print("Die Matrizen sind nicht kompatibel")
 
 
 
@@ -170,7 +188,7 @@ class Matrix():
         return self*self
 
     def __pow__(self, n):
-        return self if n == 1 else  (A ** (n/2)).sq() if n % 2 == 0 else A * (A ** (n-1))
+        return self if n == 1 else  (self ** (n/2)).sq() if n % 2 == 0 else self * (self ** (n-1))
     
     def norm(self):
         return max(sum(line) for line in self.row)  #Zeilensummen-Norm
@@ -197,12 +215,12 @@ class Matrix():
             print("Die Matrix muss quadratisch sein!")
     
     def lu_solve(self, b):
-        def upper_triangle_solve(self, b):
+        def upper_triangle_solve(A, b):
             try:
-                x = Matrix.Zero(A.cols, 1)
+                x = Matrix.Zero(b.rows, 1)
                 for i in range(b.rows - 1, -1, -1):
-                    summe = sum(self[i][j] * x[j][0] for j in range(i + 1, b.rows))
-                    x[i][0] = ((b[i][0] - summe) / self[i][i])
+                    summe = sum(A[i][j] * x[j][0] for j in range(i + 1, b.rows))
+                    x[i][0] = ((b[i][0] - summe) / A[i][i])
                 return x
             
             except:
@@ -213,8 +231,8 @@ class Matrix():
                 x = Matrix.Zero(b.rows, 1)
                 
                 for i in range(0, b.rows):
-                    summe = sum(self[i][j] * x[j][0] for j in range(0, i))
-                    x[i][0] = ((b[i][0] - summe) / self[i][i])
+                    summe = sum(A[i][j] * x[j][0] for j in range(0, i))
+                    x[i][0] = ((b[i][0] - summe) / A[i][i])
                 return x
             
             except:
@@ -232,26 +250,21 @@ class Matrix():
             print("LU Zerlegung nicht möglich")
     
 v = Matrix([[2,3,9]]) #Zeilenvektor
-w = Matrix([[2],[2]]) #Spaltenvektor
+w = Matrix([[1],[2],[3],[4]]) #Spaltenvektor
 
 B = Matrix([[1,2],[2,3]])
 A = Matrix([[0.6,.5],[0.9,.5]])
 
-C = Matrix.Random(6,6,-4,4)
-D = Matrix.RandomSym(2,2,-20,30)
-
+C = Matrix.Random(4,4,-4,4)
+D = Matrix.RandomSym(4,4,-20,30)
 
 print(C)
+print(w)
 
-print(C.lu()[0])
-print(C.lu()[1])
+print("-----")
+print("x=")
+print(C.lu_solve(w))
 
-print("---------")
-print(C.lu()[0] * C.lu()[1])
-
-
-
-
-
-
-
+print("---"*10)
+print("Test:")
+print(C * C.lu_solve(w))
