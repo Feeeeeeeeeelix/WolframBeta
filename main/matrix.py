@@ -1,5 +1,6 @@
 from random import randint
 from functions import sqrt
+from MatriX import cholesky, cholesky_solve
 
 def rint(x):
     if float(x) == int(x):
@@ -37,11 +38,7 @@ class Matrix():
         
             def __setitem__(self, idx, val):
                 self.vector[idx] = val
-            
-            def __iter__(self): # iterate over all keys
-                for x in self.vector:
-                    yield x 
-            
+
             def __len__(self):
                 return self.rows
         
@@ -86,8 +83,7 @@ class Matrix():
         except:
             print("Der gegebene Index ist falsch, oder die gegebene Zeile nicht korrekt formatiert")
     
-    def __iter__(self):
-        return self.row 
+
         
     def __str__(self):
         text = ""
@@ -290,8 +286,44 @@ class Matrix():
         else:
             print("Die Matrix muss quadratisch sein! Cholesky nicht anwendbar.")
     
+    def cholesky_solve(self,b):
+        def upper_triangle_solve(A, b):
+            try:
+                x = Matrix.Zero(b.rows, 1)
+                for i in range(b.rows - 1, -1, -1):
+                    summe = sum(A[i][j] * x[j][0] for j in range(i + 1, b.rows))
+                    x[i][0] = ((b[i][0] - summe) / A[i][i])
+                return x
+            
+            except:
+                print("A ist nicht regulär!")
+                
+        def lower_triangle_solve(A, b):
+            try:
+                x = Matrix.Zero(b.rows, 1)
+                
+                for i in range(0, b.rows):
+                    summe = sum(A[i][j] * x[j][0] for j in range(0, i))
+                    x[i][0] = ((b[i][0] - summe) / A[i][i])
+                return x
+            
+            except:
+                print("A ist nicht regulär!")
+        
+        
+        try:
+            L = self.cholesky()
+
+            y = lower_triangle_solve(L, b)
+            x = upper_triangle_solve(L.T(), y)
+            
+            return x
+        except:
+            print("LU Zerlegung nicht möglich")
+        
+    
 v = Matrix([[2,3,9]]) #Zeilenvektor
-w = Matrix([[1],[2],[3],[4]]) #Spaltenvektor
+w = Matrix([[1],[2],[3]]) #Spaltenvektor
 
 B = Matrix([[1,2],[2,3]])
 A = Matrix([[0.6,.5],[0.9,.5]])
@@ -301,12 +333,15 @@ D = Matrix.RandomSym(4,-20,30)
 
 P = Matrix([[9,3,5],[3,5,3],[5,3,7]])  #positiv definite symmetrische Matrix   --> cholesky anwedbar
 
-
 print(P)
+
+print(w)
+
+print("---"*10)
+
 print(P.cholesky())
-print("----")
-print(P.cholesky() * P.cholesky().T())
+print(P*(P.cholesky_solve(w)))
 
-print(P.det_lu())
 
-#print(P[0:2]) müsste verschönert werden
+
+
