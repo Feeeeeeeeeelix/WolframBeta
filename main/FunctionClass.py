@@ -1,15 +1,18 @@
 from functions import *
 
+
 """TO DO:
 
 - Vereinfachen
 - 1/x*x -> 1
+- definitionsmenge bei funktionen beachten und bei ungültigen werten Exception raisen
+
 """
+
 
 FUNCTIONS = ["sqrt", "exp", "ln", "log", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh", "cosh", "sinh", "arccosh", "arcsinh", "arctanh"]
 ALPHABET = "qwertzuiopasdfghjklyxcvbnmπ"
 NUMBERS = "0123456789"
-
 
 
 
@@ -21,6 +24,7 @@ def isfloat(n: str or int or float) -> bool:
     return True
 
 
+
 def prod(iterable):
 	prod = 1
 	for factor in iterable:
@@ -29,6 +33,7 @@ def prod(iterable):
 		except ValueError as ve:
 			raise ve #ValueError ("non-float factor found: "+factor)
 	return prod
+
 
 
 def flint(x: int or float) -> int if int else float:
@@ -45,6 +50,7 @@ def split_consts(f, test):
 		else:
 			functions.append(arg)
 	return constants, functions
+
 
 
 def extract_args(f):	
@@ -72,6 +78,7 @@ def extract_args(f):
 	return f, args
 
 
+
 def insert_args(f, innerargs):
 	# f = "3@@ln@^2", innerargs = ['3', 'x+4', 'x+6^x', 'x'] -->   f = "3(x+4)(x+6^x)ln(x)^2"
 	if innerargs:
@@ -84,11 +91,6 @@ def insert_args(f, innerargs):
 		return eval(fstr)
 	else:
 		return f
-		
-
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~ PARSE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
@@ -219,16 +221,6 @@ def parse(f: str) -> list:
 
 
 
-
-
-
-
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~ WRITE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
 def write(f: list) -> str:
 	
 	print(f"write: {f=}")
@@ -300,12 +292,6 @@ def write(f: list) -> str:
 		args = ", ".join([str(write(arg)) for arg in f[1:]])
 		return f"{f[0]}({args})"
 
-		
-
-
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~ DIFF ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 def diff(f: list) -> list:
@@ -406,12 +392,6 @@ def diff(f: list) -> list:
 			
 	elif f[0] in FUNCTIONS:
 		return funcderivative(f)
-		
-	
-
-
-
-
 
 
 
@@ -431,15 +411,18 @@ class Function:
 			print("\nWRITING TREE..")
 			self.str = write(self.tree)
 			self.lam = lambda x: eval(self.str.replace("^", "**"))
-			
+	
 	def diff(self):
 		print("\nDIFF FUNC..")
 		return Function(diff(self.tree), VAR)
 	
 	def __str__(self):
 		return str(self.str)
+	
 	def __repr__(self):
 		return str(self.str)
+
+
 
 if __name__ == "__main__":
 	
