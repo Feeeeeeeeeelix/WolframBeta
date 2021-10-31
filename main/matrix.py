@@ -2,10 +2,10 @@ from random import randint
 from functions import sqrt
 
 def rint(x):
-    if float(x) == int(x):
-        return str(int(x))
+    if round(x,4) == round(x):
+        return round(x)
     else:
-        return str(round(x,1))
+        return round(x,1)
 
 class Matrix():
     def __init__(self,args):
@@ -25,11 +25,8 @@ class Matrix():
                     if element == 0:
                         text += "."+" "*5
                     else:
-                        if element > 0:
-                            text += str(round(element,2))+" "*(6-len(str(round(element,2))))
-                        else:
-                            text += str(round(element,2))+" "*(6-len(str(round(element,2))))
-                text += "\n"
+                        text += str(round(element,2))+" "*(6-len(str(round(element,2))))
+                    text += "\n"
                 return text
         
             def __getitem__(self, i):
@@ -88,13 +85,10 @@ class Matrix():
         text = ""
         for row in self.row:
             for element in row:
-                if element == 0:
-                    text += "."+" "*4
+                if abs(element) <= 0.00001:
+                    text += "."+" "*5
                 else:
-                    if element > 0:
-                        text += str(rint(element))+" "+" "*(4-len(str(rint(element))))
-                    else:
-                        text += str(rint(element))+" "+" "*(4-len(str(rint(element))))
+                    text += str(rint(element))+" "+" "*(5-len(str(rint(element))))
             text += "\n"
         return text
 
@@ -252,17 +246,7 @@ class Matrix():
         except:
             print("LU Zerlegung nicht möglich")
     
-    def det_lu(self):
-        try:
-            U = self.lu()[1]
-            prod = 1
-            for i in range(self.rows):
-                prod *= U[i][i]
-            return prod
-        except:
-            print("LU-Zerlegung nicht möglich. Bitte warten Sie, bis die Gauss-Methode erstellt wird")
-        
-    
+            
     def cholesky(self):
 
         if self.rows == self.cols:
@@ -422,50 +406,108 @@ class Matrix():
 
         pi = transpositions[::-1]
         return [M, b, V, pi, Operationen]
+    
+    def gauss(self,b_in):
+        n = self.rows
+        V = 0
+        M = self.T().T()  #Damit der eigentliche Wert von self nicht verändert wird
+        b = b_in.T().T()  #  "
+
+        L = Matrix.Zero(n, n)
+        transpositions = []
+        Operationen = []
+
+        for k in range(0, n - 1):
+
+            # maximal pivot
+            index = k
+            for l in range(k, n):
+                if abs(M[l][k]) > abs(M[index][k]):
+                    index = l
+
+            # transpose
+            if index != k:
+                V += 1
+                M[k], M[index] = M[index], M[k]
+                b[k], b[index] = b[index], b[k]
+                transpositions.append([k, index])
+                Operationen.append(["V", k, index])
+
+            # Operate
+            if M[k][k] != 0:
+                for i in range(k + 1, n):
+                    L[i][k] = M[i][k] / M[k][k]
+
+                    b.s(i, k, -L[i][k])
+                    M.s(i, k, -L[i][k])
+                    Operationen.append(["S", i, k, - L[i][k]])
+
+        # Triangle Zu identität
+        for i in range(n - 1, -1, -1):
+            Operationen.append(["M", i, 1 / M[i][i]])
+            b.m(i, 1 / M[i][i])
+            M.m(i, 1 / M[i][i])
         
+
+        for i in range(n - 1, -1, -1):
+            for k in range(i):
+                Operationen.append(["S", k, i, - M[k][i]])
+                b.s(k, i, -M[k][i])
+                M.s(k, i, -M[k][i])
+
+        pi = transpositions[::-1]
+        return [M, b, V, pi, Operationen]
+    
     def gauss_solve(self, b):
         def permutate(b, T):
             for i in range(len(T)):
                 b[T[i][0]], b[T[i][1]] = b[T[i][1]], b[T[i][0]]
         
-        List = self.gauss_explained(b)
+        List = self.gauss(b)
         x = List[1]
 
         return x
+
+    def inverse(self):
+        try:
+            def apply_operations(operations, n):
+                I = Matrix.Id(n)
+                for op in operations:
+                    if op[0] == 'V':
+                        I[op[1]], I[op[2]] = I[op[2]], I[op[1]]
+                    elif op[0] == 'M':
+                        I.m(op[1], op[2])
+                    else:
+                        I.s(op[1], op[2], op[3])
+                return I
     
-v = Matrix([[2,3,9]]) #Zeilenvektor
-w = Matrix([[1],[2],[3]]) #Spaltenvektor
+            op = self.gauss(Matrix.Zero(self.rows,1))[4]
+            return apply_operations(op, self.rows)
+        except:
+            print("Matrix nicht invertierbar.")
+    
+    def det(self):
+        try:
+            op = self.gauss(Matrix.Zero(self.rows,1))[4]
+            determinant = 1
+            for operation in op:
+                if operation[0] == "M":
+                    determinant /= operation[2]
+                if operation[0] == "V":
+                    determinant *= -1
+            return determinant
+        except:
+            return 0
+                
+    
 
-B = Matrix([[1,2],[2,3]])
-
-A = Matrix.Random(2,2,1,10)
-D = Matrix.RandomSym(4,-20,30)
-
-P = Matrix([[9,3,5],[3,5,3],[5,3,7]])  #positiv definite symmetrische Matrix   --> cholesky anwedbar
-
-b = Matrix.Random(2,1,1,10)
-
-
-x = A.gauss_solve(b)
-
-print(">-<"*10)
-print("Matrix A:")
+A = Matrix.Random(4, 4, 0, 10)
+B = A.inverse()
 print(A)
+print(B)
 
-print("Vektor b:")
-print(b)
+print(B*A)
 
-print("~-"*20)
-print("Lösung der Gleichung Ax=b")
-
-print(x)
-print("-><-"*10)
-print("Test:")
-
-print(b)
-print("=")
-print(A * x)
-
-
-print("FUNKTIONIERT!! :DD")
+print("-~"*20)
+print(A.det())
 
