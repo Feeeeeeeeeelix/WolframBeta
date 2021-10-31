@@ -1,4 +1,5 @@
 from random import randint
+from functions import sqrt
 
 def rint(x):
     if float(x) == int(x):
@@ -36,7 +37,11 @@ class Matrix():
         
             def __setitem__(self, idx, val):
                 self.vector[idx] = val
-        
+            
+            def __iter__(self): # iterate over all keys
+                for x in self.vector:
+                    yield x 
+            
             def __len__(self):
                 return self.rows
         
@@ -80,7 +85,10 @@ class Matrix():
                 raise ValueError
         except:
             print("Der gegebene Index ist falsch, oder die gegebene Zeile nicht korrekt formatiert")
-
+    
+    def __iter__(self):
+        return self.row 
+        
     def __str__(self):
         text = ""
         for row in self.row:
@@ -115,7 +123,7 @@ class Matrix():
         return self + -val
 
     def __eq__(self, val):
-        return self.matrix == val.matrix
+        return self.row == val.row
 
     def __mul__(self, val):
         try:
@@ -140,13 +148,13 @@ class Matrix():
         return Matrix(row)
 
     @classmethod
-    def RandomSym(cls, m, n, low=0, high=10):
+    def RandomSym(cls, m, low=0, high=10):
         row = []
         for _ in range(m):
-            row.append([randint(low, high) for x in range(n)])
+            row.append([randint(low, high) for x in range(m)])
 
         for i in range(m):
-            for j in range(n):
+            for j in range(m):
                 row[i][j] = row[j][i]
 
         return Matrix(row)
@@ -249,22 +257,56 @@ class Matrix():
         except:
             print("LU Zerlegung nicht möglich")
     
+    def det_lu(self):
+        try:
+            U = self.lu()[1]
+            prod = 1
+            for i in range(self.rows):
+                prod *= U[i][i]
+            return prod
+        except:
+            print("LU-Zerlegung nicht möglich. Bitte warten Sie, bis die Gauss-Methode erstellt wird")
+        
+    
+    def cholesky(self):
+
+        if self.rows == self.cols:
+            if self == self.T():
+                try:
+                    n = self.rows
+                    L = Matrix.Zero(n, n)
+                    for k in range(0, n):
+                        L[k][k] = sqrt(self[k][k] - sum(L[k][j] * L[k][j] for j in range(0, k)))  # 0der range(0,k-1)?
+                        for i in range(k, n):
+                            L[i][k] = (self[i][k] - sum(L[i][j] * L[k][j] for j in range(0, k))) / L[k][k]
+                    return L
+                    
+                    
+                except:
+                    print("Die Matrix ist nicht positiv definit, also funktioniert die Cholesky-Zerlegung nicht.")
+                
+            else:
+                print("Die Matrix ist nicht symmetrisch. Cholesky-Zerlegung funktioniert nur für positiv definite SYMMETRISCHE Matrizen")
+        else:
+            print("Die Matrix muss quadratisch sein! Cholesky nicht anwendbar.")
+    
 v = Matrix([[2,3,9]]) #Zeilenvektor
 w = Matrix([[1],[2],[3],[4]]) #Spaltenvektor
 
 B = Matrix([[1,2],[2,3]])
 A = Matrix([[0.6,.5],[0.9,.5]])
 
-C = Matrix.Random(4,4,-4,4)
-D = Matrix.RandomSym(4,4,-20,30)
+C = Matrix.Random(3,3,1,10)
+D = Matrix.RandomSym(4,-20,30)
 
-print(C)
-print(w)
+P = Matrix([[9,3,5],[3,5,3],[5,3,7]])  #positiv definite symmetrische Matrix   --> cholesky anwedbar
 
-print("-----")
-print("x=")
-print(C.lu_solve(w))
 
-print("---"*10)
-print("Test:")
-print(C * C.lu_solve(w))
+print(P)
+print(P.cholesky())
+print("----")
+print(P.cholesky() * P.cholesky().T())
+
+print(P.det_lu())
+
+#print(P[0:2]) müsste verschönert werden
