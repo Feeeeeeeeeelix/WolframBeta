@@ -329,6 +329,111 @@ class Matrix():
         return Matrix(coeffs)
     
     
+    def gauss_explained(self, b):
+        def Mprint(self,b):
+            text = ""
+            for i in range(self.rows):
+                for element in self[i]:
+                    if element == 0:
+                        text += "."+" "*4
+                    else:
+                        if element > 0:
+                            text += str(rint(element))+" "+" "*(4-len(str(rint(element))))
+                        else:
+                            text += str(rint(element))+" "+" "*(4-len(str(rint(element))))
+                text += "   |    "
+                
+                element = b[i][0]
+                
+                if element == 0:
+                    text += "."+" "*4
+                else:
+                    if element > 0:
+                        text += str(rint(element))+" "+" "*(4-len(str(rint(element))))
+                    else:
+                        text += str(rint(element))+" "+" "*(4-len(str(rint(element))))
+                
+                text += "\n"
+            print(text)
+
+        n = self.rows
+        V = 0
+        M = self
+
+        L = Matrix.Zero(n, n)
+        transpositions = []
+        Operationen = []
+
+        for k in range(0, n - 1):
+            print("°~" * 50)
+            print("NEUE ITERATION")
+            Mprint(M, b)
+            # maximal pivot
+            index = k
+            for l in range(k, n):
+                if abs(M[l][k]) > abs(M[index][k]):
+                    index = l
+
+            # transpose
+            if index != k:
+                print("Maximal Pivot-Wert:", M[index][k])
+                V += 1
+                M[k], M[index] = M[index], M[k]
+                b[k], b[index] = b[index], b[k]
+                transpositions.append([k, index])
+                Operationen.append(["V", k, index])
+
+                print("Vertauschung:")
+                Mprint(M, b)
+
+            print("---" * 20)
+            print("Rechnung:")
+            Mprint(M, b)
+            # Operate
+            if M[k][k] != 0:
+                for i in range(k + 1, n):
+                    L[i][k] = M[i][k] / M[k][k]
+
+                    b.s(i, k, -L[i][k])
+                    M.s(i, k, -L[i][k])
+                    Operationen.append(["S", i, k, - L[i][k]])
+                    print("S(", i, ",", k, ",", - L[i][k], ")")
+
+                    Mprint(M, b)
+
+        # Triangle Zu identität
+        print("=-=|" * 60)
+        print("Nächste Phase:")
+        print("Normierung:")
+
+        for i in range(n - 1, -1, -1):
+            Operationen.append(["M", i, 1 / M[i][i]])
+            b.m(i, 1 / M[i][i])
+            M.m(i, 1 / M[i][i])
+        
+        Mprint(M, b)
+        print("Kürzung:")
+        for i in range(n - 1, -1, -1):
+            Mprint(M, b)
+            for k in range(i):
+                Operationen.append(["S", k, i, - M[k][i]])
+                b.s(k, i, -M[k][i])
+                M.s(k, i, -M[k][i])
+
+        pi = transpositions[::-1]
+        return [M, b, V, pi, Operationen]
+        
+    def gauss_solve(self, b):
+        def permutate(b, T):
+            for i in range(len(T)):
+                b[T[i][0]], b[T[i][1]] = b[T[i][1]], b[T[i][0]]
+        
+        List = self.gauss_explained(b)
+        b = List[1]
+        pi = List[3]
+        permutate(b, pi)
+        return b
+    
 v = Matrix([[2,3,9]]) #Zeilenvektor
 w = Matrix([[1],[2],[3]]) #Spaltenvektor
 
@@ -340,9 +445,8 @@ D = Matrix.RandomSym(4,-20,30)
 
 P = Matrix([[9,3,5],[3,5,3],[5,3,7]])  #positiv definite symmetrische Matrix   --> cholesky anwedbar
 
+b = Matrix.Random(5,1,1,10)
 
 
-print(C)
-
-print(C.sub_matrix(xmin=1, xmax=3, ymin=0, ymax=3))
+C.gauss_explained(b)
 
