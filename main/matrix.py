@@ -1,6 +1,5 @@
 from random import randint
 from functions import sqrt
-from MatriX import cholesky, cholesky_solve
 
 def rint(x):
     if float(x) == int(x):
@@ -322,26 +321,28 @@ class Matrix():
             print("LU Zerlegung nicht möglich")
         
     
+    def sub_matrix(self,xmin,xmax,ymin,ymax):
+        coeffs =[]
+        for y in range(ymin,ymax):            
+            coeffs += [self[y][xmin:xmax]]
+
+        return Matrix(coeffs)
+    
+    
 v = Matrix([[2,3,9]]) #Zeilenvektor
 w = Matrix([[1],[2],[3]]) #Spaltenvektor
 
 B = Matrix([[1,2],[2,3]])
 A = Matrix([[0.6,.5],[0.9,.5]])
 
-C = Matrix.Random(3,3,1,10)
+C = Matrix.Random(5,5,1,10)
 D = Matrix.RandomSym(4,-20,30)
 
 P = Matrix([[9,3,5],[3,5,3],[5,3,7]])  #positiv definite symmetrische Matrix   --> cholesky anwedbar
 
-print(P)
-
-print(w)
-
-print("---"*10)
-
-print(P.cholesky())
-print(P*(P.cholesky_solve(w)))
 
 
+print(C)
 
+print(C.sub_matrix(xmin=1, xmax=3, ymin=0, ymax=3))
 
