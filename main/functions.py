@@ -41,13 +41,13 @@ def ln(x):
 
 def sin(x):
 	return sum([(-1)**i * (x%(2*pi))**(2*i+1) / fact(2*i+1) for i in range(19)])
-	
+
 def cos(x):
 	return sum([(-1)**i * (x%(2*pi))**(2*i) / fact(2*i) for i in range(19)])
 
 def tan(x):
 	return sin(x)/cos(x)
-	
+
 def cosh(x):
 	return (exp(x) + exp(-x))/2
 
@@ -56,7 +56,7 @@ def sinh(x):
 
 def tanh(x):
 	return sinh(x)/cosh(x)
-	
+
 def pow(a,n):		## Wollen wir das im Programm lassen? (bissn unnötig)
 	nbin = bin(n)[2:]
 	teiler = [a]
