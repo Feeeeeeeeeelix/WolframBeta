@@ -329,7 +329,7 @@ class Matrix():
         return Matrix(coeffs)
     
     
-    def gauss_explained(self, b):
+    def gauss_explained(self, b_in):
         def Mprint(self,b):
             text = ""
             for i in range(self.rows):
@@ -358,7 +358,8 @@ class Matrix():
 
         n = self.rows
         V = 0
-        M = self
+        M = self.T().T()  #Damit der eigentliche Wert von self nicht verändert wird
+        b = b_in.T().T()  #  "
 
         L = Matrix.Zero(n, n)
         transpositions = []
@@ -382,7 +383,6 @@ class Matrix():
                 b[k], b[index] = b[index], b[k]
                 transpositions.append([k, index])
                 Operationen.append(["V", k, index])
-
                 print("Vertauschung:")
                 Mprint(M, b)
 
@@ -429,24 +429,43 @@ class Matrix():
                 b[T[i][0]], b[T[i][1]] = b[T[i][1]], b[T[i][0]]
         
         List = self.gauss_explained(b)
-        b = List[1]
-        pi = List[3]
-        permutate(b, pi)
-        return b
+        x = List[1]
+
+        return x
     
 v = Matrix([[2,3,9]]) #Zeilenvektor
 w = Matrix([[1],[2],[3]]) #Spaltenvektor
 
 B = Matrix([[1,2],[2,3]])
-A = Matrix([[0.6,.5],[0.9,.5]])
 
-C = Matrix.Random(5,5,1,10)
+A = Matrix.Random(2,2,1,10)
 D = Matrix.RandomSym(4,-20,30)
 
 P = Matrix([[9,3,5],[3,5,3],[5,3,7]])  #positiv definite symmetrische Matrix   --> cholesky anwedbar
 
-b = Matrix.Random(5,1,1,10)
+b = Matrix.Random(2,1,1,10)
 
 
-C.gauss_explained(b)
+x = A.gauss_solve(b)
+
+print(">-<"*10)
+print("Matrix A:")
+print(A)
+
+print("Vektor b:")
+print(b)
+
+print("~-"*20)
+print("Lösung der Gleichung Ax=b")
+
+print(x)
+print("-><-"*10)
+print("Test:")
+
+print(b)
+print("=")
+print(A * x)
+
+
+print("FUNKTIONIERT!! :DD")
 
