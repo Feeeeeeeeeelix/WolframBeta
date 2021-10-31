@@ -28,7 +28,7 @@ def log(x, base = "e"): #Patent
 		return log(x)/log(base)
 	
 	if x <= 0:
-		raise ValueError ("log argument must be positive)
+		raise ValueError ("log argument must be positive")
 	elif x > 1.01:
 		return log(x/2) + ln2
 	elif x < 0.99:
