@@ -590,11 +590,77 @@ class Matrix():
 
         return R
 
+    def eigenvalues(self):
+        def QR_verfahren(self):
+            M = self.hesseberg()
+            n = M.rows
+        
+            print(M)
+            
+            is_symmetric = True
+        
+            for i in range(n):
+                for j in range(i):
+                    if round(self[i][j], 2) != round(self[j][i], 2):
+                        is_symmetric = False
+        
+        
+            if is_symmetric:
+                for i in range(n):
+                    for j in range(0, i - 1):
+                        M[i][j] = 0
+                        M[j][i] = 0
+        
+            for i in range(500):
+                if i % 20 == 0:
+                    print(100 * i / 500, "%")
+                    print(M)
+                kappa = M[n - 1][n - 1]
+                [Q,R] = (M - kappa * Matrix.Id(n)).QR()
+                newM = R*Q + kappa * Matrix.Id(n)
+                M = newM.T().T()
+                
+            return M
+        
+        def block(B):
+            block_matrizen = []
+            n = B.rows
+        
+            if round(B[1][0], 2) == 0.0:
+                block_matrizen.append(B[0][0])
+            else:
+                block_matrizen.append([[B[0][0], B[0][1]], [B[1][0], B[1][1]]])
+        
+            for k in range(1, n - 1):
+                if round(B[k + 1][k], 2) != 0.0:
+                    block_matrizen.append([[B[k][k], B[k][k + 1]], [B[k + 1][k], B[k + 1][k + 1]]])
+                elif round(B[k][k - 1], 2) == 0.0:
+                    block_matrizen.append(B[k][k])
+        
+            if round(B[n - 1][n - 2], 2) == 0.0:
+                block_matrizen.append(B[n - 1][n - 1])
+        
+            return block_matrizen
+        
+        B = QR_verfahren(self)
+    
+        blocks = block(B)
+        eigenwerte = []
+        for M in blocks:
+            if type(M) == int or type(M) == float:
+                eigenwerte.append([M, 0.0])
+            else:
+                C_1 = -M[0][0] - M[1][1]
+                C_2 = -M[1][0] * M[0][1] + M[0][0] * M[1][1]
+    
+                eigenwerte.append([-C_1 / 2, 1 / 2 * sqrt(abs(C_1 * C_1 - 4 * C_2))])
+                eigenwerte.append([-C_1 / 2, -1 / 2 * sqrt(abs(C_1 * C_1 - 4 * C_2))])
+        return eigenwerte
+    
 
-A = Matrix.RandomSym(10, 0,10)
-print(A)
-print(A.hesseberg())
 
+A = Matrix.Random(5,5, 0,10)
+print(A.eigenvalues())
 
 
 
