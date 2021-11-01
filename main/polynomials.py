@@ -1,3 +1,5 @@
+from Tests1221 import *
+
 def flint(x):
     if float(x) == int(float(x)):
         return int(float(x))
@@ -156,7 +158,19 @@ class Polynomial():
     def derivative(self):
         return self.__class__([self.coeffs[i]*i     for i in range(1,len(self.coeffs))])
 
-
+    def nullstellen(self):
+        A = Matrix.Zero(len(self.coeffs)-1,len(self.coeffs)-1)
+        
+        for i in range(1,A.rows):
+            A[i][i-1] = 1
+        
+        for i in range(A.rows):
+            A[i][-1] = - self.coeffs[i]/self.coeffs[-1]
+        
+        return A.eigenvalues()
+        
+        
+        
 def neville(list_of_pairs):    
     n = len(list_of_pairs)
     
@@ -174,15 +188,12 @@ def neville(list_of_pairs):
     
     return p[0][n-1]
     
-p = Polynomial("x^2+3x-2")
-q = Polynomial("x")
-
-print(((p*q + 2*p) - q**4) + 4)  #leider ist a+b+c nicht definiert, da python nicht weiß, ob mein __add__ assoziativ ist.
-
+p = Polynomial("x^2 + 3x -2")
+q = Polynomial("x^2 + 4")
+r = Polynomial("x^2 - 1x - 1")
 
 
-nev = neville([[1,1],[2,3],[4,-2]])  #Eindeutiges Polynom p zweiten Grades bestimmen mit p(1)=1, p(2)=3, p(4)=-2
+print(q.nullstellen()) # Komplexe Zahlen 0 +- 2i
+print(r.nullstellen()) # die Goldenen Schnitte
 
-print(nev)
-print(nev(1),nev(2),nev(4)) #Überprüfung. Es ist korrekt :)
-    
+print((q*r).nullstellen()) # beides kombiniert
