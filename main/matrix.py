@@ -522,8 +522,8 @@ class Matrix():
             for k in range(i,n):    v[k] = v1[k-i]
 
 
-            R = R - 2 * v * (v.T() * R)
-            Q = Q - v * (2 * v.T()) * Q
+            R -= (2 * v) * (v.T() * R)
+            Q -= v * (2 * v.T()) * Q
             
                         
         return [Q.T(), R]
@@ -546,27 +546,54 @@ class Matrix():
         c = v.sub_matrix(0,0,0,self.cols-1)
         R_hat = R.sub_matrix(0,R.rows-1,0,R.rows-1)
         return upper_triangle_solve(R_hat, c)
+    
+    
+    #Reel Diagonalisierbar:
+    def power_method(self):
+        def norm(a):
+            return sqrt(sum(a[i][0]**2 for i in range(a.rows)))
+        
+        x = Matrix([[1] for _ in range(self.rows)])
+        mu = 1
+        for i in range(100):
+            print(mu)
+            mu_old = mu
+            x = A * x
+            mu = norm(x)
+            x = 1 / mu * x
+            if abs(mu_old - mu) < 0.0000000001:
+                break;
+        if abs(mu_old - mu) < 0.0000000001:
+            return mu
+        else:
+            print("Potenz-Methode geht nicht, da A nicht reell diagonalisierbar ist.")
 
-t =         [0.1, 0.2, 0.6, 0.9, 1.1, 1.2, 2.0]
-y = Matrix([[0.96, 1.81, 4.23, 5.05, 5.15, 4.81, 0.55]]).T()
+    def hesseberg(self):
+        def sign(x):
+            return 1 if x >= 0 else -1
+        def norm(a):
+            return sqrt(sum(a[i][0]**2 for i in range(a.rows)))
+        
+        R = self.T().T()
+        n = R.rows
+    
+        for i in range(0, n - 1):
+            a = Matrix([[R[k][i]] for k in range(i+1, n)]) #Spaltenvektor
+            sigma = -sign(a[0][0])
+            a[0][0] -= sigma * norm(a)            
+            v1 = 1 /norm(a) * a
+            v = Matrix.Zero(n, 1)    
+            for k in range(i+1,n):    v[k] = v1[k-i-1]
+
+            R -= (2 * v) * (v.T() * R)
+            R -= 2 * (R * v) * v.T()
+
+        return R
 
 
-A = []
-for time in t:
-    A += [[time, -1/2 * time**2]]
-A = Matrix(A)
-
-v = A.ausgleichs_problem(y)
-
-g = v[1][0]
-v_y = v[0][0]
-
-print("g=", g)
-print("v_y=", v_y)
-
-
-print("Fehler in %: ", (9.81/g -1)*100)
-
+A = Matrix.RandomSym(10, 0,10)
+print(A)
+print(A.hesseberg())
 
 
 
