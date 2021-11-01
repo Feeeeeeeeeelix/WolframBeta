@@ -529,6 +529,7 @@ class Matrix():
         return [Q.T(), R]
 
     #Überbestimmte Aufgabe lösen
+    
     def ausgleichs_problem(self,b):
         def upper_triangle_solve(A, b):
             try:
@@ -549,6 +550,7 @@ class Matrix():
     
     
     #Reel Diagonalisierbar:
+    
     def power_method(self):
         def norm(a):
             return sqrt(sum(a[i][0]**2 for i in range(a.rows)))
@@ -657,10 +659,79 @@ class Matrix():
                 eigenwerte.append([-C_1 / 2, -1 / 2 * sqrt(abs(C_1 * C_1 - 4 * C_2))])
         return eigenwerte
     
+    def jacobi(self):
+        if self.T() == self:
+            
+            
+            def givens_quick_calculation(A, i, j):
+                def sign(x):
+                    return 1 if x >= 0 else -1
+                def sqrt(x):
+                    if x < 0 and round(x, 10) == 0.0:
+                        x = 0
+                    if x > 0:
+                        a = x
+                        for i in range(25):
+                            a = 1 / 2 * (a + x / a)
+                        return a
+                    elif x == 0:
+                        return 0
+                    else:
+                        print("NEGATIV!")
+                D = (A[i][i] - A[j][j]) / sqrt((A[i][i] - A[j][j]) ** 2 + 4 * A[i][j] ** 2)
+                c = sqrt((1 + D) / 2)
+                s = -sign(A[i][j]) * sqrt((1 - D) / 2)
+            
+                ci = []
+                cj = []
+                for k in range(A.rows):
+                    ci.append(A[i][k] * c - A[j][k] * s)
+                    cj.append(A[i][k] * s + A[j][k] * c)
+                A[i][:] = ci
+                A[j][:] = cj
+            
+                ri = []
+                rj = []
+                for k in range(A.rows):
+                    ri.append(A[k][i] * c - A[k][j] * s)
+                    rj.append(A[k][i] * s + A[k][j] * c)
+                for k in range(A.rows):
+                    A[k][i] = ri[k]
+                    A[k][j] = rj[k]
+                return A
+            def N(A):
+                return sum([sum([float(i != j) * A[i][j] ** 2 for i in range(A.rows)]) for j in range(A.rows)])
+            
+            A = self.T().T()
+            n = self.rows
+            i, j = 1, 0
+            # zyklisch schneller als maximierend
+            for r in range(10000000):
+                if i < n - 1:
+                    i += 1
+                elif i == n - 1 and j < n - 2:
+                    j += 1
+                    i = j + 1
+                else:
+                    i, j = 1, 0
+        
+                A = givens_quick_calculation(A, i, j)  # imax,jmax
+        
+                if r % 50 == 0:
+                    delta = N(A)
+                    print(delta)
+                    if delta < 0.0000001:
+                        return [A[i][i] for i in range(n)]
+        else:
+            print("Matrix ist nicht symmetrisch. Jacobi-Vefahren nicht anwendbar.")
+
+A = Matrix.RandomSym(50, 0,10)
+print(A.jacobi())
 
 
-A = Matrix.Random(5,5, 0,10)
-print(A.eigenvalues())
+
+
+
 
 
 
