@@ -5,7 +5,7 @@ def rint(x):
     if round(x,4) == round(x):
         return round(x)
     else:
-        return round(x,1)
+        return round(x,2)
 
 class Matrix():
     def __init__(self,args):
@@ -133,14 +133,14 @@ class Matrix():
     def Random(cls, m, n, low=0, high=10):
         row = []
         for _ in range(m):
-            row.append([randint(low, high) for x in range(n)])
+            row.append([randint(low, high) for _ in range(n)])
         return Matrix(row)
 
     @classmethod
     def RandomSym(cls, m, low=0, high=10):
         row = []
         for _ in range(m):
-            row.append([randint(low, high) for x in range(m)])
+            row.append([randint(low, high) for _ in range(m)])
 
         for i in range(m):
             for j in range(m):
@@ -150,12 +150,12 @@ class Matrix():
 
     @classmethod
     def Zero(cls, m, n):
-        rows = [[0]*n for x in range(m)]
+        rows = [[0]*n for _ in range(m)]
         return Matrix(rows)
 
     @classmethod
     def Id(cls, m):
-        row = [[0]*m for x in range(m)]
+        row = [[0]*m for _ in range(m)]
         index = 0
 
         for r in row:
@@ -187,8 +187,11 @@ class Matrix():
     def __pow__(self, n):
         return self if n == 1 else  (self ** (n/2)).sq() if n % 2 == 0 else self * (self ** (n-1))
     
-    def norm(self):
+    def normZ(self):
         return max(sum(line) for line in self.row)  #Zeilensummen-Norm
+
+    def normS(self):
+        return max(sum(line) for line in self.T().row)  #Spaltensummen-Norm
     
     
     def lu(self):
@@ -307,8 +310,8 @@ class Matrix():
     
     def sub_matrix(self,xmin,xmax,ymin,ymax):
         coeffs =[]
-        for y in range(ymin,ymax):            
-            coeffs += [self[y][xmin:xmax]]
+        for y in range(ymin,ymax+1):            
+            coeffs += [self[y][xmin:xmax+1]]
 
         return Matrix(coeffs)
     
@@ -498,16 +501,74 @@ class Matrix():
             return determinant
         except:
             return 0
-                
+
+    #Matrix egal  A=QR
+    def QR(self):
+        def sign(x):
+            return 1 if x >= 0 else -1
+        def norm(a):
+            return sqrt(sum(a[i][0]**2 for i in range(a.rows)))
+        
+        R = self.T().T()
+        n, m = R.rows, R.cols
+        Q = Matrix.Id(n)
     
+        for i in range(0, m):
+            a = Matrix([[R[k][i]] for k in range(i, n)]) #Spaltenvektor
+            sigma = -sign(a[0][0])
+            a[0][0] -= sigma * norm(a)            
+            v1 = 1 /norm(a) * a
+            v = Matrix.Zero(n, 1)            
+            for k in range(i,n):    v[k] = v1[k-i]
 
-A = Matrix.Random(4, 4, 0, 10)
-B = A.inverse()
-print(A)
-print(B)
 
-print(B*A)
+            R = R - 2 * v * (v.T() * R)
+            Q = Q - v * (2 * v.T()) * Q
+            
+                        
+        return [Q.T(), R]
 
-print("-~"*20)
-print(A.det())
+    #Überbestimmte Aufgabe lösen
+    def ausgleichs_problem(self,b):
+        def upper_triangle_solve(A, b):
+            try:
+                x = Matrix.Zero(b.rows, 1)
+                for i in range(b.rows - 1, -1, -1):
+                    summe = sum(A[i][j] * x[j][0] for j in range(i + 1, b.rows))
+                    x[i][0] = ((b[i][0] - summe) / A[i][i])
+                return x
+            
+            except:
+                print("A ist nicht regulär!")
+        
+        [Q,R] = self.QR()
+        v = Q.T() * b
+        c = v.sub_matrix(0,0,0,self.cols-1)
+        R_hat = R.sub_matrix(0,R.rows-1,0,R.rows-1)
+        return upper_triangle_solve(R_hat, c)
+
+t =         [0.1, 0.2, 0.6, 0.9, 1.1, 1.2, 2.0]
+y = Matrix([[0.96, 1.81, 4.23, 5.05, 5.15, 4.81, 0.55]]).T()
+
+
+A = []
+for time in t:
+    A += [[time, -1/2 * time**2]]
+A = Matrix(A)
+
+v = A.ausgleichs_problem(y)
+
+g = v[1][0]
+v_y = v[0][0]
+
+print("g=", g)
+print("v_y=", v_y)
+
+
+print("Fehler in %: ", (9.81/g -1)*100)
+
+
+
+
+
 
