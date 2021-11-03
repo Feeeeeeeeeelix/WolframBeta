@@ -5,12 +5,11 @@
 
 - Vereinfachen
 - 1/x*x -> 1
-- definitionsmenge bei funktionen beachten und bei ungültigen werten Exception raisen
 
 """
 
-FUNCTIONS = ["sqrt", "exp", "ln", "log", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh", "cosh", "sinh",
-             "arccosh", "arcsinh", "arctanh"]
+FUNCTIONS = ["sqrt", "root", "exp", "ln", "log", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh",
+			"cosh", "sinh", "arccosh", "arcsinh", "arctanh"]
 ALPHABET = "qwertzuiopasdfghjklyxcvbnmπ"
 NUMBERS = "0123456789"
 
@@ -23,7 +22,7 @@ def isfloat(n: str or int or float) -> bool:
 	return True
 
 
-def prod(iterable):
+def prod(iterable: list) -> int:
 	prod = 1
 	for factor in iterable:
 		try:
@@ -87,7 +86,22 @@ def insert_args(f, innerargs):
 		return f
 
 
-def parse(f: str) -> list:
+def check_ensemble_de_definition(funcname, arg):
+	if not isfloat(arg[0]):
+		return True
+	if funcname in ["ln", "log"] and int(arg[0]) <= 0:
+		return False
+	if funcname == "sqrt" and int(arg[0]) < 0:
+		return False
+	if funcname == "root" and int(arg[0]) < 0 and not flint(arg[1]) % 2:
+		return False
+	if funcname in ["arccos", "arcsin"] and not -1 <= flint(arg[0]) <= 1:
+		return False
+	else:
+		return True
+
+
+def parse(f: str):
 	print(f"parse:{f}")
 	
 	# Leerzeichen entfernen
@@ -116,7 +130,6 @@ def parse(f: str) -> list:
 	# implizierte Multiplikationen
 	i = 0
 	while i < len(f) - 1:
-		
 		# 2@ / 2x / @@ / @x / ax(keine funktion) --> implizierte multiplikation
 		if f[i] in NUMBERS + "@" and f[i + 1] in "@" + ALPHABET or (
 				f[i] in ALPHABET and f[i + 1] in ALPHABET and "@" not in f):
@@ -158,7 +171,7 @@ def parse(f: str) -> list:
 		summands = [parse(s) for s in consts + funcs]
 		summands = find_repeated_args(summands, "sum") if len(summands) > 2 else summands
 		
-		print(f"{summands=}, {consts = }, {funcs = }")  ##
+		print(f"{summands=}, {consts = }, {funcs = }")
 		return ["+", summands] if len(summands) > 1 else summands[0]
 	
 	if "*" in f:
@@ -184,7 +197,7 @@ def parse(f: str) -> list:
 	
 	if "^" in f:
 		base, exp = insert_args(f.split("^", 1), innerargs)
-		print(f"{base=}, {exp=}")  ##
+		print(f"{base=}, {exp=}")
 		return ["^", [parse(base), parse(exp)]]
 	
 	if f[0] == "-":
@@ -197,20 +210,23 @@ def parse(f: str) -> list:
 			args = innerargs[0].split(",")
 			if len(args) > 2:
 				raise TypeError(f"{funcname} takes at most 2 arguments")
+			if not check_ensemble_de_definition(funcname, args):
+				raise TypeError(f"{args[0]} is not inculed in the ensemble de definiton of {funcname}")
 			return [funcname, *[parse(a) for a in args]]
 		
 		else:
 			raise SyntaxError("Unknown function: " + funcname)
+	
+	raise Exception(f"The parser doesn't know how to parse: {f}")
 
 
-def write(f: list) -> str:
+def write(f: list) -> str or int:
 	print(f"write: {f=}")
 	
 	if type(f) != list:
 		return f
 	
 	if f[0] == "+":
-		
 		args = [write(i) for i in f[1] if str(i) != "0"]
 		
 		print(f"sumargs: {args}")
@@ -228,7 +244,6 @@ def write(f: list) -> str:
 		return sum_
 	
 	if f[0] == "*":
-		
 		args = []
 		for i in f[1]:
 			factor = str(write(i))
@@ -261,7 +276,6 @@ def write(f: list) -> str:
 		power = f"({write(f[1][1])})" if type(f[1][1]) == list else f[1][1]
 		print(f"{base=}, {power=}")
 		try:
-			
 			power = eval(power)  # if "-" in power else power
 			print("EVAL: ", power)
 		except:
@@ -273,15 +287,15 @@ def write(f: list) -> str:
 		return f"{f[0]}({args})"
 
 
-def diff(f: list) -> list:
+def diff(f: list) -> list or int:
 	print(f"diff: {f}")
 	
 	def funcderivative(f):
-		
 		dln = lambda u: ["/", [1, u]]
 		dlog = lambda u, base: ["/", [1, ["*", [u, ["ln", base]]]]]
 		dexp = lambda u: ["exp", u]
 		dsqrt = lambda u: ["/", [1, ["*", [2, ["sqrt", u]]]]]
+		droot = lambda u, n: ["*", [n, ["^", [u, ["+", [n, -1]]]]]]
 		
 		dsin = lambda u: ["cos", u]
 		dcos = lambda u: ["*", [-1, ["sin", u]]]
@@ -332,8 +346,7 @@ def diff(f: list) -> list:
 		print(f"diff:{constfactors=}, {funcfactors=}")
 		
 		if len(funcfactors) > 1:
-			fpairs = [["*", [diff(funcfactors[i]), *funcfactors[:i], *funcfactors[i + 1:]]] for i in
-			          range(len(funcfactors))]
+			fpairs = [["*", [diff(funcfactors[i]), *funcfactors[:i], *funcfactors[i + 1:]]] for i in range(len(funcfactors))]
 			funcfactors = ["+", fpairs]
 		else:
 			funcfactors = diff(funcfactors[0])
@@ -341,31 +354,32 @@ def diff(f: list) -> list:
 		print(f"diff:{constfactors=}, {funcfactors=}")
 		return ["*", [*constfactors, funcfactors]] if constfactors else funcfactors
 	
-	
 	elif f[0] == "/":
-		if isconst(f[1][0]):  # (k/u)' = (-1*k*du)/u^2
+		if isconst(f[1][0]):        # (k/u)' = (-1*k*du)/u^2
 			return ["/", [["*", [-1, diff(f[1][1]), f[1][0]]], ["^", [f[1][1], 2]]]]
-		elif isconst(f[1][1]):  # (u/k)' = u'/k
+		elif isconst(f[1][1]):      # (u/k)' = u'/k
 			return ["/", [diff(f[1][0]), f[1][1]]]
-		else:  # (u/v)' = (v*u' - v'u)/v²
-			return ["/", [["+", [["*", [diff(f[1][0]), f[1][1]]], ["*", [-1, diff(f[1][1]), f[1][0]]]]],
-			              ["^", [f[1][1], 2]]]]
+		else:                       # (u/v)' = (v*u' - v'u)/v²
+			return ["/", [["+", [["*", [diff(f[1][0]), f[1][1]]], ["*", [-1, diff(f[1][1]), f[1][0]]]]], ["^", [f[1][1], 2]]]]
 	
 	elif f[0] == "+":
 		summands = [diff(i) for i in f[1] if not isconst(i)]
 		return ["+", summands] if len(summands) > 1 else summands[0] if summands else 0
 	
-	
 	elif f[0] == "^":
 		base = f[1][0]
 		exp = f[1][1]
 		
-		if VAR in str(base) and not VAR in str(exp):  # x^a
+		if VAR in str(base) and VAR not in str(exp):  # x^a
 			return ["*", [exp, diff(base), ["^", [base, ["+", [exp, -1]]]]]]
-		if VAR in str(exp) and not VAR in str(base):  # a^x
+		if VAR in str(exp) and VAR not in str(base):  # a^x
 			return ["*", [["ln", base], diff(exp), ["^", [base, exp]]]]
 		else:  # x^x
 			return ["*", [diff(["*", [exp, ["ln", base]]]), ["^", [base, exp]]]]
+		
+	elif f[0] == "root":
+		return diff(["^", [f[1], ["/", [1, f[2]]]]]) if len(f) > 2 else diff(["sqrt", f[1]])
+		
 	
 	elif f[0] in FUNCTIONS:
 		return funcderivative(f)
@@ -400,7 +414,8 @@ class Function:
 
 
 if __name__ == "__main__":
-	func = "log(-4, 10)x"
+	func = "root(x, x)"
+	#func = "ln(x)/x"
 	
 	f = Function(func, "x")
 	baum = f.tree
