@@ -6,67 +6,67 @@ from analysis import *
 
 
 def calculate(userinput):
-    userinput = userinput.replace(" ", "").replace("**", "^").lower()
+	userinput = userinput.replace(" ", "").replace("**", "^").lower()
 
-    for i, j in enumerate(userinput):
-        if j not in ".,+-*/()^`' " + NUMBERS + ALPHABET:
-            return f"Invalid input: '{userinput[i]}'"
+	for i, j in enumerate(userinput):
+		if j not in ".,+-*/()^`' " + NUMBERS + ALPHABET:
+			return f"Invalid input: '{userinput[i]}'"
 
-    if userinput.count("(") != userinput.count(")"):
-        return "unmatched parentheses"
+	if userinput.count("(") != userinput.count(")"):
+		return "unmatched parentheses"
 
-    userinput = userinput.replace("pi", "π")
+	userinput = userinput.replace("pi", "π")
 
-    userinput = userinput.lstrip().rstrip()
-    answer = userinput
+	userinput = userinput.lstrip().rstrip()
+	answer = userinput
 
-    # Derivative
-    def derivative(userinput, var):
-        try:
-            F = Function(userinput, var)
-            answer = F.diff().str
-        except Exception as error:
-            return error
-        return answer
+	# Derivative
+	def derivative(userinput, var):
+		try:
+			F = Function(userinput, var)
+			answer = F.diff().str
+		except Exception as error:
+			return error
+		return answer
 
-    if userinput.startswith("d/d"):
-        var = userinput[3]
-        if var == " ":
-            return f"Invalid syntax: {userinput[:4]}"
+	if userinput.startswith("d/d"):
+		var = userinput[3]
+		if var == " ":
+			return f"Invalid syntax: {userinput[:4]}"
 
-        userinput = userinput[4:].lstrip()
-        print(userinput, var)
-        return derivative(userinput, var)
+		userinput = userinput[4:].lstrip()
+		print(userinput, var)
+		return derivative(userinput, var)
 
-    elif userinput.startswith("(") and userinput.endswith((")'", ")`")):
-        userinput = userinput[1:-2]
-        return derivative(userinput, "x")
+	elif userinput.startswith("(") and userinput.endswith((")'", ")`")):
+		userinput = userinput[1:-2]
+		return derivative(userinput, "x")
 
-    elif userinput.endswith("'"):
-        userinput = userinput[:-1]
-        return derivative(userinput, "x")
+	elif userinput.endswith("'"):
+		userinput = userinput[:-1]
+		return derivative(userinput, "x")
 
-    try:
-        F = Function(userinput, "x")
-        answer = F.str
-    except Exception as error:
-        return error
+	try:
+		F = Function(userinput, "x")
+		answer = F.str
+	except Exception as error:
+		return error
 
-    try:
-        answer += f"\n\n≈{eval(answer)}"
-    except Exception:
-        pass
+	try:
+		answer += f"\n\n≈ {eval(answer)}"
+	except Exception:
+		pass
 
-    return answer
+	return answer
 
 
 def show_answer(event=None):
-    userinput = inputentry.get().lower()
-    answer = calculate(userinput)
+	userinput = inputentry.get().lower()
+	answer = calculate(userinput)
 
-    # text = r"${}$".format(answer)
+	# text = r"${}$".format(answer)
 
-    outlabel["text"] = answer
+	outlabel["text"] = answer
 
 
 # wx.clear()
@@ -109,66 +109,66 @@ selectframe.place(x=0, rely=0.305, relwidth=1, relheight=0.695)
 
 
 def SelectionButtons(container, function, *names):
-    buttons = []
+	buttons = []
 
-    whitebg = Label(container)
-    whitebg.place(rely=0.01, relx=0.05, relwidth=0.9, relheight=len(names) / 10 - 0.01)
+	whitebg = Label(container)
+	whitebg.place(rely=0.01, relx=0.05, relwidth=0.9, relheight=len(names) / 10 - 0.01)
 
-    for i, name in enumerate(names):
-        button = Button(container, text=name, bg=lblue, fg="white", highlightthickness=0, bd=0, activebackground=dblue,
-                        activeforeground="white", command=lambda n=i + 1: eval(function)(n))
-        button.place(rely=i / 10, x=0, relwidth=1, relheight=0.099)
-        buttons.append(button)
+	for i, name in enumerate(names):
+		button = Button(container, text=name, bg=lblue, fg="white", highlightthickness=0, bd=0, activebackground=dblue,
+						activeforeground="white", command=lambda n=i + 1: eval(function)(n))
+		button.place(rely=i / 10, x=0, relwidth=1, relheight=0.099)
+		buttons.append(button)
 
-    return buttons
+	return buttons
 
 
 def clear_frame():
-    for widget in selectframe.winfo_children():
-        widget.destroy()
+	for widget in selectframe.winfo_children():
+		widget.destroy()
 
 
 selection = 0
 
 
 def select(topic):
-    global selection
-    selection = topic if selection != topic else 0
+	global selection
+	selection = topic if selection != topic else 0
 
-    clear_frame()
-    for i in range(3):
-        buttons[i]["bg"] = lblue
+	clear_frame()
+	for i in range(3):
+		buttons[i]["bg"] = lblue
 
-    if selection == 1:
-        buttons[0]["bg"] = dblue
-        SelectionButtons(selectframe, "analysis", "Ableitung", "Integral", "Grenzwert", "Graph")
-    if selection == 2:
-        buttons[1]["bg"] = dblue
-        SelectionButtons(selectframe, "algebra", "Matrizen")
-    if selection == 3:
-        buttons[2]["bg"] = dblue
-        SelectionButtons(selectframe, "numbers", "Zahlentheorie")
+	if selection == 1:
+		buttons[0]["bg"] = dblue
+		SelectionButtons(selectframe, "analysis", "Ableitung", "Integral", "Grenzwert", "Graph")
+	if selection == 2:
+		buttons[1]["bg"] = dblue
+		SelectionButtons(selectframe, "algebra", "Matrizen")
+	if selection == 3:
+		buttons[2]["bg"] = dblue
+		SelectionButtons(selectframe, "numbers", "Zahlentheorie")
 
 
 def analysis(n):
-    print("ana: ", n)
+	print("ana: ", n)
 
-    if n == 1:
-        inputentry.insert(0, "d/dx ")
+	if n == 1:
+		inputentry.insert(0, "d/dx ")
 
-    if n == 2:
-        inputentry.insert(0, "int ")
-        inputentry.insert(END, " dx")
-    if n == 3:
-        inputentry.insert(0, "lim x->inf ")
+	if n == 2:
+		inputentry.insert(0, "int ")
+		inputentry.insert(END, " dx")
+	if n == 3:
+		inputentry.insert(0, "lim x->inf ")
 
 
 def algebra(n):
-    print("algebra: ", n)
+	print("algebra: ", n)
 
 
 def numbers(n):
-    print("numbers: ", n)
+	print("numbers: ", n)
 
 
 buttons = SelectionButtons(leftframe, "select", "Analysis", "Algebra", "Numbers")
