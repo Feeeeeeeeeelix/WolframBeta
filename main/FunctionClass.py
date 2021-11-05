@@ -15,6 +15,10 @@ NUMBERS = "0123456789"
 VAR = "x"
 
 
+global PRINT
+PRINT = ""
+
+
 def isfloat(n: str or int or float) -> bool:
     try:
         float(n)
@@ -103,16 +107,14 @@ def check_ensemble_de_definition(funcname, arg):
 
 
 def parse(f: str):
-    print(f"parse:{f}")
+    global PRINT
+    PRINT += f"\nparse:{f}"
 
     # Leerzeichen entfernen
     f = f.replace(" ", "")
 
     if isfloat(f):
-        # f = constante
         return flint(f)
-    # if f == "e" or f == "π":
-    # return 3
     if f in ALPHABET:
         return f
 
@@ -172,7 +174,7 @@ def parse(f: str):
         summands = [parse(s) for s in consts + funcs]
         summands = find_repeated_args(summands, "sum") if len(summands) > 2 else summands
 
-        print(f"{summands=}, {consts = }, {funcs = }")
+        PRINT += f"\n{summands=}, {consts = }, {funcs = }"
         return ["+", summands] if len(summands) > 1 else summands[0]
 
     if "*" in f:
@@ -185,12 +187,12 @@ def parse(f: str):
         factors = [parse(f) for f in consts + funcs]
         factors = find_repeated_args(factors, "mult") if len(factors) > 2 else factors
 
-        print(f"{factors=}, {consts = }, {funcs = }")
+        PRINT += f"\n{factors=}, {consts = }, {funcs = }"
         return ["*", factors] if len(factors) > 1 else factors[0] if 0 not in factors else 0
 
     if "/" in f:
         div = insert_args(f.split("/", 1), innerargs)
-        print(f"{div = }")
+        PRINT += f"\n{div = }"
 
         num, denom = parse(div[0]), parse(div[1])
         if not denom: raise ZeroDivisionError
@@ -198,7 +200,7 @@ def parse(f: str):
 
     if "^" in f:
         base, exp = insert_args(f.split("^", 1), innerargs)
-        print(f"{base=}, {exp=}")
+        PRINT += f"\n{base=}, {exp=}"
         return ["^", [parse(base), parse(exp)]]
 
     if f[0] == "-":
@@ -222,7 +224,8 @@ def parse(f: str):
 
 
 def write(f: list) -> str or int:
-    print(f"write: {f=}")
+    global PRINT
+    PRINT += f"\nwrite: {f=}"
 
     if type(f) != list:
         return f
@@ -230,12 +233,12 @@ def write(f: list) -> str or int:
     if f[0] == "+":
         args = [write(i) for i in f[1] if str(i) != "0"]
 
-        print(f"sumargs: {args}")
+        PRINT += f"\nsumargs: {args}"
         if not args:
             return 0
 
         consts, funcs = split_consts(args, isfloat)
-        print(f"{consts=}, {funcs=}")
+        PRINT += f"\n{consts=}, {funcs=}"
 
         consts = [str(sum(int(c) for c in consts))] if consts else []
         summands = consts + funcs
@@ -275,10 +278,10 @@ def write(f: list) -> str or int:
     if f[0] == "^":
         base = f"({write(f[1][0])})" if type(f[1][0]) == list and f[1][0][0] not in FUNCTIONS else write(f[1][0])
         power = f"({write(f[1][1])})" if type(f[1][1]) == list else f[1][1]
-        print(f"{base=}, {power=}")
+        PRINT += f"\n{base=}, {power=}"
         try:
             power = eval(power)  # if "-" in power else power
-            print("EVAL: ", power)
+            PRINT += "\nEVAL: "+ power
         except:
             pass
         return f"{base}^{power}" if power != 1 and power != "(1)" else base if int(power) != 0 else 1
@@ -289,7 +292,8 @@ def write(f: list) -> str or int:
 
 
 def write_latex(f):
-    print(f"write latex: {f=}")
+    global PRINT
+    PRINT += f"\nwrite latex: {f=}"
 
     if type(f) != list:
         return f
@@ -297,12 +301,12 @@ def write_latex(f):
     if f[0] == "+":
         args = [write_latex(i) for i in f[1] if str(i) != "0"]
 
-        print(f"sumargs: {args}")
+        PRINT += f"\nsumargs: {args}"
         if not args:
             return 0
 
         consts, funcs = split_consts(args, isfloat)
-        print(f"{consts=}, {funcs=}")
+        PRINT += f"\n{consts=}, {funcs=}"
 
         consts = [str(sum(int(c) for c in consts))] if consts else []
         summands = consts + funcs
@@ -330,7 +334,7 @@ def write_latex(f):
     if f[0] == "/":
         num = write_latex(f[1][0])
         denom = write_latex(f[1][1])
-        print(f"{num = }, {denom = }")
+        PRINT += f"\n{num = }, {denom = }"
 
         if not denom: raise ZeroDivisionError
         return 1 if num == denom else r"\frac{" + str(num) + "}{" + str(denom) + "}"
@@ -338,10 +342,10 @@ def write_latex(f):
     if f[0] == "^":
         base = write_latex(f[1][0])
         power = write_latex(f[1][1])
-        print(f"{base = }, power =", power)
+        PRINT += f"\n{base = },{power =}"
         try:
             power = eval(power)  # if "-" in power else power
-            print("EVAL: ", power)
+            PRINT += "\nEVAL: " + power
         except:
             pass
 
@@ -368,7 +372,8 @@ def write_latex(f):
 
 
 def diff(f: list) -> list or int:
-    print(f"diff: {f}")
+    global PRINT
+    PRINT += f"\ndiff: {f}"
 
     def funcderivative(f):
         dln = lambda u: ["/", [1, u]]
@@ -423,7 +428,7 @@ def diff(f: list) -> list or int:
     if f[0] == "*":
         constfactors, funcfactors = split_consts(f[1], isconst)
 
-        print(f"diff:{constfactors=}, {funcfactors=}")
+        PRINT += f"\ndiff:{constfactors=}, {funcfactors=}"
 
         if len(funcfactors) > 1:
             fpairs = [["*", [diff(funcfactors[i]), *funcfactors[:i], *funcfactors[i + 1:]]] for i in
@@ -432,7 +437,7 @@ def diff(f: list) -> list or int:
         else:
             funcfactors = diff(funcfactors[0])
 
-        print(f"diff:{constfactors=}, {funcfactors=}")
+        PRINT += f"\ndiff:{constfactors=}, {funcfactors=}"
         return ["*", [*constfactors, funcfactors]] if constfactors else funcfactors
 
     elif f[0] == "/":
@@ -462,7 +467,6 @@ def diff(f: list) -> list or int:
     elif f[0] == "root":
         return diff(["^", [f[1], ["/", [1, f[2]]]]]) if len(f) > 2 else diff(["sqrt", f[1]])
 
-
     elif f[0] in FUNCTIONS:
         return funcderivative(f)
 
@@ -470,44 +474,48 @@ def diff(f: list) -> list or int:
 class Function:
     def __init__(self, inputfunc: str or list, var: str):
         global VAR
+        global PRINT
         VAR = var
         if type(inputfunc) == str:
             self.str = inputfunc
-            print(f"\n{self.str = }")
+            PRINT += f"\n\n{self.str = }"
 
-            print("\nPARSING STR..")
+            PRINT += "\n\nPARSING STR.."
             self.tree = parse(self.str)
-            print(f"\n{self.tree = }")
+            PRINT += f"\n\n{self.tree = }"
 
-            print("\nWRITING TREE..")
+            PRINT += "\n\nWRITING TREE.."
             self.str = str(write(self.tree))
-            print(f"\n{self.str = }")
+            PRINT += f"\n\n{self.str = }"
 
-            print("\nWRITING LATEX..")
+            PRINT += "\n\nWRITING LATEX.."
             self.latex = str(write_latex(self.tree))
-            print(f"\nself.latex =", self.latex)
+            PRINT += f"\n\nself.latex =" + self.latex
 
             self.lam = lambda x: eval(self.str.replace("^", "**"))
         else:
             self.tree = inputfunc
-            print(f"\n{self.tree = }")
+            PRINT += f"\n\n{self.tree = }"
 
-            print("\nWRITING TREE..")
+            PRINT += "\n\nWRITING TREE.."
             self.str = str(write(self.tree))
-            print(f"\n{self.str = }")
+            PRINT += f"\n\n{self.str = }"
 
-            print("\nWRITING LATEX..")
+            PRINT += "\n\nWRITING LATEX.."
             self.latex = str(write_latex(self.tree))
-            print(f"\n{self.latex = }")
+            PRINT += f"\n\nself.latex = " + self.latex
 
             self.lam = lambda x: eval(self.str.replace("^", "**"))
 
     def diff(self):
-        print("\nDIFF FUNC..")
-        return Function(diff(self.tree), VAR)
+        global PRINT
+        PRINT += "\n\nDIFF FUNC.."
+        f = Function(diff(self.tree), VAR)
+        return Function(f.str, VAR)
 
 
 if __name__ == "__main__":
     func = "root(x, x)"
 
     f = Function(func, "x")
+    print(PRINT)

@@ -4,13 +4,9 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-from functions import *
 from FunctionClass import *
-from analysis import *
-
-# Use TkAgg in the backend of tkinter application
-# matplotlib.use('TkAgg')
-plt.rcParams["mathtext.fontset"] = "cm"
+from functions import *
+# from analysis import *
 
 
 def calculate(userinput):
@@ -32,7 +28,7 @@ def calculate(userinput):
             F = Function(userinput, var)
             answer = F.diff()
         except Exception as error:
-            return error
+            return error, None
         return answer.str, answer.latex
 
     if userinput.startswith("d/d"):
@@ -56,7 +52,7 @@ def calculate(userinput):
         F = Function(userinput, "x")
         answer = F.str
     except Exception as error:
-        return error
+        return error, None
 
     try:
         answer += f"\n\n≈ {eval(answer)}"
@@ -68,7 +64,6 @@ def calculate(userinput):
 
 def show_answer(event=None):
     userinput = inputentry.get().lower()
-    print("~" * 50)
     answer, latexanswer = calculate(userinput)
 
     outlabel["text"] = answer
@@ -82,6 +77,8 @@ def show_answer(event=None):
 
 def create_screen():
     root = Tk()
+    # matplotlib.use('TkAgg')
+    plt.rcParams["mathtext.fontset"] = "cm"
 
     sw = root.winfo_screenwidth()  # 1680
     sh = root.winfo_screenheight()  # 1050
@@ -161,7 +158,6 @@ def create_screen():
 
         if n == 1:
             inputentry.insert(0, "d/dx ")
-
         if n == 2:
             inputentry.insert(0, "int ")
             inputentry.insert(END, " dx")
@@ -187,9 +183,6 @@ def create_screen():
     inputentry = Entry(inputframe, bd=0, highlightthickness=1)
     inputentry.place(relx=0.05, rely=0.05, relwidth=0.9, relheight=0.3)
 
-    # inputentry.insert(0, "\sin(x) = \sum_{n=0}^\infty (-1)^n\cdot \\frac{x^{2n+1}}{(2n+1)!}")
-    # inputentry.bind("<Return>", show_answer)
-
     bttn = Button(mittleframe, text="=", command=show_answer)
     bttn.place(relx=0.45, rely=0.45, relwidth=0.1, relheight=0.1)
 
@@ -209,15 +202,12 @@ def create_screen():
     canvas = FigureCanvasTkAgg(fig, master=latexout)
     canvas.get_tk_widget().pack(side="top", fill="both", expand=1)
 
-
     # Bottomframe
     bottomframe = Label(root, borderwidth=3, relief="raised")
     bottomframe.place(relx=0.1, rely=0.9, relwidth=0.9, relheight=0.1)
 
     exitbutton = Button(bottomframe, text="Exit", command=exit, highlightthickness=1.5, highlightbackground="red")
     exitbutton.place(relx=0.85, rely=0.2, relwidth=0.1, relheight=0.6)
-
-    # analysis(1)
 
     root.bind("<Return>", show_answer)
     root.bind("<KP_Enter>", quit)
