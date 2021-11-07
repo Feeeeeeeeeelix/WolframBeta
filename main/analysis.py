@@ -163,11 +163,11 @@ def simpson(f,a,b):
 
 def trapez_fehler(f,a,b):
 	h = (b-a)/5000
-	return abs(1/12*(b-a)*h**2*maximum(f.diff().diff(),a,b))
+	return abs(1 / 12 * (b-a) * h ** 2 * maximum(f.diff(, VAR.diff(, VAR, a, b))
 
 def simpson_fehler(f,a,b):
 	h = (b-a)/5000
-	g = f.diff().diff().diff().diff()
+	g = f.diff(, VAR.diff(, VAR.diff(, VAR.diff(, VAR
 	print(g.str)
 	return abs(1/180*(b-a)*h**4*maximum(g,a,b))
 

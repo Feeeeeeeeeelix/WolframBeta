@@ -22,35 +22,31 @@ def calculate(userinput):
     userinput = userinput.lstrip().rstrip()
     answer = userinput
 
-    # Derivative
-    def derivative(userinput, var):
-        try:
-            F = Function(userinput, var)
-            answer = F.diff()
-        except Exception as error:
-            return error, None
-        return answer.str, answer.latex
-
-    if userinput.startswith("d/d"):
-        var = userinput[3]
-        if var == " ":
-            return f"Invalid syntax: {userinput[:4]}"
-
-        userinput = userinput[4:].lstrip()
-        print(userinput, var)
-        return derivative(userinput, var)
-
-    elif userinput.startswith("(") and userinput.endswith((")'", ")`")):
-        userinput = userinput[1:-2]
-        return derivative(userinput, "x")
-
-    elif userinput.endswith("'"):
-        userinput = userinput[:-1]
-        return derivative(userinput, "x")
+    # # Derivative
+    # def derivative(userinput, var):
+    #     try:
+    #         F = Function(userinput, var)
+    #         answer = F.diff()
+    #     except Exception as error:
+    #         return error, None
+    #     return answer.str, answer.latex
+    #
+    # if userinput.startswith("d/d"):
+    #     var = userinput[3]
+    #     if var == " ":
+    #         return f"Invalid syntax: {userinput[:4]}"
+    #
+    #     userinput = userinput[4:].lstrip()
+    #     print(userinput, var)
+    #     return derivative(userinput, var)
+    #
+    # elif userinput.startswith("(") and userinput.endswith((")'", ")`")):
+    #     userinput = userinput[1:-2]
+    #     return derivative(userinput, "x")
 
     try:
-        F = Function(userinput, "x")
-        answer = F.str
+        F = Function(userinput)
+        answer = F.str_out
     except Exception as error:
         return error, None
 
@@ -59,7 +55,7 @@ def calculate(userinput):
     except Exception:
         pass
 
-    return answer, F.latex
+    return answer, F.latex_out
 
 
 def show_answer(event=None):
@@ -70,8 +66,9 @@ def show_answer(event=None):
 
     text = r"${}$".format(latexanswer)
     fig.clear()
-    size = int(20-len(answer)/15)
-    fig.text(size/65, 0.45, text, fontsize=size)
+    size = int(20-len(answer)/7)
+    print(f"{size = }, {len(answer) = }")
+    fig.text(size/150, 0.45, text, fontsize=size)
     canvas.draw()
 
 
