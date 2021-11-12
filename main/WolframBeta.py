@@ -12,6 +12,8 @@ from functions import *
 lblue = "#1e3799"
 dblue = "#001B81"
 selection = 0
+lang = 0
+# Deutsch: 0, Francais: 1, English: 2
 
 
 def calculate(userinput):
@@ -21,7 +23,7 @@ def calculate(userinput):
         if j not in ".,+-*/()^`' " + NUMBERS + ALPHABET:
             return f"Invalid input: '{userinput[i]}'"
     if userinput.count("(") != userinput.count(")"):
-        return "unmatched parentheses"
+        return ["Klammern unpaarig", "Il manque au moins une parenthese", "Unmatched parentheses"][lang]
     
     userinput = userinput.replace("pi", "π")
     userinput = userinput.lstrip().rstrip()
@@ -53,7 +55,15 @@ def calculate(userinput):
         F = Function(userinput)
         answer = F.str_out
     except Exception as error:
-        return error, None
+        print("error:", repr(error))
+        print("error.args:", error.args)
+        if error.args:
+            if len(error.args) > 1:
+                return error.args[lang], ""
+            else:
+                return error.args[0], ""
+        else:
+            return repr(error)[:-2], ""
     
     try:
         answer += f"\n\n≈ {eval(answer)}"
@@ -73,7 +83,8 @@ def show_answer(event=None):
     fig.clear()
     size = int(20 - len(answer) / 7)
     print(f"{size = }, {len(answer) = }")
-    fig.text(size / 150, 0.45, text, fontsize=size)
+    if text != "$$":
+        fig.text(size / 150, 0.45, text, fontsize=size)
     canvas.draw()
 
 
@@ -150,7 +161,7 @@ def create_screen():
     
     sw = root.winfo_screenwidth()  # 1680
     sh = root.winfo_screenheight()  # 1050
-    # sh, sw = 500, 700
+    sh, sw = 500, 700
     
     root.geometry(f"{sw}x{sh}")
     root.title("Wolframbeta")
@@ -215,7 +226,7 @@ def create_screen():
     def exit_screen(event=None):
         root.destroy()
     
-    exitbutton = Button(bottomframe, text="Exit", command=exit_screen, highlightthickness=1.5,
+    exitbutton = Button(bottomframe, text=["Schließen", "Fermer", "Exit"][lang], command=exit_screen, highlightthickness=1.5,
                         highlightbackground="red")
     exitbutton.place(relx=0.85, rely=0.2, relwidth=0.1, relheight=0.6)
     

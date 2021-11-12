@@ -5,6 +5,9 @@
 
 - Vereinfachen
 - 1/x*x -> 1
+- sin(x) - sin(x) -> 0            }
+- sin(x) + 2sin(x) -> 3*sin(x)    } kompliziert!
+- sin²(x) * sin³(x) -> sin⁵(x)    }
 
 """
 
@@ -118,9 +121,13 @@ def parse(f: str, ableiten=False):
         return f
     
     if f[0] in "*/^'`":
-        raise SyntaxError(f"first character cannot be '{f[0]}'")
+        raise SyntaxError(*tuple(f"{text}: '{f[0]}'" for text in ["Erstes Zeichen kann nicht sein",
+                                                           "Premier charactère ne peut pas être",
+                                                           "First character cannot be"]))
     if f[-1] in "+-*/^":
-        raise SyntaxError(f"last character cannot be '{f[-1]}'")
+        raise SyntaxError(*tuple(f"{text}: '{f[0]}'" for text in ["Letztes Zeichen kann nicht sein",
+                                                                 "Dernier charactère ne peut pas être",
+                                                                 "Last character cannot be"]))
     
     f0 = f
     f, innerargs = extract_args(f)  # klammern und ihr inneres ersetzen
@@ -139,11 +146,13 @@ def parse(f: str, ableiten=False):
         
         # @2 -> verboten
         elif f[i] == "@" and f[i + 1] in NUMBERS:
-            raise SyntaxError(f"Invalid syntax : '){f[i + 1]}'")
+            raise SyntaxError(*tuple(f"{text} : '){f[i + 1]}'" for text in
+                                    ["Ungültiger Ausdruck", "Syntaxe invalide", "Invalid syntax"]))
         
         # x2 -> verboten
         elif f[i] in ALPHABET and f[i + 1] in NUMBERS:
-            raise SyntaxError(f"Invalid syntax : '{f[i]}{f[i + 1]}'")
+            raise SyntaxError(*tuple(f"{text} : '{f[i]}{f[i + 1]}'" for text in
+                                    ["Ungültiger Ausdruck", "Syntaxe invalide", "Invalid syntax"]))
         
         i += 1
         
@@ -153,6 +162,18 @@ def parse(f: str, ableiten=False):
     
     def find_repeated_args(args: list, operation) -> list:
         arg_list = []
+        # arg_and_factor = []
+        # for arg in args:
+        #     if arg not in arg_and_factor[::2]:
+        #         arg_and_factor.append(arg)
+        #         arg_and_factor.append(1)
+        #     elif arg in arg_and_factor[::2]:
+        #         arg_and_factor[arg_and_factor.index(arg) + 1] += 1
+        #     elif type(arg) == list and arg[0] == "+":
+        #         for eventual_factor in arg_and_factor[::2]:
+        #             if eventual_factor in arg[1]:
+        #                 arg_and_factor[arg_and_factor.index(eventual_factor) + 1] +=  WTF ich gebe auf
+        
         for arg in args:
             count = args.count(arg)
             if count > 1:
@@ -168,11 +189,12 @@ def parse(f: str, ableiten=False):
         
         consts, funcs = split_consts(summands, isfloat)
         consts = sum([flint(s) for s in consts])
-        consts = [str(consts)] if consts else []
+        consts = [str(flint(consts))] if consts else []
         
         summands = [parse(s, ableiten) for s in consts + funcs]
-        summands = find_repeated_args(summands, "sum") if len(summands) > 2 else summands
-        
+        summands = find_repeated_args(summands, "sum")
+        if not summands:
+            summands = [0]
         PRINT += f"\n{summands=}, {consts = }, {funcs = }"
         return ["+", summands] if len(summands) > 1 else summands[0]
     
@@ -225,13 +247,20 @@ def parse(f: str, ableiten=False):
         if funcname in FUNCTIONS:
             args = innerargs[0].split(",")
             if len(args) > 2:
-                raise TypeError(f"{funcname} takes at most 2 arguments")
+                raise TypeError(*tuple(f"{funcname}  {text}" for text in
+                                       ["", "", "takes at most 2 arguments"]))
             if not check_ensemble_de_definition(funcname, args):
-                raise TypeError(f"{args[0]} is not inculed in the ensemble de definiton of {funcname}")
+                raise TypeError(*tuple(f"{args[0]} {text} {funcname}" for text in
+                                       ["gehört nicht in den Definitionsbeeich von",
+                                        "n'est pas dans l'ensemble de definition de",
+                                        "is not included in the domain of"]))
             return [funcname, *[parse(a, ableiten) for a in args]]
         
         else:
-            raise SyntaxError("Unknown function: " + funcname)
+            raise SyntaxError(*tuple(f"{text}: {funcname}" for text in
+                                     ["Unbekannte funktion",
+                                      "Fonction inconnue",
+                                      "Unknown function"]))
     
     raise Exception(f"The parser doesn't know how to parse: {f}")
 
@@ -544,7 +573,8 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "d/dx(x^3+ 2)-d/dx(8x)"
+    # func = "d/dx(x^3+ 2)-d/dx(8x)"
+    func = "sin(x)-sin(x)"
     
     try:
         f = Function(func)
