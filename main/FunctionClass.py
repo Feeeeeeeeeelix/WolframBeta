@@ -122,12 +122,12 @@ def parse(f: str, ableiten=False):
     
     if f[0] in "*/^'`":
         raise SyntaxError(*tuple(f"{text}: '{f[0]}'" for text in ["Erstes Zeichen kann nicht sein",
-                                                           "Premier charactère ne peut pas être",
-                                                           "First character cannot be"]))
+                                                                  "Premier charactère ne peut pas être",
+                                                                  "First character cannot be"]))
     if f[-1] in "+-*/^":
         raise SyntaxError(*tuple(f"{text}: '{f[0]}'" for text in ["Letztes Zeichen kann nicht sein",
-                                                                 "Dernier charactère ne peut pas être",
-                                                                 "Last character cannot be"]))
+                                                                  "Dernier charactère ne peut pas être",
+                                                                  "Last character cannot be"]))
     
     f0 = f
     f, innerargs = extract_args(f)  # klammern und ihr inneres ersetzen
@@ -147,12 +147,12 @@ def parse(f: str, ableiten=False):
         # @2 -> verboten
         elif f[i] == "@" and f[i + 1] in NUMBERS:
             raise SyntaxError(*tuple(f"{text} : '){f[i + 1]}'" for text in
-                                    ["Ungültiger Ausdruck", "Syntaxe invalide", "Invalid syntax"]))
+                                     ["Ungültiger Ausdruck", "Syntaxe invalide", "Invalid syntax"]))
         
         # x2 -> verboten
         elif f[i] in ALPHABET and f[i + 1] in NUMBERS:
             raise SyntaxError(*tuple(f"{text} : '{f[i]}{f[i + 1]}'" for text in
-                                    ["Ungültiger Ausdruck", "Syntaxe invalide", "Invalid syntax"]))
+                                     ["Ungültiger Ausdruck", "Syntaxe invalide", "Invalid syntax"]))
         
         i += 1
         
@@ -216,7 +216,7 @@ def parse(f: str, ableiten=False):
     if f[0] == "-":
         # keine substraktion
         return ["*", [-1, parse(f0[1:], ableiten)]]
-
+    
     # Ableitung
     if f.startswith("d/d") and f.endswith("@"):
         var = f[3]
@@ -227,7 +227,7 @@ def parse(f: str, ableiten=False):
         else:
             PRINT += f"\nparse: not diff: {f = }"
             return ["diff", parse(innerargs[0], ableiten), var]
-
+    
     if "/" in f:
         div = insert_args(f.split("/", 1), innerargs)
         PRINT += f"\n{div = }"
@@ -235,7 +235,7 @@ def parse(f: str, ableiten=False):
         num, denom = parse(div[0], ableiten), parse(div[1], ableiten)
         if not denom: raise ZeroDivisionError
         return ["/", [num, denom]] if num != denom else 1
-        
+    
     if "^" in f:
         base, exp = insert_args(f.split("^", 1), innerargs)
         PRINT += f"\n{base=}, {exp=}"
@@ -414,7 +414,7 @@ def write_latex(f: list):
                 return write_latex(["^", [f[1], ["/", [1, f[2]]]]])
         
         return "\\" + f[0] + "(" + str(write_latex(f[1])) + ")"
-
+    
     if f[0] == "diff":
         return rf"\frac{'{d}{d'}{f[2]}{'}'}({write(f[1])})"
 
@@ -545,7 +545,7 @@ class Function:
             PRINT += "\n\nWRITING TREE.."
             self.str_out = str(write(self.tree))
             PRINT += f"\n\n{self.str_out = }"
-
+            
             PRINT += "\n\nWRITING LATEX.."
             self.latex_out = str(write_latex(self.tree))
             PRINT += f"\n\nself.latex = " + self.latex_out
@@ -581,5 +581,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(PRINT)
         raise e
-        
+    
     print(PRINT)
