@@ -1,4 +1,4 @@
-# from functions import *
+from functions import *
 
 
 """TODO:
@@ -13,7 +13,7 @@
 
 FUNCTIONS = ["sqrt", "root", "exp", "ln", "log", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh",
              "cosh", "sinh", "arccosh", "arcsinh", "arctanh"]
-ALPHABET = "qwertzuiopasdfghjklyxcvbnmπ"
+ALPHABET = "qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNMπ"
 NUMBERS = "0123456789"
 
 PRINT = ""
@@ -358,6 +358,7 @@ def write_latex(f: list):
         sum_ = summands[0]
         for s in summands[1:]:
             sum_ += f" + {s}" if s[0] != "-" else f" - {s[1:]}"
+        
         return sum_
     
     if f[0] == "*":
@@ -416,7 +417,7 @@ def write_latex(f: list):
         return "\\" + f[0] + "(" + str(write_latex(f[1])) + ")"
     
     if f[0] == "diff":
-        return rf"\frac{'{d}{d'}{f[2]}{'}'}({write(f[1])})"
+        return rf"\frac{'{d}{d'}{f[2]}{'}'}({write_latex(f[1])})"
 
 
 def diff(f: list, VAR: str) -> list or int:
@@ -506,7 +507,10 @@ def diff(f: list, VAR: str) -> list or int:
         exp = f[1][1]
         
         if VAR in str(base) and VAR not in str(exp):  # x^a
-            return ["*", [exp, diff(base, VAR), ["^", [base, ["+", [exp, -1]]]]]]
+            if not isfloat(exp):
+                return ["*", [exp, diff(base, VAR), ["^", [base, ["+", [exp, -1]]]]]]
+            else:
+                return ["*", [exp, diff(base, VAR), ["^", [base, exp-1]]]]
         if VAR in str(exp) and VAR not in str(base):  # a^x
             return ["*", [["ln", base], diff(exp, VAR), ["^", [base, exp]]]]
         else:  # x^x
@@ -517,10 +521,16 @@ def diff(f: list, VAR: str) -> list or int:
     
     elif f[0] in FUNCTIONS:
         return funcderivative(f)
+    
+    elif f[0] == "diff":
+        return diff(f[1], f[2])
+    
+    else:
+        PRINT += f"\nDIFF: whats {f} ?"
 
 
 class Function:
-    def __init__(self, inputfunc: str or list):
+    def __init__(self, inputfunc: str or list, variable="x"):
         global PRINT
         if type(inputfunc) == str:
             self.str = inputfunc
@@ -550,7 +560,7 @@ class Function:
             self.latex_out = str(write_latex(self.tree))
             PRINT += f"\n\nself.latex = " + self.latex_out
             
-            self.lam = lambda x: eval(self.str_out.replace("^", "**"))
+            self.lam = lambda value: eval(self.str_out.replace("^", "**").replace(variable, str(value)))
         else:
             self.tree = inputfunc
             PRINT += f"\n\n{self.tree = }"
@@ -569,15 +579,17 @@ class Function:
         global PRINT
         PRINT += "\n\nDIFF FUNC.."
         f = Function(diff(self.tree, var))
-        return Function(f.str)
+        return Function(f.str, var)
 
 
 if __name__ == "__main__":
     # func = "d/dx(x^3+ 2)-d/dx(8x)"
-    func = "sin(x)-sin(x)"
+    # func = "sin(x)-sin(x)"
+    func = "2z"
     
     try:
         f = Function(func)
+        PRINT += "\n\n" + str(f.lam(45))
     except Exception as e:
         print(PRINT)
         raise e

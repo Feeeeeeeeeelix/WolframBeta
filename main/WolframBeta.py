@@ -1,11 +1,13 @@
-from tkinter import *
+from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage
 
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-from FunctionClass import *
+from FunctionClass import Function, NUMBERS, ALPHABET, flint
+from analysis import nullstellen, minimum, maximum, riemann, trapez, simpson, trapez_fehler, simpson_fehler
 from functions import *
+
 # from analysis import *
 
 
@@ -16,18 +18,73 @@ lang = 0
 # Deutsch: 0, Francais: 1, English: 2
 
 
+"""
+Andere Funktionen:
+- nullstellen (f(x) = 0)
+- min(), max()
+- Fläche (integral mit Riemann, Trapez oder simpson (Auswahl))
+- dafür optional fehler bestimmen
+
+
+"""
+
+
+def integrate(function, variable, method, lower=None, upper=None):
+    return "lol"
+
+
+def interprete(f):
+    if f.startswith("Int") and f[-3:-1] == ")d" and isinstance(f[-1], str):
+        if f[3] == "(":
+            var = f[-1]
+            function = Function(f[4:-3])
+            return "", integrate(function, var, "riemann"), ""
+        elif f[3] == "_":
+            lower_bound, i = "", 4
+            while f[i] in NUMBERS+",":
+                lower_bound += f[i]
+                i += 1
+            upper_bound = ""
+            i += 1
+            while f[i] in NUMBERS+",":
+                upper_bound += f[i]
+                i += 1
+            var = f[-1]
+            function = Function(f[i+1:-3])
+            return "", integrate(function, var, "riemann", flint(lower_bound), flint(upper_bound)), ""
+    else:
+        return None
+    
+
+def raise_error(error):
+    print("error:", repr(error))
+    print("error.args:", error.args)
+    
+    if error.args:
+        if len(error.args) > 1:
+            # Error mit verschieden Sprachen
+            return error.args[lang], "", ""
+        else:
+            return error.args[0], "", ""
+    else:
+        # zb: ZeroDivisionError (hat keine args)
+        # repr(error) würde ZeroDivisionError() ausgeben, man will die klammern weghaben
+        return repr(error)[:-2], "", ""
+    
+
 def calculate(userinput):
-    userinput = userinput.replace(" ", "").replace("**", "^").lower()
+    userinput = userinput.replace(" ", "").replace("**", "^")
+    userinput = userinput.replace("²", "^2").replace("³", "^3")
     
     for i, j in enumerate(userinput):
         if j not in ".,+-*/()^`' " + NUMBERS + ALPHABET:
-            return f"Invalid input: '{userinput[i]}'"
+            return f"Invalid input: '{userinput[i]}'", "", ""
     if userinput.count("(") != userinput.count(")"):
-        return ["Klammern unpaarig", "Il manque au moins une parenthese", "Unmatched parentheses"][lang]
+        return ["Klammern unpaarig", "Il manque au moins une parenthese", "Unmatched parentheses"][lang], "", ""
     
     userinput = userinput.replace("pi", "π")
     userinput = userinput.lstrip().rstrip()
-    answer = userinput
+    output_str = userinput
     
     # # Derivative
     # def derivative(userinput, var):
@@ -50,42 +107,49 @@ def calculate(userinput):
     # elif userinput.startswith("(") and userinput.endswith((")'", ")`")):
     #     userinput = userinput[1:-2]
     #     return derivative(userinput, "x")
-    
     try:
-        F = Function(userinput)
-        answer = F.str_out
-    except Exception as error:
-        print("error:", repr(error))
-        print("error.args:", error.args)
-        if error.args:
-            if len(error.args) > 1:
-                return error.args[lang], ""
-            else:
-                return error.args[0], ""
+        maybe_something =  interprete(userinput)
+        
+        if not maybe_something:
+            function = Function(userinput)
+            
+            userinput_latex = function.latex_in
+            output_str = function.str_out
+            output_latex = function.latex_out
         else:
-            return repr(error)[:-2], ""
+            return maybe_something
+           
+    except Exception as error:
+        return raise_error(error)
     
     try:
-        answer += f"\n\n≈ {eval(answer)}"
+        # Falls man eine approximativen Wert berechnen kann
+        output_str += f"\n\n≈ {eval(output_str)}"
     except Exception:
         pass
     
-    return answer, F.latex_out
+    return userinput_latex, output_latex, output_str
 
 
 def show_answer(event=None):
-    userinput = inputentry.get().lower()
-    answer, latexanswer = calculate(userinput)
+    userinput = inputentry.get()
+    userinput_latex, output_latex, output_str = calculate(userinput)
+    print(f"{userinput_latex = }, {output_latex = }, {output_str = }")
+    input_fig.clear()
+    latex_input = r"${}$".format(userinput_latex)
+    if latex_input != "$$":
+        input_fig.text(0.2, 0.5, latex_input)
+    input_canvas.draw()
     
-    outlabel["text"] = answer
-    
-    text = r"${}$".format(latexanswer)
-    fig.clear()
-    size = int(20 - len(answer) / 7)
-    print(f"{size = }, {len(answer) = }")
+    out_fig.clear()
+    text = r"${}$".format(output_latex)
+    size = int(20 - len(output_latex) / 7)
+    print(f"{size = }, {len(output_latex) = }")
     if text != "$$":
-        fig.text(size / 150, 0.45, text, fontsize=size)
-    canvas.draw()
+        out_fig.text(size / 150, 0.45, text, fontsize=size)
+    out_canvas.draw()
+
+    outlabel["text"] = output_str
 
 
 def selection_buttons(container, function, *names):
@@ -138,10 +202,11 @@ def analysis(n):
     print("ana: ", n)
     
     if n == 1:
-        inputentry.insert(0, "d/dx ")
+        inputentry.insert(0, "d/dx(")
+        inputentry.insert("end", ")")
     if n == 2:
-        inputentry.insert(0, "int ")
-        inputentry.insert(END, " dx")
+        inputentry.insert(0, "Int(")
+        inputentry.insert("end", ")dx")
     if n == 3:
         inputentry.insert(0, "lim x->inf ")
 
@@ -165,7 +230,6 @@ def create_screen():
     
     root.geometry(f"{sw}x{sh}")
     root.title("Wolframbeta")
-    
     
     # Topframe
     topframe = Frame(root, borderwidth=3, relief="raised")
@@ -200,6 +264,15 @@ def create_screen():
     inputentry = Entry(inputframe, bd=0, highlightthickness=1)
     inputentry.place(relx=0.05, rely=0.05, relwidth=0.9, relheight=0.3)
     
+    latex_in = Label(inputframe, bg="red")
+    latex_in.place(x=0, rely=0.32, relwidth=1, relheight=0.69)
+
+    global input_fig
+    global input_canvas
+    input_fig = Figure()
+    input_canvas = FigureCanvasTkAgg(input_fig, master=latex_in)
+    input_canvas.get_tk_widget().pack(side="top", fill="both", expand=1)
+
     bttn = Button(mittleframe, text="=", command=show_answer)
     bttn.place(relx=0.45, rely=0.45, relwidth=0.1, relheight=0.1)
     
@@ -213,11 +286,11 @@ def create_screen():
     latexout = Label(outputframe)
     latexout.place(x=0, rely=0.3, relwidth=1, relheight=0.7)
     
-    global fig
-    global canvas
-    fig = Figure()
-    canvas = FigureCanvasTkAgg(fig, master=latexout)
-    canvas.get_tk_widget().pack(side="top", fill="both", expand=1)
+    global out_fig
+    global out_canvas
+    out_fig = Figure()
+    out_canvas = FigureCanvasTkAgg(out_fig, master=latexout)
+    out_canvas.get_tk_widget().pack(side="top", fill="both", expand=1)
     
     # Bottomframe
     bottomframe = Label(root, borderwidth=3, relief="raised")
@@ -226,7 +299,8 @@ def create_screen():
     def exit_screen(event=None):
         root.destroy()
     
-    exitbutton = Button(bottomframe, text=["Schließen", "Fermer", "Exit"][lang], command=exit_screen, highlightthickness=1.5,
+    exitbutton = Button(bottomframe, text=["Schließen", "Fermer", "Exit"][lang], command=exit_screen,
+                        highlightthickness=1.5,
                         highlightbackground="red")
     exitbutton.place(relx=0.85, rely=0.2, relwidth=0.1, relheight=0.6)
     
