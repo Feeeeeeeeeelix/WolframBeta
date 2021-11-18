@@ -8,7 +8,7 @@
 - sin(x) - sin(x) -> 0            }
 - sin(x) + 2sin(x) -> 3*sin(x)    } kompliziert!
 - sin²(x) * sin³(x) -> sin⁵(x)    }
-
+lol
 """
 
 FUNCTIONS = ["sqrt", "root", "exp", "ln", "log", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh",
