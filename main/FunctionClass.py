@@ -254,6 +254,8 @@ def parse(f: str, ableiten=False):
                                        ["gehört nicht in den Definitionsbeeich von",
                                         "n'est pas dans l'ensemble de definition de",
                                         "is not included in the domain of"]))
+            if funcname == "root" and len(args) == 1:
+                return ["root", args[0], 2]
             return [funcname, *[parse(a, ableiten) for a in args]]
         
         else:
@@ -410,9 +412,11 @@ def write_latex(f: list):
         if f[0] == "root":
             n = write_latex(f[2])
             if isfloat(n):
-                return "\\sqrt[" + str(n) + "]{" + str(write_latex(f[0])) + "}"
+                return "\\sqrt[" + str(n) + "]{" + str(write_latex(f[1])) + "}"
             else:
                 return write_latex(["^", [f[1], ["/", [1, f[2]]]]])
+        if f[0] == "sqrt":
+            return rf"\sqrt{'{'}{write_latex(f[1])}{'}'}"
         
         return "\\" + f[0] + "(" + str(write_latex(f[1])) + ")"
     
@@ -583,9 +587,7 @@ class Function:
 
 
 if __name__ == "__main__":
-    # func = "d/dx(x^3+ 2)-d/dx(8x)"
-    # func = "sin(x)-sin(x)"
-    func = "2z"
+    func = "1/sqrt(x)"
     
     try:
         f = Function(func)

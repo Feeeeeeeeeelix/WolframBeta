@@ -4,7 +4,7 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-from FunctionClass import Function, NUMBERS, ALPHABET, flint
+from FunctionClass import Function, write_latex, NUMBERS, ALPHABET, flint
 from analysis import nullstellen, minimum, maximum, riemann, trapez, simpson, trapez_fehler, simpson_fehler
 from functions import *
 
@@ -30,16 +30,24 @@ Andere Funktionen:
 
 
 def integrate(function, variable, method, lower=None, upper=None):
-    return "lol"
+    if not (lower or upper):
+        return ""
+    f = Function(function, variable)
+    if method == "riemann":
+        return riemann(f, lower, upper)
+    elif method == "trapez":
+        return trapez(f, lower, upper)
+    elif method == "simpson":
+        return simpson(f, lower, upper)
 
 
 def interprete(f):
     if f.startswith("Int") and f[-3:-1] == ")d" and isinstance(f[-1], str):
         if f[3] == "(":
             var = f[-1]
-            function = Function(f[4:-3])
-            return "", integrate(function, var, "riemann"), ""
-        elif f[3] == "_":
+            function = f[4:-3]
+            return r"\int " + write_latex(function) + " d" + var, "not computable", ""
+        elif f[3] == "_":       # "Int_12,3^1,23(f)dx"
             lower_bound, i = "", 4
             while f[i] in NUMBERS+",":
                 lower_bound += f[i]
@@ -50,8 +58,9 @@ def interprete(f):
                 upper_bound += f[i]
                 i += 1
             var = f[-1]
-            function = Function(f[i+1:-3])
-            return "", integrate(function, var, "riemann", flint(lower_bound), flint(upper_bound)), ""
+            function = f[i+1:-3]
+            latex_input = rf"\int_{'{'}{lower_bound}{'}^{'}{upper_bound}{'}'}{write_latex(function)}d{var}"
+            return latex_input, integrate(function, var, "riemann", flint(lower_bound), flint(upper_bound)), ""
     else:
         return None
     
@@ -77,7 +86,7 @@ def calculate(userinput):
     userinput = userinput.replace("²", "^2").replace("³", "^3")
     
     for i, j in enumerate(userinput):
-        if j not in ".,+-*/()^`' " + NUMBERS + ALPHABET:
+        if j not in ".,+-*/()_^`' " + NUMBERS + ALPHABET:
             return f"Invalid input: '{userinput[i]}'", "", ""
     if userinput.count("(") != userinput.count(")"):
         return ["Klammern unpaarig", "Il manque au moins une parenthese", "Unmatched parentheses"][lang], "", ""
@@ -108,7 +117,7 @@ def calculate(userinput):
     #     userinput = userinput[1:-2]
     #     return derivative(userinput, "x")
     try:
-        maybe_something =  interprete(userinput)
+        maybe_something = interprete(userinput)
         
         if not maybe_something:
             function = Function(userinput)
@@ -135,18 +144,23 @@ def show_answer(event=None):
     userinput = inputentry.get()
     userinput_latex, output_latex, output_str = calculate(userinput)
     print(f"{userinput_latex = }, {output_latex = }, {output_str = }")
+    
     input_fig.clear()
     latex_input = r"${}$".format(userinput_latex)
+    l = len(latex_input)
+    size = int(1800/(l+50))
+    print(f"INPUT: {size = }, {len(latex_input) = }")
     if latex_input != "$$":
-        input_fig.text(0.2, 0.5, latex_input)
+        input_fig.text(10/(l+18), 0.5, latex_input, fontsize=size)
     input_canvas.draw()
     
     out_fig.clear()
     text = r"${}$".format(output_latex)
-    size = int(20 - len(output_latex) / 7)
-    print(f"{size = }, {len(output_latex) = }")
+    l = len(text)
+    size = int(2000/(l+50))
+    print(f"OUTPUT: {size = }, {l = }")
     if text != "$$":
-        out_fig.text(size / 150, 0.45, text, fontsize=size)
+        out_fig.text(10/(l+18), 0.45, text, fontsize=size)
     out_canvas.draw()
 
     outlabel["text"] = output_str
@@ -205,7 +219,7 @@ def analysis(n):
         inputentry.insert(0, "d/dx(")
         inputentry.insert("end", ")")
     if n == 2:
-        inputentry.insert(0, "Int(")
+        inputentry.insert(0, "Int_ ^ (")
         inputentry.insert("end", ")dx")
     if n == 3:
         inputentry.insert(0, "lim x->inf ")
@@ -235,7 +249,7 @@ def create_screen():
     topframe = Frame(root, borderwidth=3, relief="raised")
     topframe.place(y=0, relx=0.1, relheight=0.1, relwidth=0.9)
     
-    logopic = PhotoImage(file="logo.png").subsample(2, 2)
+    logopic = PhotoImage(file="../pictures/logo.png").subsample(2, 2)
     logo = Label(topframe, image=logopic)
     logo.place(relx=0.45, rely=0.35)
     
@@ -263,9 +277,10 @@ def create_screen():
     global inputentry
     inputentry = Entry(inputframe, bd=0, highlightthickness=1)
     inputentry.place(relx=0.05, rely=0.05, relwidth=0.9, relheight=0.3)
+    inputentry.focus()
     
-    latex_in = Label(inputframe, bg="red")
-    latex_in.place(x=0, rely=0.32, relwidth=1, relheight=0.69)
+    latex_in = Label(inputframe)
+    latex_in.place(x=0, rely=0.4, relwidth=1, relheight=0.6)
 
     global input_fig
     global input_canvas
