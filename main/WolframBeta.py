@@ -14,8 +14,8 @@ from functions import *
 lblue = "#1e3799"
 dblue = "#001B81"
 selection = 0
-lang = 0
-# Deutsch: 0, Francais: 1, English: 2
+lang = 0    # Deutsch: 0, Francais: 1, English: 2
+color_mode = 0
 
 
 """
@@ -27,6 +27,19 @@ Andere Funktionen:
 
 
 """
+
+
+def toggle_color_mode(containers):
+    global color_mode
+    color_mode = 1 if color_mode == 0 else 0
+    for container in containers:
+        print(type(container))
+        container["bg"] = ["#d9d9d9", "#404040"][color_mode]
+        if type(container) == Button or type(container) == Entry:
+            container["fg"] = ["black", "white"][color_mode]
+    input_fig.set_facecolor(["#d9d9d9", "#404040"][color_mode])
+    out_fig.set_facecolor(["#d9d9d9", "#404040"][color_mode])
+    print(input_fig.get_facecolor())
 
 
 def integrate(function, variable, method, lower=None, upper=None):
@@ -252,7 +265,15 @@ def create_screen():
     logopic = PhotoImage(file="../pictures/logo.png").subsample(2, 2)
     logo = Label(topframe, image=logopic)
     logo.place(relx=0.45, rely=0.35)
-    
+
+
+    toggle_color_button = Button(topframe,
+                                 text="Toggle darkmode" if color_mode == 0 else "Toggle lightmode",
+                                 command=lambda: toggle_color_mode(containers)
+                                 )
+    toggle_color_button.place(relx=0.8, rely=0.2)
+
+
     # Leftframe
     leftframe = Frame(root, bg=lblue)
     leftframe.place(y=0, x=0, relheight=1, relwidth=0.1)
@@ -318,7 +339,9 @@ def create_screen():
                         highlightthickness=1.5,
                         highlightbackground="red")
     exitbutton.place(relx=0.85, rely=0.2, relwidth=0.1, relheight=0.6)
-    
+
+    containers = [topframe, mittleframe, bottomframe, inputentry, inputframe, outlabel, bttn, toggle_color_button]
+
     root.bind("<Return>", show_answer)
     root.bind("<KP_Enter>", exit_screen)
     root.mainloop()
