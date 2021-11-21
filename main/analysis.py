@@ -184,12 +184,39 @@ def simpson_fehler(f, a, b):
     return abs(1 / 180 * (b - a) * h ** 4 * maximum(g, a, b))
 
 
+def euler_collatz(f_str,t_0,y_0,end,steps=1000):
+	#Löse y' = f(t,y) mit y(t_0) = y_0 auf dem Intervall (t_0 ; end) mit insgesamt 1000 Iterationsschritte/Stützstellen
+    f = lambda t,y: eval(f_str.replace("y","("+str(y)+")").replace("t","("+str(t)+")").replace("^","**"))
+
+    
+    y = [0] * steps
+    y[0] = y_0
+    dt = (end - t_0)/steps 
+    t = t_0
+    for i in range(1,steps):
+        y[i] = y[i-1] + dt * f(t + dt/2, y[i-1] + dt/2 * f(t,y[i-1]))
+        t += dt
+    return y  # Die Menge der Funktionswerte (die dazugehörigen x-Werte sind [ x_0 + i * dt for i in range(0,steps)])
+
+
+
+
+
 if __name__ == "__main__":
-    f = Function("x^2*cos(x^2)", "x")
+    print("Beispiele:\n")
 
-    print("trapez", trapez(f, 0, 10))
-    print("riemann", riemann(f, 0, 10))
-    print("simpson", simpson(f, 0, 10))
-
-    print("t Fehler-abschätzung:", trapez_fehler(f, 0, 10))
-    print("s Fehler-abschätzung:", simpson_fehler(f, 0, 10))
+    y = euler_collatz("y",0,1,3) # Löse y' = y mit y(0) = 1   --> y(t) = e^t einzige Lösung
+    print(y)
+    print("Zum Vergleich mit dem letzten Term: ", e**3)
+    
+    print("")
+    
+    y = euler_collatz("y^2",0,1,0.9) #Löse y'(t) = y^2 mit y(0) = 1 auf Intervall (0,0.9) --> exakte Lösung y(t) = 1/(1-t)
+    print(y)
+    print("Zum Vergleich mit dem letzten Term: ", 1/(1-0.9))
+    
+    print("")
+    
+    y = euler_collatz("y*t",0,1,2) #Löse y'(t) = y*t mit y(0) = 1 auf Intervall (0,2) --> exakte Lösung y(t) = e^{1/2*t^2}
+    print(y)
+    print("Zum Vergleich mit dem letzten Term: ", e**(1/2 * 2**2))
