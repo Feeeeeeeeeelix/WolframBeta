@@ -120,15 +120,6 @@ def parse(f: str, ableiten=False):
     if f in ALPHABET:
         return f
     
-    if f[0] in "*/^'`":
-        raise SyntaxError(*tuple(f"{text}: '{f[0]}'" for text in ["Erstes Zeichen kann nicht sein",
-                                                                  "Premier charactère ne peut pas être",
-                                                                  "First character cannot be"]))
-    if f[-1] in "+-*/^":
-        raise SyntaxError(*tuple(f"{text}: '{f[0]}'" for text in ["Letztes Zeichen kann nicht sein",
-                                                                  "Dernier charactère ne peut pas être",
-                                                                  "Last character cannot be"]))
-    
     f0 = f
     f, innerargs = extract_args(f)  # klammern und ihr inneres ersetzen
     
@@ -535,6 +526,7 @@ def diff(f: list, VAR: str) -> list or int:
 
 class Function:
     def __init__(self, inputfunc: str or list, variable="x"):
+        print(f"Function: {inputfunc = }")
         global PRINT
         if type(inputfunc) == str:
             self.str = inputfunc

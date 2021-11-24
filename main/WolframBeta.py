@@ -8,15 +8,13 @@ from FunctionClass import Function, write_latex, NUMBERS, ALPHABET, flint
 from analysis import nullstellen, minimum, maximum, riemann, trapez, simpson, trapez_fehler, simpson_fehler
 from functions import *
 
-# from analysis import *
-
-
 lblue = "#1e3799"
 dblue = "#001B81"
-selection = 0
-lang = 0    # Deutsch: 0, Francais: 1, English: 2
-color_mode = 0
-
+selection = 0  # Auswahl links
+lang = 0  # Deutsch: 0, Francais: 1, English: 2
+color_mode = 0  # 0: lightmode, 1: darkmode
+figures = []  # beide (Figure, Canvas)
+memory_dict = {}  # Speicher für userinputs
 
 """
 Andere Funktionen:
@@ -32,14 +30,17 @@ Andere Funktionen:
 def toggle_color_mode(containers):
     global color_mode
     color_mode = 1 if color_mode == 0 else 0
+    
     for container in containers:
-        print(type(container))
         container["bg"] = ["#d9d9d9", "#404040"][color_mode]
         if type(container) == Button or type(container) == Entry:
             container["fg"] = ["black", "white"][color_mode]
-    input_fig.set_facecolor(["#d9d9d9", "#404040"][color_mode])
-    out_fig.set_facecolor(["#d9d9d9", "#404040"][color_mode])
-    print(input_fig.get_facecolor())
+    
+    (input_fig, input_canvas), (out_fig, out_canvas) = figures
+    input_fig.set_facecolor(["white", "#404040"][color_mode])
+    out_fig.set_facecolor(["white", "#404040"][color_mode])
+    input_canvas.draw()
+    out_canvas.draw()
 
 
 def integrate(function, variable, method, lower=None, upper=None):
@@ -60,52 +61,60 @@ def interprete(f):
             var = f[-1]
             function = f[4:-3]
             return r"\int " + write_latex(function) + " d" + var, "not computable", ""
-        elif f[3] == "_":       # "Int_12,3^1,23(f)dx"
+        elif f[3] == "_":  # "Int_12,3^1,23(f)dx"
             lower_bound, i = "", 4
-            while f[i] in NUMBERS+",":
+            while f[i] in NUMBERS + ",":
                 lower_bound += f[i]
                 i += 1
             upper_bound = ""
             i += 1
-            while f[i] in NUMBERS+",":
+            while f[i] in NUMBERS + ",":
                 upper_bound += f[i]
                 i += 1
             var = f[-1]
-            function = f[i+1:-3]
+            function = f[i + 1:-3]
             latex_input = rf"\int_{'{'}{lower_bound}{'}^{'}{upper_bound}{'}'}{write_latex(function)}d{var}"
             return latex_input, integrate(function, var, "riemann", flint(lower_bound), flint(upper_bound)), ""
     else:
         return None
-    
+
 
 def raise_error(error):
-    print("error:", repr(error))
-    print("error.args:", error.args)
+    # print("error:", repr(error))
+    # print("error.args:", error.args)
     
     if error.args:
         if len(error.args) > 1:
             # Error mit verschieden Sprachen
-            return error.args[lang], "", ""
+            err = error.args[lang]
         else:
-            return error.args[0], "", ""
+            err = error.args[0]
     else:
         # zb: ZeroDivisionError (hat keine args)
         # repr(error) würde ZeroDivisionError() ausgeben, man will die klammern weghaben
-        return repr(error)[:-2], "", ""
-    
+        err = repr(error)[:-2]
+    show_error(err)
+
 
 def calculate(userinput):
     userinput = userinput.replace(" ", "").replace("**", "^")
     userinput = userinput.replace("²", "^2").replace("³", "^3")
-    
-    for i, j in enumerate(userinput):
-        if j not in ".,+-*/()_^`' " + NUMBERS + ALPHABET:
-            return f"Invalid input: '{userinput[i]}'", "", ""
-    if userinput.count("(") != userinput.count(")"):
-        return ["Klammern unpaarig", "Il manque au moins une parenthese", "Unmatched parentheses"][lang], "", ""
-    
     userinput = userinput.replace("pi", "π")
-    userinput = userinput.lstrip().rstrip()
+    
+    for chr in userinput:
+        if chr not in ".,+-*/()_^`' π" + NUMBERS + ALPHABET:
+            show_error(f"Invalid input: '{chr}'")
+            return
+    if userinput.count("(") != userinput.count(")"):
+        show_error(["Klammern unpaarig", "Il manque au moins une parenthese", "Unmatched parentheses"][lang])
+        return
+    if userinput[0] in "*/^'`":
+        show_error(f"{['Erstes Zeichen kann nicht sein', 'Premier charactère ne peut pas être', 'First character cannot be'][lang]}: '{userinput[0]}'")
+        return
+    if userinput[-1] in "+-*/^":
+        show_error(f"{['Letztes Zeichen kann nicht sein', 'Dernier charactère ne peut pas être', 'Last character cannot be'][lang]}: '{userinput[-1]}'")
+        return
+        
     output_str = userinput
     
     # # Derivative
@@ -140,9 +149,11 @@ def calculate(userinput):
             output_latex = function.latex_out
         else:
             return maybe_something
-           
+    
     except Exception as error:
-        return raise_error(error)
+        raise_error(error)
+        return
+    
     
     try:
         # Falls man eine approximativen Wert berechnen kann
@@ -153,29 +164,47 @@ def calculate(userinput):
     return userinput_latex, output_latex, output_str
 
 
-def show_answer(event=None):
-    userinput = inputentry.get()
-    userinput_latex, output_latex, output_str = calculate(userinput)
-    print(f"{userinput_latex = }, {output_latex = }, {output_str = }")
+def get_user_input(_=None):
+    # show_error("asdjugfherglerhgleruhgl")
+    user_input = inputentry.get()
+    if not user_input:
+        return
+    if user_input in memory_dict:
+        show_answer(*memory_dict[user_input])
+    else:
+        answers = calculate(user_input)
+        if not answers: return
+        show_answer(*answers)
+        memory_dict[user_input] = [*answers]
+
+
+def show_error(err):
+    error_label.config(text=err)
+
+
+def show_answer(*answers):
+    error_label.config(text="")
+    userinput_latex, output_latex, output_str = answers
+    (input_fig, input_canvas), (out_fig, out_canvas) = figures
     
     input_fig.clear()
     latex_input = r"${}$".format(userinput_latex)
     l = len(latex_input)
-    size = int(1800/(l+50))
-    print(f"INPUT: {size = }, {len(latex_input) = }")
+    size = int(1800 / (l + 50))
+    # print(f"INPUT: {size = }, {len(latex_input) = }")
     if latex_input != "$$":
-        input_fig.text(10/(l+18), 0.5, latex_input, fontsize=size)
+        input_fig.text(10 / (l + 18), 0.5, latex_input, fontsize=size, color=["black", "white"][color_mode])
     input_canvas.draw()
     
     out_fig.clear()
     text = r"${}$".format(output_latex)
     l = len(text)
-    size = int(2000/(l+50))
-    print(f"OUTPUT: {size = }, {l = }")
+    size = int(2000 / (l + 50))
+    # print(f"OUTPUT: {size = }, {l = }")
     if text != "$$":
-        out_fig.text(10/(l+18), 0.45, text, fontsize=size)
+        out_fig.text(10 / (l + 18), 0.45, text, fontsize=size, color=["black", "white"][color_mode])
     out_canvas.draw()
-
+    
     outlabel["text"] = output_str
 
 
@@ -265,15 +294,13 @@ def create_screen():
     logopic = PhotoImage(file="../pictures/logo.png").subsample(2, 2)
     logo = Label(topframe, image=logopic)
     logo.place(relx=0.45, rely=0.35)
-
-
+    
     toggle_color_button = Button(topframe,
                                  text="Toggle darkmode" if color_mode == 0 else "Toggle lightmode",
                                  command=lambda: toggle_color_mode(containers)
                                  )
     toggle_color_button.place(relx=0.8, rely=0.2)
-
-
+    
     # Leftframe
     leftframe = Frame(root, bg=lblue)
     leftframe.place(y=0, x=0, relheight=1, relwidth=0.1)
@@ -298,18 +325,20 @@ def create_screen():
     global inputentry
     inputentry = Entry(inputframe, bd=0, highlightthickness=1)
     inputentry.place(relx=0.05, rely=0.05, relwidth=0.9, relheight=0.3)
-    inputentry.focus()
+    
+    global error_label
+    error_label = Label(inputframe, bg="white", fg="red")
+    error_label.place(x=0, rely=0.375, relwidth=1, relheight=0.1)
     
     latex_in = Label(inputframe)
-    latex_in.place(x=0, rely=0.4, relwidth=1, relheight=0.6)
-
-    global input_fig
-    global input_canvas
+    latex_in.place(x=0, rely=0.5, relwidth=1, relheight=0.5)
+    
     input_fig = Figure()
     input_canvas = FigureCanvasTkAgg(input_fig, master=latex_in)
     input_canvas.get_tk_widget().pack(side="top", fill="both", expand=1)
-
-    bttn = Button(mittleframe, text="=", command=show_answer)
+    figures.append((input_fig, input_canvas))
+    
+    bttn = Button(mittleframe, text="=", command=get_user_input)
     bttn.place(relx=0.45, rely=0.45, relwidth=0.1, relheight=0.1)
     
     outputframe = Frame(mittleframe, highlightbackground=lblue, highlightthickness=2)
@@ -320,13 +349,12 @@ def create_screen():
     outlabel.place(x=0, y=0, relwidth=1, relheight=0.3)
     
     latexout = Label(outputframe)
-    latexout.place(x=0, rely=0.3, relwidth=1, relheight=0.7)
+    latexout.place(x=0, rely=0.3, relwidth=1, relheight=0.701)
     
-    global out_fig
-    global out_canvas
     out_fig = Figure()
     out_canvas = FigureCanvasTkAgg(out_fig, master=latexout)
     out_canvas.get_tk_widget().pack(side="top", fill="both", expand=1)
+    figures.append((out_fig, out_canvas))
     
     # Bottomframe
     bottomframe = Label(root, borderwidth=3, relief="raised")
@@ -334,16 +362,21 @@ def create_screen():
     
     def exit_screen(event=None):
         root.destroy()
+        print(f"{memory_dict = }")
     
-    exitbutton = Button(bottomframe, text=["Schließen", "Fermer", "Exit"][lang], command=exit_screen,
+    exitbutton = Button(bottomframe,
+                        text=["Schließen", "Fermer", "Exit"][lang],
+                        command=exit_screen,
                         highlightthickness=1.5,
                         highlightbackground="red")
     exitbutton.place(relx=0.85, rely=0.2, relwidth=0.1, relheight=0.6)
-
-    containers = [topframe, mittleframe, bottomframe, inputentry, inputframe, outlabel, bttn, toggle_color_button]
-
-    root.bind("<Return>", show_answer)
+    
+    containers = [topframe, logo, mittleframe, bottomframe, inputentry, inputframe, outlabel, bttn, toggle_color_button,
+                  exitbutton, latex_in, latexout, error_label]
+    
+    root.bind("<Return>", get_user_input)
     root.bind("<KP_Enter>", exit_screen)
+    inputentry.focus()
     root.mainloop()
 
 

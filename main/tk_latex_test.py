@@ -19,25 +19,28 @@ def graph(text, i):
     
     l = len(tmptext)
     size = int(2000/(l+50))
-    
-    fig.text(10/(l+18), 0.5, tmptext, fontsize=size)
+    fig.set_facecolor("#404040")
+    fig.text(10/(l+18), 0.5, tmptext, fontsize=size, color="white")
     canvas.draw()
     print(f"{i}: {l = }, {size = }")
 
 
 canva = []
-for y in [0, 1]:
-    for x in [0, 1, 2]:
-        frame = Frame(win)
-        frame.place(relx=.05+x*0.3, rely=.05+y*.4, relwidth=.27, relheight=0.336)
-        label = Label(frame)
-        label.pack()
-        fig = Figure()
-        canvas = FigureCanvasTkAgg(fig, master=label)
-        canvas.get_tk_widget().pack(fill="both", expand=1)
-        canva.append((fig, canvas))
+def screen():
 
+    for y in [0, 1]:
+        for x in [0, 1, 2]:
+            frame = Frame(win)
+            frame.place(relx=.05+x*0.3, rely=.05+y*.4, relwidth=.27, relheight=0.336)
+            label = Label(frame)
+            label.pack()
+            fig = Figure()
 
+            canvas = FigureCanvasTkAgg(fig, master=label)
+            canvas.get_tk_widget().pack(fill="both", expand=1)
+            canva.append((fig, canvas))
+
+screen()
 f1 = "x^2"
 f2 = r"x^2 + 34 \cdot x"
 f3 = r"\frac{sin(x)}{x+ln(cos(x))} + 23"
