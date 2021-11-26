@@ -10,6 +10,8 @@ from functions import *
 
 lblue = "#1e3799"
 dblue = "#001B81"
+lgray = "#d9d9d9"
+dgray = "#404040"
 selection = 0  # Auswahl links
 lang = 0  # Deutsch: 0, Francais: 1, English: 2
 color_mode = 0  # 0: lightmode, 1: darkmode
@@ -30,18 +32,30 @@ Andere Funktionen:
 def toggle_color_mode(containers):
     global color_mode
     color_mode = 1 if color_mode == 0 else 0
+    toggle_color_button.config(image=[darkmode_image, lightmode_image][color_mode], text=["Darkmode", "Lightmode"][color_mode])
     
     for container in containers:
-        container["bg"] = ["#d9d9d9", "#404040"][color_mode]
-        if type(container) == Button or type(container) == Entry:
+        container["bg"] = [lgray, dgray][color_mode]
+        if type(container) == Entry:
             container["fg"] = ["black", "white"][color_mode]
+        elif type(container) == Button:
+            container["fg"] = ["black", "white"][color_mode]
+            container["activebackground"] = ["#ececec", "#4c4c4c"][color_mode]
+            container["activeforeground"] = ["black", "#f0f0f0"][color_mode]
+            container["fg"] = ["black", "#f0f0f0"][color_mode]
     
     (input_fig, input_canvas), (out_fig, out_canvas) = figures
-    input_fig.set_facecolor(["white", "#404040"][color_mode])
-    out_fig.set_facecolor(["white", "#404040"][color_mode])
+    input_fig.set_facecolor(["white", "#505050"][color_mode])
+    out_fig.set_facecolor(["white", "#505050"][color_mode])
     input_canvas.draw()
     out_canvas.draw()
 
+
+def toggle_lang(language):
+    global lang
+    lang = language
+    toggle_color_button.config(image=[de_flag, fr_flag, gb_flag][lang], text=["Sprache", "Langue", "Language"][lang])
+    
 
 def integrate(function, variable, method, lower=None, upper=None):
     if not (lower or upper):
@@ -288,18 +302,47 @@ def create_screen():
     root.title("Wolframbeta")
     
     # Topframe
-    topframe = Frame(root, borderwidth=3, relief="raised")
+    topframe = Frame(root)
     topframe.place(y=0, relx=0.1, relheight=0.1, relwidth=0.9)
+    
+    topframe.columnconfigure(0, weight=5)
+    topframe.rowconfigure(0, weight=1)
     
     logopic = PhotoImage(file="../pictures/logo.png").subsample(2, 2)
     logo = Label(topframe, image=logopic)
-    logo.place(relx=0.45, rely=0.35)
+    logo.grid(row=0, column=0, sticky="news")
     
+    global toggle_color_button
+    global darkmode_image
+    global lightmode_image
+    darkmode_image = PhotoImage(file="../pictures/darkmode.png")
+    lightmode_image = PhotoImage(file="../pictures/lightmode.png")
     toggle_color_button = Button(topframe,
-                                 text="Toggle darkmode" if color_mode == 0 else "Toggle lightmode",
-                                 command=lambda: toggle_color_mode(containers)
+                                 image=[darkmode_image, lightmode_image][color_mode],
+                                 text=["Darkmode", "Lightmode"][color_mode],
+                                 command=lambda: toggle_color_mode(containers),
+                                 compound="left",
+                                 bd=0,
+                                 highlightbackground="#707070"
                                  )
-    toggle_color_button.place(relx=0.8, rely=0.2)
+    toggle_color_button.grid(row=0, column=1, sticky="ew", padx=10, pady=10)
+    
+    global toggle_lang_button
+    global de_flag
+    global fr_flag
+    global gb_flag
+    de_flag = PhotoImage(file="../pictures/de.png")
+    fr_flag = PhotoImage(file="../pictures/fr.png")
+    gb_flag = PhotoImage(file="../pictures/gb.png")
+    toggle_lang_button = Button(topframe,
+                                text="Sprache",
+                                image=de_flag,
+                                compound="left",
+                                command=toggle_lang,
+                                bd=0,
+                                highlightbackground="#707070"
+                                )
+    toggle_lang_button.grid(row=0, column=2, sticky="ew", padx=30, pady=10)
     
     # Leftframe
     leftframe = Frame(root, bg=lblue)
@@ -316,29 +359,29 @@ def create_screen():
     buttons = selection_buttons(leftframe, "select", "Analysis", "Algebra", "Numbers")
     
     # Mittleframe
-    mittleframe = Frame(root, borderwidth=3, relief="raised")
+    mittleframe = Frame(root)
     mittleframe.place(rely=0.1, relx=0.1, relheight=0.8, relwidth=0.9)
     
-    inputframe = Frame(mittleframe, highlightbackground=lblue, highlightcolor="green", highlightthickness=2, bg="white")
+    inputframe = Frame(mittleframe, highlightbackground=lblue, highlightcolor="green", highlightthickness=2)
     inputframe.place(relx=0.1, rely=0.2, relwidth=0.3, relheight=0.6)
     
     global inputentry
-    inputentry = Entry(inputframe, bd=0, highlightthickness=1)
-    inputentry.place(relx=0.05, rely=0.05, relwidth=0.9, relheight=0.3)
+    inputentry = Entry(inputframe, bd=0, highlightthickness=0, justify="center")
+    inputentry.place(relx=0, rely=0, relwidth=1, relheight=0.3)
     
     global error_label
-    error_label = Label(inputframe, bg="white", fg="red")
-    error_label.place(x=0, rely=0.375, relwidth=1, relheight=0.1)
+    error_label = Label(inputframe, fg="red")
+    error_label.place(x=0, rely=0.3, relwidth=1, relheight=0.1)
     
     latex_in = Label(inputframe)
-    latex_in.place(x=0, rely=0.5, relwidth=1, relheight=0.5)
+    latex_in.place(x=0, rely=0.4, relwidth=1, relheight=0.6)
     
     input_fig = Figure()
     input_canvas = FigureCanvasTkAgg(input_fig, master=latex_in)
-    input_canvas.get_tk_widget().pack(side="top", fill="both", expand=1)
+    input_canvas.get_tk_widget().pack()
     figures.append((input_fig, input_canvas))
     
-    bttn = Button(mittleframe, text="=", command=get_user_input)
+    bttn = Button(mittleframe, text="=", command=get_user_input, bd=0, highlightbackground="#707070")
     bttn.place(relx=0.45, rely=0.45, relwidth=0.1, relheight=0.1)
     
     outputframe = Frame(mittleframe, highlightbackground=lblue, highlightthickness=2)
@@ -357,7 +400,7 @@ def create_screen():
     figures.append((out_fig, out_canvas))
     
     # Bottomframe
-    bottomframe = Label(root, borderwidth=3, relief="raised")
+    bottomframe = Label(root)
     bottomframe.place(relx=0.1, rely=0.9, relwidth=0.9, relheight=0.1)
     
     def exit_screen(event=None):
@@ -367,11 +410,12 @@ def create_screen():
     exitbutton = Button(bottomframe,
                         text=["Schließen", "Fermer", "Exit"][lang],
                         command=exit_screen,
+                        bd=0,
                         highlightthickness=1.5,
                         highlightbackground="red")
     exitbutton.place(relx=0.85, rely=0.2, relwidth=0.1, relheight=0.6)
     
-    containers = [topframe, logo, mittleframe, bottomframe, inputentry, inputframe, outlabel, bttn, toggle_color_button,
+    containers = [topframe, logo, mittleframe, bottomframe, inputentry, inputframe, error_label, outlabel, bttn, toggle_color_button, toggle_lang_button,
                   exitbutton, latex_in, latexout, error_label]
     
     root.bind("<Return>", get_user_input)
