@@ -124,7 +124,7 @@ def parse(f: str, ableiten=False):
     f, innerargs = extract_args(f)  # klammern und ihr inneres ersetzen
     
     if f == "@":
-        # unnötige klammer
+        # unnötige klammern
         return parse(innerargs[0], ableiten)
     
     # implizierte Multiplikationen
@@ -209,7 +209,7 @@ def parse(f: str, ableiten=False):
         return ["*", [-1, parse(f0[1:], ableiten)]]
     
     # Ableitung
-    if f.startswith("d/d") and f.endswith("@"):
+    if f[0:3] == "d/d" and f[4] == "@" and len(f) == 5:
         var = f[3]
         assert type(var) == str
         if ableiten:
@@ -302,11 +302,11 @@ def write(f: list) -> str or int:
     if f[0] == "/":
         num = f[1][0]
         if type(num) == list:
-            num = f"({write(num)})" if num[0] == "+" else write(num)
+            num = f"({write(num)})" if num[0] in "+diff" else write(num)
         
         denom = f[1][1]
         if type(denom) == list:
-            denom = f"({write(denom)})" if denom[0] in "+*/" else write(denom)
+            denom = f"({write(denom)})" if denom[0] in "+*/diff" else write(denom)
         if not denom: raise ZeroDivisionError
         return 1 if num == denom else f"{num}/{denom}"
     
@@ -579,11 +579,11 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "1/sqrt(x)"
+    func = "(d/dx(x^2) )/( d/dx(x^3))"
     
     try:
         f = Function(func)
-        PRINT += "\n\n" + str(f.lam(45))
+        # PRINT += "\n\n" + str(f.lam(45))
     except Exception as e:
         print(PRINT)
         raise e
