@@ -1,5 +1,7 @@
 from random import randint
 from functions import sqrt
+from time import time
+
 
 def rint(x):
     if round(x,4) == round(x):
@@ -308,10 +310,10 @@ class Matrix():
             print("LU Zerlegung nicht möglich")
         
     
-    def sub_matrix(self,xmin,xmax,ymin,ymax):
+    def sub_matrix(self,ymin,ymax,xmin,xmax):
         coeffs =[]
-        for y in range(ymin,ymax+1):            
-            coeffs += [self[y][xmin:xmax+1]]
+        for y in range(ymin,ymax):            
+            coeffs += [self[y][xmin:xmax]]
 
         return Matrix(coeffs)
     
@@ -594,7 +596,7 @@ class Matrix():
         return R
 
     
-    def jacobi(self):
+    def jacobi(self): #32 n^2
         if self.T() == self:
             
             
@@ -690,25 +692,29 @@ class Matrix():
             C += [c]
             S += [s]
 
-            A = R.T().T()
+            A = R.sub_matrix(k,k+2,k,n)
             
+            j = 0
             for l in range(k,n):
-                R[k][l]   = c * A[k][l] - s * A[k+1][l]
-                R[k+1][l] = s * A[k][l] + c * A[k+1][l]
+                R[k][l]   = c * A[0][j] - s * A[1][j]
+                R[k+1][l] = s * A[0][j] + c * A[1][j]
+                j += 1
 
         for k in range(n-1):
             c, s = C[k], S[k]
             
-            A = R.T().T()
+            A = R.sub_matrix(0,k+2,k,k+2)
 
-            for l in range(n):
-                R[l][k]   =  c * A[l][k] - s * A[l][k+1]
-                R[l][k+1] =  s * A[l][k] + c * A[l][k+1]
+            j = 0
+            for l in range(k+2):
+                R[l][k]   =  c * A[j][0] - s * A[j][1]
+                R[l][k+1] =  s * A[j][0] + c * A[j][1]
+                j += 1
         return R
     
     def eigenvalues(self,iter = -1):
         if iter == -1:
-            iter = 30 * self.rows
+            iter = 40 * self.rows
         def QR_verfahren(self):
 
             M = self.hesseberg()
@@ -716,6 +722,7 @@ class Matrix():
         
             for i in range(iter):
                 if i % 20 == 0:
+                    #print(M)
                     print(100 * i / iter, "%")
                 kappa = M[n-1][n-1]
                 M = (M - kappa*Matrix.Id(n)).RQ_hesseberg()  +  kappa*Matrix.Id(n)
@@ -759,11 +766,11 @@ class Matrix():
                 eigenwerte.append([-C_1 / 2, 1 / 2 * sqrt(abs(C_1 * C_1 - 4 * C_2))])
                 eigenwerte.append([-C_1 / 2, -1 / 2 * sqrt(abs(C_1 * C_1 - 4 * C_2))])
         return eigenwerte
-    
 
-A = Matrix.Random(20,20, -10,10)
-
+A = Matrix.Random(20, 20, -10, 10)
 print(A)
-C = A.eigenvalues()
 
+t = time()
+print(A.eigenvalues())
+print( time() - t )
 
