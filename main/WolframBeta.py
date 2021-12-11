@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage
+from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage, OptionMenu, StringVar, Radiobutton
 
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
@@ -17,7 +17,7 @@ lang = 0  # Deutsch: 0, Francais: 1, English: 2
 color_mode = 0  # 0: lightmode, 1: darkmode
 figures = []  # beide (Figure, Canvas)
 memory_dict = {}  # Speicher für userinputs
-
+history = ()
 """
 Andere Funktionen:
 - nullstellen (f(x) = 0)
@@ -32,7 +32,9 @@ Andere Funktionen:
 def toggle_color_mode(containers):
     global color_mode
     color_mode = 1 if color_mode == 0 else 0
-    toggle_color_button.config(image=[darkmode_image, lightmode_image][color_mode], text=["Darkmode", "Lightmode"][color_mode])
+    toggle_color_button.config(image=[darkmode_image, lightmode_image][color_mode],
+                               text=["Darkmode", "Lightmode"][color_mode]
+                               )
     
     for container in containers:
         container["bg"] = [lgray, dgray][color_mode]
@@ -53,11 +55,17 @@ def toggle_color_mode(containers):
 
 def toggle_lang(language):
     global lang
-    lang = language
-    toggle_color_button.config(image=[de_flag, fr_flag, gb_flag][lang], text=["Sprache", "Langue", "Language"][lang])
-    
+    lang = lang_selection.get()
 
-def integrate(function, variable, method, lower=None, upper=None):
+    
+def integrate(function=None, variable=None, methodstr=None, lower=None, upper=None):
+    method = methodstr.get()
+    global history
+    if function:
+        history = function, variable, lower, upper
+    else:
+        function, variable, lower, upper = history
+
     if not (lower or upper):
         return ""
     f = Function(function, variable)
@@ -68,27 +76,37 @@ def integrate(function, variable, method, lower=None, upper=None):
     elif method == "simpson":
         return simpson(f, lower, upper)
 
+# Int_1^3(x^2)dx
+
 
 def interprete(f):
     if f.startswith("Int") and f[-3:-1] == ")d" and isinstance(f[-1], str):
         if f[3] == "(":
             var = f[-1]
             function = f[4:-3]
-            return r"\int " + write_latex(function) + " d" + var, "not computable", ""
+            show_error(["Nicht berechenbar!", "Non-calculable!", "Not computable!"][lang])
+            return r"\int " + write_latex(function) + " d" + var, "", ""
         elif f[3] == "_":  # "Int_12,3^1,23(f)dx"
             lower_bound, i = "", 4
-            while f[i] in NUMBERS + ",":
+            while f[i] in NUMBERS + ",eπ":
                 lower_bound += f[i]
                 i += 1
             upper_bound = ""
             i += 1
-            while f[i] in NUMBERS + ",":
+            while f[i] in NUMBERS + ",eπ":
                 upper_bound += f[i]
                 i += 1
             var = f[-1]
             function = f[i + 1:-3]
+            
+            method = StringVar(value="riemann")
+            b1 = Radiobutton(einstellungs_frame, text="Riemann", variable=method, value="riemann").pack()
+            b2 = Radiobutton(einstellungs_frame, text="Trapez", variable=method, value="trapez").pack()
+            b3 = Radiobutton(einstellungs_frame, text="Simpson", variable=method, value="simpson").pack()
+            method.trace("w", integrate)
+            
             latex_input = rf"\int_{'{'}{lower_bound}{'}^{'}{upper_bound}{'}'}{write_latex(function)}d{var}"
-            return latex_input, integrate(function, var, "riemann", flint(lower_bound), flint(upper_bound)), ""
+            return latex_input, integrate(function, var, method, flint(lower_bound), flint(upper_bound)), ""
     else:
         return None
 
@@ -168,7 +186,6 @@ def calculate(userinput):
         raise_error(error)
         return
     
-    
     try:
         # Falls man eine approximativen Wert berechnen kann
         output_str += f"\n\n≈ {eval(output_str)}"
@@ -179,7 +196,6 @@ def calculate(userinput):
 
 
 def get_user_input(_=None):
-    # show_error("asdjugfherglerhgleruhgl")
     user_input = inputentry.get()
     if not user_input:
         return
@@ -194,10 +210,11 @@ def get_user_input(_=None):
 
 def show_error(err):
     error_label.config(text=err)
+    print(f"Error: {err}")
 
 
 def show_answer(*answers):
-    error_label.config(text="")
+    show_error("")
     userinput_latex, output_latex, output_str = answers
     (input_fig, input_canvas), (out_fig, out_canvas) = figures
     
@@ -219,7 +236,7 @@ def show_answer(*answers):
         out_fig.text(10 / (l + 18), 0.45, text, fontsize=size, color=["black", "white"][color_mode])
     out_canvas.draw()
     
-    outlabel["text"] = output_str
+    # outlabel["text"] = output_str
 
 
 def selection_buttons(container, function, *names):
@@ -275,10 +292,10 @@ def analysis(n):
         inputentry.insert(0, "d/dx(")
         inputentry.insert("end", ")")
     if n == 2:
-        inputentry.insert(0, "Int_ ^ (")
+        inputentry.insert(0, "Int_^(")
         inputentry.insert("end", ")dx")
     if n == 3:
-        inputentry.insert(0, "lim x->inf ")
+        inputentry.insert(0, "lim ")
 
 
 def algebra(n):
@@ -327,22 +344,22 @@ def create_screen():
                                  )
     toggle_color_button.grid(row=0, column=1, sticky="ew", padx=10, pady=10)
     
-    global toggle_lang_button
-    global de_flag
-    global fr_flag
-    global gb_flag
-    de_flag = PhotoImage(file="../pictures/de.png")
-    fr_flag = PhotoImage(file="../pictures/fr.png")
-    gb_flag = PhotoImage(file="../pictures/gb.png")
-    toggle_lang_button = Button(topframe,
-                                text="Sprache",
-                                image=de_flag,
-                                compound="left",
-                                command=toggle_lang,
-                                bd=0,
-                                highlightbackground="#707070"
-                                )
-    toggle_lang_button.grid(row=0, column=2, sticky="ew", padx=30, pady=10)
+    # global toggle_lang_button
+    # global de_flag
+    # global fr_flag
+    # global gb_flag
+    # de_flag = PhotoImage(file="../pictures/de.png").subsample(3, 3)
+    # fr_flag = PhotoImage(file="../pictures/fr.png")
+    # gb_flag = PhotoImage(file="../pictures/gb.png")
+    
+    global lang_selection
+    lang_selection = StringVar()
+    toggle_lang_menu = OptionMenu(topframe,
+                                lang_selection,
+                                "Deutsch",
+                                "Francais",
+                                "English", command=toggle_lang)
+    toggle_lang_menu.grid(row=0, column=2, sticky="ew", padx=30, pady=10)
     
     # Leftframe
     leftframe = Frame(root, bg=lblue)
@@ -387,12 +404,16 @@ def create_screen():
     outputframe = Frame(mittleframe, highlightbackground=lblue, highlightthickness=2)
     outputframe.place(relx=0.6, rely=0.2, relwidth=0.3, relheight=0.6)
     
-    global outlabel
-    outlabel = Label(outputframe)
-    outlabel.place(x=0, y=0, relwidth=1, relheight=0.3)
+    global einstellungs_frame
+    einstellungs_frame = Frame(outputframe)
+    einstellungs_frame.place(x=0, y=0, relwidth=1, relheight=0.3)
+    
+    # global outlabel
+    # outlabel = Label(outputframe)
+    # outlabel.place(x=0, y=0, relwidth=1, relheight=0.3)
     
     latexout = Label(outputframe)
-    latexout.place(x=0, rely=0.3, relwidth=1, relheight=0.701)
+    latexout.place(x=0, rely=0.4, relwidth=1, relheight=0.6)
     
     out_fig = Figure()
     out_canvas = FigureCanvasTkAgg(out_fig, master=latexout)
@@ -415,8 +436,8 @@ def create_screen():
                         highlightbackground="red")
     exitbutton.place(relx=0.85, rely=0.2, relwidth=0.1, relheight=0.6)
     
-    containers = [topframe, logo, mittleframe, bottomframe, inputentry, inputframe, error_label, outlabel, bttn, toggle_color_button, toggle_lang_button,
-                  exitbutton, latex_in, latexout, error_label]
+    containers = [topframe, logo, mittleframe, bottomframe, inputentry, inputframe, error_label, einstellungs_frame,
+                  bttn, toggle_color_button, toggle_lang_menu, exitbutton, latex_in, latexout, error_label]
     
     root.bind("<Return>", get_user_input)
     root.bind("<KP_Enter>", exit_screen)
