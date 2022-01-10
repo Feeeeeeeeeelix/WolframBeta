@@ -8,14 +8,22 @@ from FunctionClass import Function, write_latex, NUMBERS, ALPHABET, flint
 from analysis import nullstellen, minimum, maximum, riemann, trapez, simpson, trapez_fehler, simpson_fehler
 from functions import *
 
+
+# Screen class:
 lblue = "#1e3799"
 dblue = "#001B81"
 lgray = "#d9d9d9"
 dgray = "#404040"
-selection = 0  # Auswahl links
-lang = 0  # Deutsch: 0, Francais: 1, English: 2
 color_mode = 0  # 0: lightmode, 1: darkmode
+selection = 0  # Auswahl links
+
+# General:
+lang = 0  # Deutsch: 0, Francais: 1, English: 2
+
+# unnötig:
 figures = []  # beide (Figure, Canvas)
+
+# vllt interprete class
 memory_dict = {}  # Speicher für userinputs
 history = ()
 """
@@ -28,7 +36,7 @@ Andere Funktionen:
 
 """
 
-
+# cls screen
 def toggle_color_mode(containers):
     global color_mode
     color_mode = 1 if color_mode == 0 else 0
@@ -53,11 +61,12 @@ def toggle_color_mode(containers):
     out_canvas.draw()
 
 
+# cls screen
 def toggle_lang(language):
     global lang
     lang = lang_selection.get()
 
-    
+# cls interprete
 def integrate(function=None, variable=None, methodstr=None, lower=None, upper=None):
     method = methodstr.get()
     global history
@@ -78,7 +87,7 @@ def integrate(function=None, variable=None, methodstr=None, lower=None, upper=No
 
 # Int_1^3(x^2)dx
 
-
+# cls interprete
 def interprete(f):
     if f.startswith("Int") and f[-3:-1] == ")d" and isinstance(f[-1], str):
         if f[3] == "(":
@@ -110,7 +119,7 @@ def interprete(f):
     else:
         return None
 
-
+# cls interprete
 def raise_error(error):
     # print("error:", repr(error))
     # print("error.args:", error.args)
@@ -127,7 +136,7 @@ def raise_error(error):
         err = repr(error)[:-2]
     show_error(err)
 
-
+# cls interprete
 def calculate(userinput):
     userinput = userinput.replace(" ", "").replace("**", "^")
     userinput = userinput.replace("²", "^2").replace("³", "^3")
@@ -207,12 +216,12 @@ def get_user_input(_=None):
         show_answer(*answers)
         memory_dict[user_input] = [*answers]
 
-
+# cls screen
 def show_error(err):
     error_label.config(text=err)
     print(f"Error: {err}")
 
-
+# cls screen
 def show_answer(*answers):
     show_error("")
     userinput_latex, output_latex, output_str = answers
@@ -238,7 +247,7 @@ def show_answer(*answers):
     
     # outlabel["text"] = output_str
 
-
+# cls screen
 def selection_buttons(container, function, *names):
     buttons = []
     
@@ -260,12 +269,12 @@ def selection_buttons(container, function, *names):
     
     return buttons
 
-
+# cls screen
 def clear_frame():
     for widget in selectframe.winfo_children():
         widget.destroy()
 
-
+# cls screen
 def select(topic):
     global selection
     selection = topic if selection != topic else 0
@@ -305,7 +314,7 @@ def algebra(n):
 def numbers(n):
     print("numbers: ", n)
 
-
+# cls screen
 def create_screen():
     root = Tk()
     # matplotlib.use('TkAgg')
