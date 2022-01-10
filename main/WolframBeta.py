@@ -9,62 +9,32 @@ from analysis import nullstellen, minimum, maximum, riemann, trapez, simpson, tr
 from functions import *
 
 
-# Screen class:
 lblue = "#1e3799"
 dblue = "#001B81"
 lgray = "#d9d9d9"
 dgray = "#404040"
-color_mode = 0  # 0: lightmode, 1: darkmode
-selection = 0  # Auswahl links
 
-# General:
-lang = 0  # Deutsch: 0, Francais: 1, English: 2
-
-# unnötig:
-figures = []  # beide (Figure, Canvas)
+# Deutsch: 0, Francais: 1, English: 2
+lang = 0
 
 # vllt interprete class
 memory_dict = {}  # Speicher für userinputs
 history = ()
+
 """
 Andere Funktionen:
 - nullstellen (f(x) = 0)
 - min(), max()
 - Fläche (integral mit Riemann, Trapez oder simpson (Auswahl))
 - dafür optional fehler bestimmen
-
-
+- 
 """
 
-# cls screen
-def toggle_color_mode(containers):
-    global color_mode
-    color_mode = 1 if color_mode == 0 else 0
-    toggle_color_button.config(image=[darkmode_image, lightmode_image][color_mode],
-                               text=["Darkmode", "Lightmode"][color_mode]
-                               )
-    
-    for container in containers:
-        container["bg"] = [lgray, dgray][color_mode]
-        if type(container) == Entry:
-            container["fg"] = ["black", "white"][color_mode]
-        elif type(container) == Button:
-            container["fg"] = ["black", "white"][color_mode]
-            container["activebackground"] = ["#ececec", "#4c4c4c"][color_mode]
-            container["activeforeground"] = ["black", "#f0f0f0"][color_mode]
-            container["fg"] = ["black", "#f0f0f0"][color_mode]
-    
-    (input_fig, input_canvas), (out_fig, out_canvas) = figures
-    input_fig.set_facecolor(["white", "#505050"][color_mode])
-    out_fig.set_facecolor(["white", "#505050"][color_mode])
-    input_canvas.draw()
-    out_canvas.draw()
 
-
-# cls screen
-def toggle_lang(language):
+def toggle_lang():
     global lang
-    lang = lang_selection.get()
+    lang = app.lang_selection.get()
+
 
 # cls interprete
 def integrate(function=None, variable=None, methodstr=None, lower=None, upper=None):
@@ -85,7 +55,6 @@ def integrate(function=None, variable=None, methodstr=None, lower=None, upper=No
     elif method == "simpson":
         return simpson(f, lower, upper)
 
-# Int_1^3(x^2)dx
 
 # cls interprete
 def interprete(f):
@@ -107,23 +76,24 @@ def interprete(f):
                 i += 1
             var = f[-1]
             function = f[i + 1:-3]
-            
+
             method = StringVar(value="riemann")
             b1 = Radiobutton(einstellungs_frame, text="Riemann", variable=method, value="riemann").pack()
             b2 = Radiobutton(einstellungs_frame, text="Trapez", variable=method, value="trapez").pack()
             b3 = Radiobutton(einstellungs_frame, text="Simpson", variable=method, value="simpson").pack()
             method.trace("w", integrate)
-            
+
             latex_input = rf"\int_{'{'}{lower_bound}{'}^{'}{upper_bound}{'}'}{write_latex(function)}d{var}"
             return latex_input, integrate(function, var, method, flint(lower_bound), flint(upper_bound)), ""
     else:
         return None
 
+
 # cls interprete
 def raise_error(error):
     # print("error:", repr(error))
     # print("error.args:", error.args)
-    
+
     if error.args:
         if len(error.args) > 1:
             # Error mit verschieden Sprachen
@@ -136,12 +106,13 @@ def raise_error(error):
         err = repr(error)[:-2]
     show_error(err)
 
+
 # cls interprete
 def calculate(userinput):
     userinput = userinput.replace(" ", "").replace("**", "^")
     userinput = userinput.replace("²", "^2").replace("³", "^3")
     userinput = userinput.replace("pi", "π")
-    
+
     for chr in userinput:
         if chr not in ".,+-*/()_^`' π" + NUMBERS + ALPHABET:
             show_error(f"Invalid input: '{chr}'")
@@ -150,14 +121,16 @@ def calculate(userinput):
         show_error(["Klammern unpaarig", "Il manque au moins une parenthese", "Unmatched parentheses"][lang])
         return
     if userinput[0] in "*/^'`":
-        show_error(f"{['Erstes Zeichen kann nicht sein', 'Premier charactère ne peut pas être', 'First character cannot be'][lang]}: '{userinput[0]}'")
+        show_error(
+            f"{['Erstes Zeichen kann nicht sein', 'Premier charactère ne peut pas être', 'First character cannot be'][lang]}: '{userinput[0]}'")
         return
     if userinput[-1] in "+-*/^":
-        show_error(f"{['Letztes Zeichen kann nicht sein', 'Dernier charactère ne peut pas être', 'Last character cannot be'][lang]}: '{userinput[-1]}'")
+        show_error(
+            f"{['Letztes Zeichen kann nicht sein', 'Dernier charactère ne peut pas être', 'Last character cannot be'][lang]}: '{userinput[-1]}'")
         return
-        
+
     output_str = userinput
-    
+
     # # Derivative
     # def derivative(userinput, var):
     #     try:
@@ -181,26 +154,26 @@ def calculate(userinput):
     #     return derivative(userinput, "x")
     try:
         maybe_something = interprete(userinput)
-        
+
         if not maybe_something:
             function = Function(userinput)
-            
+
             userinput_latex = function.latex_in
             output_str = function.str_out
             output_latex = function.latex_out
         else:
             return maybe_something
-    
+
     except Exception as error:
         raise_error(error)
         return
-    
+
     try:
         # Falls man eine approximativen Wert berechnen kann
         output_str += f"\n\n≈ {eval(output_str)}"
     except Exception:
         pass
-    
+
     return userinput_latex, output_latex, output_str
 
 
@@ -216,243 +189,251 @@ def get_user_input(_=None):
         show_answer(*answers)
         memory_dict[user_input] = [*answers]
 
-# cls screen
-def show_error(err):
-    error_label.config(text=err)
-    print(f"Error: {err}")
 
-# cls screen
-def show_answer(*answers):
-    show_error("")
-    userinput_latex, output_latex, output_str = answers
-    (input_fig, input_canvas), (out_fig, out_canvas) = figures
-    
-    input_fig.clear()
-    latex_input = r"${}$".format(userinput_latex)
-    l = len(latex_input)
-    size = int(1800 / (l + 50))
-    # print(f"INPUT: {size = }, {len(latex_input) = }")
-    if latex_input != "$$":
-        input_fig.text(10 / (l + 18), 0.5, latex_input, fontsize=size, color=["black", "white"][color_mode])
-    input_canvas.draw()
-    
-    out_fig.clear()
-    text = r"${}$".format(output_latex)
-    l = len(text)
-    size = int(2000 / (l + 50))
-    # print(f"OUTPUT: {size = }, {l = }")
-    if text != "$$":
-        out_fig.text(10 / (l + 18), 0.45, text, fontsize=size, color=["black", "white"][color_mode])
-    out_canvas.draw()
-    
-    # outlabel["text"] = output_str
+class Screen(Tk):
+    def __init__(self):
+        super().__init__()
 
-# cls screen
-def selection_buttons(container, function, *names):
-    buttons = []
-    
-    whitebg = Label(container)
-    whitebg.place(rely=0.01, relx=0.05, relwidth=0.9, relheight=len(names) / 10 - 0.01)
-    
-    for i, name in enumerate(names):
-        button = Button(container,
-                        text=name,
-                        bg=lblue,
-                        fg="white",
-                        highlightthickness=0,
-                        bd=0,
-                        activebackground=dblue,
-                        activeforeground="white",
-                        command=lambda n=i + 1: eval(function)(n))
-        button.place(rely=i / 10, x=0, relwidth=1, relheight=0.099)
-        buttons.append(button)
-    
-    return buttons
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
 
-# cls screen
-def clear_frame():
-    for widget in selectframe.winfo_children():
-        widget.destroy()
+        self.geometry(f"{screen_width}x{screen_height}")
+        self.title("Wolframbeta")
 
-# cls screen
-def select(topic):
-    global selection
-    selection = topic if selection != topic else 0
-    
-    clear_frame()
-    for i in range(3):
-        buttons[i]["bg"] = lblue
-    
-    if selection == 1:
-        buttons[0]["bg"] = dblue
-        selection_buttons(selectframe, "analysis", "Ableitung", "Integral", "Grenzwert", "Graph")
-    if selection == 2:
-        buttons[1]["bg"] = dblue
-        selection_buttons(selectframe, "algebra", "Matrizen")
-    if selection == 3:
-        buttons[2]["bg"] = dblue
-        selection_buttons(selectframe, "numbers", "Zahlentheorie")
+        # 0: lightmode, 1: darkmode
+        self.color_mode = 0
 
+        # für die LaTeX schrift
+        plt.rcParams["mathtext.fontset"] = "cm"
+        # matplotlib.use("TkAgg")
 
-def analysis(n):
-    print("ana: ", n)
-    
-    if n == 1:
-        inputentry.insert(0, "d/dx(")
-        inputentry.insert("end", ")")
-    if n == 2:
-        inputentry.insert(0, "Int_^(")
-        inputentry.insert("end", ")dx")
-    if n == 3:
-        inputentry.insert(0, "lim ")
+        # Top Frame
+        self.top_frame = Frame(self)
+        self.top_frame.place(y=0, relx=0.1, relheight=0.1, relwidth=0.9)
 
+        self.top_frame.columnconfigure(0, weight=5)
+        self.top_frame.rowconfigure(0, weight=1)
 
-def algebra(n):
-    print("algebra: ", n)
+        self.logo_pic = PhotoImage(file="../pictures/logo.png").subsample(2, 2)
+        self.logo = Label(self.top_frame, image=self.logo_pic)
+        self.logo.grid(row=0, column=0, sticky="news")
 
+        self.darkmode_image = PhotoImage(file="../pictures/darkmode.png")
+        self.lightmode_image = PhotoImage(file="../pictures/lightmode.png")
+        self.toggle_color_button = Button(self.top_frame,
+                                          image=[self.darkmode_image, self.lightmode_image][self.color_mode],
+                                          text=["Darkmode", "Lightmode"][self.color_mode],
+                                          command=lambda: self.toggle_color_mode(self.container),
+                                          compound="left",
+                                          bd=0,
+                                          highlightbackground="#707070"
+                                          )
+        self.toggle_color_button.grid(row=0, column=1, sticky="ew", padx=10, pady=10)
 
-def numbers(n):
-    print("numbers: ", n)
+        # global toggle_lang_button
+        # global de_flag
+        # global fr_flag
+        # global gb_flag
+        # de_flag = PhotoImage(file="../pictures/de.png").subsample(3, 3)
+        # fr_flag = PhotoImage(file="../pictures/fr.png")
+        # gb_flag = PhotoImage(file="../pictures/gb.png")
 
-# cls screen
-def create_screen():
-    root = Tk()
-    # matplotlib.use('TkAgg')
-    plt.rcParams["mathtext.fontset"] = "cm"
-    
-    sw = root.winfo_screenwidth()  # 1680
-    sh = root.winfo_screenheight()  # 1050
-    sh, sw = 500, 700
-    
-    root.geometry(f"{sw}x{sh}")
-    root.title("Wolframbeta")
-    
-    # Topframe
-    topframe = Frame(root)
-    topframe.place(y=0, relx=0.1, relheight=0.1, relwidth=0.9)
-    
-    topframe.columnconfigure(0, weight=5)
-    topframe.rowconfigure(0, weight=1)
-    
-    logopic = PhotoImage(file="../pictures/logo.png").subsample(2, 2)
-    logo = Label(topframe, image=logopic)
-    logo.grid(row=0, column=0, sticky="news")
-    
-    global toggle_color_button
-    global darkmode_image
-    global lightmode_image
-    darkmode_image = PhotoImage(file="../pictures/darkmode.png")
-    lightmode_image = PhotoImage(file="../pictures/lightmode.png")
-    toggle_color_button = Button(topframe,
-                                 image=[darkmode_image, lightmode_image][color_mode],
-                                 text=["Darkmode", "Lightmode"][color_mode],
-                                 command=lambda: toggle_color_mode(containers),
-                                 compound="left",
-                                 bd=0,
-                                 highlightbackground="#707070"
-                                 )
-    toggle_color_button.grid(row=0, column=1, sticky="ew", padx=10, pady=10)
-    
-    # global toggle_lang_button
-    # global de_flag
-    # global fr_flag
-    # global gb_flag
-    # de_flag = PhotoImage(file="../pictures/de.png").subsample(3, 3)
-    # fr_flag = PhotoImage(file="../pictures/fr.png")
-    # gb_flag = PhotoImage(file="../pictures/gb.png")
-    
-    global lang_selection
-    lang_selection = StringVar()
-    toggle_lang_menu = OptionMenu(topframe,
-                                lang_selection,
-                                "Deutsch",
-                                "Francais",
-                                "English", command=toggle_lang)
-    toggle_lang_menu.grid(row=0, column=2, sticky="ew", padx=30, pady=10)
-    
-    # Leftframe
-    leftframe = Frame(root, bg=lblue)
-    leftframe.place(y=0, x=0, relheight=1, relwidth=0.1)
-    
-    sep = Label(leftframe, bg="white")
-    sep.place(x=0, rely=0.299, relwidth=1, height=3)
-    
-    global selectframe
-    selectframe = Frame(leftframe, bg=lblue)
-    selectframe.place(x=0, rely=0.305, relwidth=1, relheight=0.695)
-    
-    global buttons
-    buttons = selection_buttons(leftframe, "select", "Analysis", "Algebra", "Numbers")
-    
-    # Mittleframe
-    mittleframe = Frame(root)
-    mittleframe.place(rely=0.1, relx=0.1, relheight=0.8, relwidth=0.9)
-    
-    inputframe = Frame(mittleframe, highlightbackground=lblue, highlightcolor="green", highlightthickness=2)
-    inputframe.place(relx=0.1, rely=0.2, relwidth=0.3, relheight=0.6)
-    
-    global inputentry
-    inputentry = Entry(inputframe, bd=0, highlightthickness=0, justify="center")
-    inputentry.place(relx=0, rely=0, relwidth=1, relheight=0.3)
-    
-    global error_label
-    error_label = Label(inputframe, fg="red")
-    error_label.place(x=0, rely=0.3, relwidth=1, relheight=0.1)
-    
-    latex_in = Label(inputframe)
-    latex_in.place(x=0, rely=0.4, relwidth=1, relheight=0.6)
-    
-    input_fig = Figure()
-    input_canvas = FigureCanvasTkAgg(input_fig, master=latex_in)
-    input_canvas.get_tk_widget().pack()
-    figures.append((input_fig, input_canvas))
-    
-    bttn = Button(mittleframe, text="=", command=get_user_input, bd=0, highlightbackground="#707070")
-    bttn.place(relx=0.45, rely=0.45, relwidth=0.1, relheight=0.1)
-    
-    outputframe = Frame(mittleframe, highlightbackground=lblue, highlightthickness=2)
-    outputframe.place(relx=0.6, rely=0.2, relwidth=0.3, relheight=0.6)
-    
-    global einstellungs_frame
-    einstellungs_frame = Frame(outputframe)
-    einstellungs_frame.place(x=0, y=0, relwidth=1, relheight=0.3)
-    
-    # global outlabel
-    # outlabel = Label(outputframe)
-    # outlabel.place(x=0, y=0, relwidth=1, relheight=0.3)
-    
-    latexout = Label(outputframe)
-    latexout.place(x=0, rely=0.4, relwidth=1, relheight=0.6)
-    
-    out_fig = Figure()
-    out_canvas = FigureCanvasTkAgg(out_fig, master=latexout)
-    out_canvas.get_tk_widget().pack(side="top", fill="both", expand=1)
-    figures.append((out_fig, out_canvas))
-    
-    # Bottomframe
-    bottomframe = Label(root)
-    bottomframe.place(relx=0.1, rely=0.9, relwidth=0.9, relheight=0.1)
-    
-    def exit_screen(event=None):
-        root.destroy()
+        self.lang_selection = StringVar()
+        self.toggle_lang_menu = OptionMenu(self.top_frame,
+                                           self.lang_selection,
+                                           "Deutsch",
+                                           "Francais",
+                                           "English",
+                                           command=toggle_lang)
+        self.toggle_lang_menu.grid(row=0, column=2, sticky="ew", padx=30, pady=10)
+
+        # Left frame
+        self.left_frame = Frame(self, bg=lblue)
+        self.left_frame.place(y=0, x=0, relheight=1, relwidth=0.1)
+
+        self.sep = Label(self.left_frame, bg="white")
+        self.sep.place(x=0, rely=0.299, relwidth=1, height=3)
+
+        self.select_frame = Frame(self.left_frame, bg=lblue)
+        self.select_frame.place(x=0, rely=0.305, relwidth=1, relheight=0.695)
+
+        self.selection = 0
+        self.buttons = self.selection_buttons(self.left_frame, "select", "Analysis", "Algebra", "Numbers")
+
+        # Mittle frame
+        self.mittle_frame = Frame(self)
+        self.mittle_frame.place(rely=0.1, relx=0.1, relheight=0.8, relwidth=0.9)
+
+        self.input_frame = Frame(self.mittle_frame, highlightbackground=lblue, highlightcolor="green",
+                                 highlightthickness=2)
+        self.input_frame.place(relx=0.1, rely=0.2, relwidth=0.3, relheight=0.6)
+
+        self.input_entry = Entry(self.input_frame, bd=0, highlightthickness=0, justify="center")
+        self.input_entry.focus()
+        self.input_entry.place(relx=0, rely=0, relwidth=1, relheight=0.3)
+
+        self.error_label = Label(self.input_frame, fg="red")
+        self.error_label.place(x=0, rely=0.3, relwidth=1, relheight=0.1)
+
+        self.latex_in = Label(self.input_frame)
+        self.latex_in.place(x=0, rely=0.4, relwidth=1, relheight=0.6)
+
+        self.input_fig = Figure()
+        self.input_canvas = FigureCanvasTkAgg(self.input_fig, master=self.latex_in)
+        self.input_canvas.get_tk_widget().pack()
+
+        self.enter_button = Button(self.mittle_frame, text="=", command=get_user_input, bd=0,
+                                   highlightbackground="#707070")
+        self.enter_button.place(relx=0.45, rely=0.45, relwidth=0.1, relheight=0.1)
+
+        self.output_frame = Frame(self.mittle_frame, highlightbackground=lblue, highlightthickness=2)
+        self.output_frame.place(relx=0.6, rely=0.2, relwidth=0.3, relheight=0.6)
+
+        self.einstellungs_frame = Frame(self.output_frame)
+        self.einstellungs_frame.place(x=0, y=0, relwidth=1, relheight=0.3)
+
+        self.latex_out = Label(self.output_frame)
+        self.latex_out.place(x=0, rely=0.4, relwidth=1, relheight=0.6)
+
+        self.out_fig = Figure()
+        self.out_canvas = FigureCanvasTkAgg(self.out_fig, master=self.latex_out)
+        self.out_canvas.get_tk_widget().pack(side="top", fill="both", expand=1)
+
+        # Bottom frame
+        self.bottom_frame = Label(self)
+        self.bottom_frame.place(relx=0.1, rely=0.9, relwidth=0.9, relheight=0.1)
+
+        self.exit_button = Button(self.bottom_frame,
+                                  text=["Schließen", "Fermer", "Exit"][lang],
+                                  command=self.exit_screen,
+                                  bd=0,
+                                  highlightthickness=1.5,
+                                  highlightbackground="red")
+        self.exit_button.place(relx=0.85, rely=0.2, relwidth=0.1, relheight=0.6)
+
+        self.container = [self.top_frame, self.logo, self.toggle_color_button, self.toggle_lang_menu,
+                          self.mittle_frame, self.input_frame, self.output_frame, self.error_label,
+                          self.einstellungs_frame,
+                          self.enter_button, self.latex_in, self.latex_out,
+                          self.bottom_frame, self.exit_button]
+
+        self.bind("<Return>", get_user_input)
+        self.bind("<KP_Enter>", self.exit_screen)
+
+        self.mainloop()
+
+    def show_error(self, error):
+        self.error_label.config(text=error)
+        print(f"Error: {error}")
+
+    def show_answer(self, *answers):
+        self.show_error("")
+        userinput_latex, output_latex, output_str = answers
+
+        self.input_fig.clear()
+        latex_input = r"${}$".format(userinput_latex)
+        length = len(latex_input)
+        size = int(1800 / (length + 50))
+        # print(f"INPUT: {size = }, {length = }")
+        if latex_input != "$$":
+            self.input_fig.text(10 / (length + 18), 0.5, latex_input, fontsize=size, color=["black", "white"][self.color_mode])
+        self.input_canvas.draw()
+
+        self.out_fig.clear()
+        text = r"${}$".format(output_latex)
+        length = len(text)
+        size = int(2000 / (length + 50))
+        # print(f"OUTPUT: {size = }, {length = }")
+        if text != "$$":
+            self.out_fig.text(10 / (length + 18), 0.45, text, fontsize=size, color=["black", "white"][self.color_mode])
+        self.out_canvas.draw()
+
+        # outlabel["text"] = output_str
+
+    def toggle_color_mode(self, containers):
+        self.color_mode = 1 - self.color_mode
+        self.toggle_color_button.config(image=[self.darkmode_image, self.lightmode_image][self.color_mode],
+                                        text=["Darkmode", "Lightmode"][self.color_mode])
+
+        for container in containers:
+            container["bg"] = [lgray, dgray][self.color_mode]
+            if type(container) == Entry:
+                container["fg"] = ["black", "white"][self.color_mode]
+            elif type(container) == Button:
+                container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
+                container["activeforeground"] = ["black", "#f0f0f0"][self.color_mode]
+                container["fg"] = ["black", "#f0f0f0"][self.color_mode]
+
+        self.input_fig.set_facecolor(["white", "#505050"][self.color_mode])
+        self.out_fig.set_facecolor(["white", "#505050"][self.color_mode])
+        self.input_canvas.draw()
+        self.out_canvas.draw()
+
+    def clear_select_frame(self):
+        for widget in self.select_frame.winfo_children():
+            widget.destroy()
+
+    @staticmethod
+    def selection_buttons(container, function, *names):
+        buttons = []
+
+        white_bg = Label(container)
+        white_bg.place(rely=0.01, relx=0.05, relwidth=0.9, relheight=len(names) / 10 - 0.01)
+
+        for i, name in enumerate(names):
+            button = Button(container,
+                            text=name,
+                            bg=lblue,
+                            fg="white",
+                            highlightthickness=0,
+                            bd=0,
+                            activebackground=dblue,
+                            activeforeground="white",
+                            command=lambda n=i + 1: eval(function)(n))
+            button.place(rely=i / 10, x=0, relwidth=1, relheight=0.099)
+            buttons.append(button)
+
+        return buttons
+
+    def select(self, topic):
+        self.selection = topic if self.selection != topic else 0
+
+        self.clear_select_frame()
+        for i in range(3):
+            self.buttons[i]["bg"] = lblue
+
+        if self.selection == 1:
+            self.buttons[0]["bg"] = dblue
+            self.selection_buttons(self.select_frame, "analysis", "Ableitung", "Integral", "Grenzwert", "Graph")
+        if self.selection == 2:
+            self.buttons[1]["bg"] = dblue
+            self.selection_buttons(self.select_frame, "algebra", "Matrizen")
+        if self.selection == 3:
+            self.buttons[2]["bg"] = dblue
+            self.selection_buttons(self.select_frame, "numbers", "Zahlentheorie")
+
+    def analysis(self, n):
+        print("ana: ", n)
+
+        if n == 1:
+            self.input_entry.insert(0, "d/dx(")
+            self.input_entry.insert("end", ")")
+        if n == 2:
+            self.input_entry.insert(0, "Int_^(")
+            self.input_entry.insert("end", ")dx")
+        if n == 3:
+            self.input_entry.insert(0, "lim ")
+
+    def algebra(self, n):
+        print("algebra: ", n)
+
+    def numbers(self, n):
+        print("numbers: ", n)
+
+    def exit_screen(self, event=None):
+        self.destroy()
         print(f"{memory_dict = }")
-    
-    exitbutton = Button(bottomframe,
-                        text=["Schließen", "Fermer", "Exit"][lang],
-                        command=exit_screen,
-                        bd=0,
-                        highlightthickness=1.5,
-                        highlightbackground="red")
-    exitbutton.place(relx=0.85, rely=0.2, relwidth=0.1, relheight=0.6)
-    
-    containers = [topframe, logo, mittleframe, bottomframe, inputentry, inputframe, error_label, einstellungs_frame,
-                  bttn, toggle_color_button, toggle_lang_menu, exitbutton, latex_in, latexout, error_label]
-    
-    root.bind("<Return>", get_user_input)
-    root.bind("<KP_Enter>", exit_screen)
-    inputentry.focus()
-    root.mainloop()
 
 
 if __name__ == "__main__":
-    create_screen()
+    app = Screen()
