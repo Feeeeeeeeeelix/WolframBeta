@@ -17,10 +17,6 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-# vllt interprete class
-memory_dict = {}  # Speicher für userinputs
-history = ()
-
 """
 Andere Funktionen:
 - nullstellen (f(x) = 0)
@@ -36,158 +32,160 @@ def toggle_lang():
     lang = app.lang_selection.get()
 
 
-# cls interprete
-def integrate(function=None, variable=None, methodstr=None, lower=None, upper=None):
-    method = methodstr.get()
-    global history
-    if function:
-        history = function, variable, lower, upper
-    else:
-        function, variable, lower, upper = history
+class Interpreter:
+    memory_dict = {}
+    history = ()
 
-    if not (lower or upper):
-        return ""
-    f = Function(function, variable)
-    if method == "riemann":
-        return riemann(f, lower, upper)
-    elif method == "trapez":
-        return trapez(f, lower, upper)
-    elif method == "simpson":
-        return simpson(f, lower, upper)
-
-
-# cls interprete
-def interprete(f):
-    if f.startswith("Int") and f[-3:-1] == ")d" and isinstance(f[-1], str):
-        if f[3] == "(":
-            var = f[-1]
-            function = f[4:-3]
-            show_error(["Nicht berechenbar!", "Non-calculable!", "Not computable!"][lang])
-            return r"\int " + write_latex(function) + " d" + var, "", ""
-        elif f[3] == "_":  # "Int_12,3^1,23(f)dx"
-            lower_bound, i = "", 4
-            while f[i] in NUMBERS + ",eπ":
-                lower_bound += f[i]
-                i += 1
-            upper_bound = ""
-            i += 1
-            while f[i] in NUMBERS + ",eπ":
-                upper_bound += f[i]
-                i += 1
-            var = f[-1]
-            function = f[i + 1:-3]
-
-            method = StringVar(value="riemann")
-            b1 = Radiobutton(einstellungs_frame, text="Riemann", variable=method, value="riemann").pack()
-            b2 = Radiobutton(einstellungs_frame, text="Trapez", variable=method, value="trapez").pack()
-            b3 = Radiobutton(einstellungs_frame, text="Simpson", variable=method, value="simpson").pack()
-            method.trace("w", integrate)
-
-            latex_input = rf"\int_{'{'}{lower_bound}{'}^{'}{upper_bound}{'}'}{write_latex(function)}d{var}"
-            return latex_input, integrate(function, var, method, flint(lower_bound), flint(upper_bound)), ""
-    else:
-        return None
-
-
-# cls interprete
-def raise_error(error):
-    # print("error:", repr(error))
-    # print("error.args:", error.args)
-
-    if error.args:
-        if len(error.args) > 1:
-            # Error mit verschieden Sprachen
-            err = error.args[lang]
+    @staticmethod
+    def integrate(function=None, variable=None, methodstr=None, lower=None, upper=None):
+        method = methodstr.get()
+        global history
+        if function:
+            history = function, variable, lower, upper
         else:
-            err = error.args[0]
-    else:
-        # zb: ZeroDivisionError (hat keine args)
-        # repr(error) würde ZeroDivisionError() ausgeben, man will die klammern weghaben
-        err = repr(error)[:-2]
-    show_error(err)
+            function, variable, lower, upper = history
 
+        if not (lower or upper):
+            return ""
+        f = Function(function, variable)
+        if method == "riemann":
+            return riemann(f, lower, upper)
+        elif method == "trapez":
+            return trapez(f, lower, upper)
+        elif method == "simpson":
+            return simpson(f, lower, upper)
 
-# cls interprete
-def calculate(userinput):
-    userinput = userinput.replace(" ", "").replace("**", "^")
-    userinput = userinput.replace("²", "^2").replace("³", "^3")
-    userinput = userinput.replace("pi", "π")
+    @staticmethod
+    def interprete(f):
+        if f.startswith("Int") and f[-3:-1] == ")d" and isinstance(f[-1], str):
+            if f[3] == "(":
+                var = f[-1]
+                function = f[4:-3]
+                app.show_error(["Nicht berechenbar!", "Non-calculable!", "Not computable!"][lang])
+                return r"\int " + write_latex(function) + " d" + var, "", ""
 
-    for chr in userinput:
-        if chr not in ".,+-*/()_^`' π" + NUMBERS + ALPHABET:
-            show_error(f"Invalid input: '{chr}'")
+            elif f[3] == "_":  # "Int_12,3^1,23(f)dx"
+                lower_bound, i = "", 4
+                while f[i] in NUMBERS + ",eπ":
+                    lower_bound += f[i]
+                    i += 1
+                upper_bound = ""
+                i += 1
+                while f[i] in NUMBERS + ",eπ":
+                    upper_bound += f[i]
+                    i += 1
+                var = f[-1]
+                function = f[i + 1:-3]
+
+                method = StringVar(value="riemann")
+                Radiobutton(app.einstellungs_frame, text="Riemann", variable=method, value="riemann").pack()
+                Radiobutton(app.einstellungs_frame, text="Trapez", variable=method, value="trapez").pack()
+                Radiobutton(app.einstellungs_frame, text="Simpson", variable=method, value="simpson").pack()
+                method.trace("w", Interpreter.integrate)
+
+                latex_input = rf"\int_{'{'}{lower_bound}{'}^{'}{upper_bound}{'}'}{write_latex(function)}d{var}"
+                return latex_input, Interpreter.integrate(function, var, method, flint(lower_bound), flint(upper_bound)), ""
+        else:
+            return None
+
+    @staticmethod
+    def raise_error(error):
+        # print("error:", repr(error))
+        # print("error.args:", error.args)
+
+        if error.args:
+            if len(error.args) > 1:
+                # Error mit verschieden Sprachen
+                err = error.args[lang]
+            else:
+                err = error.args[0]
+        else:
+            # zb: ZeroDivisionError (hat keine args)
+            # repr(error) würde ZeroDivisionError() ausgeben, man will die klammern weghaben
+            err = repr(error)[:-2]
+        app.show_error(err)
+
+    @staticmethod
+    def calculate(userinput):
+        userinput = userinput.replace(" ", "").replace("**", "^")
+        userinput = userinput.replace("²", "^2").replace("³", "^3")
+        userinput = userinput.replace("pi", "π")
+
+        for chr in userinput:
+            if chr not in ".,+-*/()_^`' π" + NUMBERS + ALPHABET:
+                app.show_error(f"Invalid input: '{chr}'")
+                return
+        if userinput.count("(") != userinput.count(")"):
+            app.show_error(["Klammern unpaarig", "Il manque au moins une parenthese", "Unmatched parentheses"][lang])
             return
-    if userinput.count("(") != userinput.count(")"):
-        show_error(["Klammern unpaarig", "Il manque au moins une parenthese", "Unmatched parentheses"][lang])
-        return
-    if userinput[0] in "*/^'`":
-        show_error(
-            f"{['Erstes Zeichen kann nicht sein', 'Premier charactère ne peut pas être', 'First character cannot be'][lang]}: '{userinput[0]}'")
-        return
-    if userinput[-1] in "+-*/^":
-        show_error(
-            f"{['Letztes Zeichen kann nicht sein', 'Dernier charactère ne peut pas être', 'Last character cannot be'][lang]}: '{userinput[-1]}'")
-        return
+        if userinput[0] in "*/^'`":
+            app.show_error(
+                f"{['Erstes Zeichen kann nicht sein', 'Premier charactère ne peut pas être', 'First character cannot be'][lang]}: '{userinput[0]}'")
+            return
+        if userinput[-1] in "+-*/^":
+            app.show_error(
+                f"{['Letztes Zeichen kann nicht sein', 'Dernier charactère ne peut pas être', 'Last character cannot be'][lang]}: '{userinput[-1]}'")
+            return
 
-    output_str = userinput
+        output_str = userinput
 
-    # # Derivative
-    # def derivative(userinput, var):
-    #     try:
-    #         F = Function(userinput, var)
-    #         answer = F.diff()
-    #     except Exception as error:
-    #         return error, None
-    #     return answer.str, answer.latex
-    #
-    # if userinput.startswith("d/d"):
-    #     var = userinput[3]
-    #     if var == " ":
-    #         return f"Invalid syntax: {userinput[:4]}"
-    #
-    #     userinput = userinput[4:].lstrip()
-    #     print(userinput, var)
-    #     return derivative(userinput, var)
-    #
-    # elif userinput.startswith("(") and userinput.endswith((")'", ")`")):
-    #     userinput = userinput[1:-2]
-    #     return derivative(userinput, "x")
-    try:
-        maybe_something = interprete(userinput)
+        # # Derivative
+        # def derivative(userinput, var):
+        #     try:
+        #         F = Function(userinput, var)
+        #         answer = F.diff()
+        #     except Exception as error:
+        #         return error, None
+        #     return answer.str, answer.latex
+        #
+        # if userinput.startswith("d/d"):
+        #     var = userinput[3]
+        #     if var == " ":
+        #         return f"Invalid syntax: {userinput[:4]}"
+        #
+        #     userinput = userinput[4:].lstrip()
+        #     print(userinput, var)
+        #     return derivative(userinput, var)
+        #
+        # elif userinput.startswith("(") and userinput.endswith((")'", ")`")):
+        #     userinput = userinput[1:-2]
+        #     return derivative(userinput, "x")
+        try:
+            maybe_something = Interpreter.interprete(userinput)
 
-        if not maybe_something:
-            function = Function(userinput)
+            if not maybe_something:
+                function = Function(userinput)
 
-            userinput_latex = function.latex_in
-            output_str = function.str_out
-            output_latex = function.latex_out
+                userinput_latex = function.latex_in
+                output_str = function.str_out
+                output_latex = function.latex_out
+            else:
+                return maybe_something
+
+        except Exception as error:
+            Interpreter.raise_error(error)
+            return
+
+        try:
+            # Falls man einen approximativen Wert berechnen kann
+            output_str += f"\n\n≈ {eval(output_str)}"
+        except Exception:
+            pass
+
+        return userinput_latex, output_latex, output_str
+
+    @staticmethod
+    def get_user_input(_=None):
+        user_input = app.input_entry.get()
+        if not user_input:
+            return
+        if user_input in Interpreter.memory_dict:
+            app.show_answer(Interpreter.memory_dict[user_input])
         else:
-            return maybe_something
-
-    except Exception as error:
-        raise_error(error)
-        return
-
-    try:
-        # Falls man eine approximativen Wert berechnen kann
-        output_str += f"\n\n≈ {eval(output_str)}"
-    except Exception:
-        pass
-
-    return userinput_latex, output_latex, output_str
-
-
-def get_user_input(_=None):
-    user_input = inputentry.get()
-    if not user_input:
-        return
-    if user_input in memory_dict:
-        show_answer(*memory_dict[user_input])
-    else:
-        answers = calculate(user_input)
-        if not answers: return
-        show_answer(*answers)
-        memory_dict[user_input] = [*answers]
+            answers = Interpreter.calculate(user_input)
+            if not answers: return
+            app.show_answer(*answers)
+            Interpreter.memory_dict[user_input] = [*answers]
 
 
 class Screen(Tk):
@@ -282,7 +280,7 @@ class Screen(Tk):
         self.input_canvas = FigureCanvasTkAgg(self.input_fig, master=self.latex_in)
         self.input_canvas.get_tk_widget().pack()
 
-        self.enter_button = Button(self.mittle_frame, text="=", command=get_user_input, bd=0,
+        self.enter_button = Button(self.mittle_frame, text="=", command=Interpreter.get_user_input, bd=0,
                                    highlightbackground="#707070")
         self.enter_button.place(relx=0.45, rely=0.45, relwidth=0.1, relheight=0.1)
 
@@ -317,7 +315,7 @@ class Screen(Tk):
                           self.enter_button, self.latex_in, self.latex_out,
                           self.bottom_frame, self.exit_button]
 
-        self.bind("<Return>", get_user_input)
+        self.bind("<Return>", Interpreter.get_user_input)
         self.bind("<KP_Enter>", self.exit_screen)
 
         self.mainloop()
@@ -432,7 +430,7 @@ class Screen(Tk):
 
     def exit_screen(self, event=None):
         self.destroy()
-        print(f"{memory_dict = }")
+        print(f"{Interpreter.memory_dict = }")
 
 
 if __name__ == "__main__":
