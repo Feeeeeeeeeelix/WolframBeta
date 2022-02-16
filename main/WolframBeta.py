@@ -23,7 +23,16 @@ Andere Funktionen:
 - min(), max()
 - Fläche (integral mit Riemann, Trapez oder simpson (Auswahl))
 - dafür optional fehler bestimmen
-- 
+-
+
+
+todo:
+alles funktionert
+besseres design, struktur
+graph implementieren
+matrizen implementieren
+ein paar kürzungen (kein 2x^3 = 2*3*x^2)
+kein
 """
 
 
@@ -35,7 +44,18 @@ def toggle_lang():
 class Interpreter:
     memory_dict = {}
     history = ()
-
+    
+    def __init__(self, user_input):
+        if not user_input:
+            return
+        if user_input in Interpreter.memory_dict:
+            app.show_answer(Interpreter.memory_dict[user_input])
+        else:
+            answers = Interpreter.calculate(user_input)
+            if not answers: return
+            app.show_answer(*answers)
+            Interpreter.memory_dict[user_input] = [*answers]
+    
     @staticmethod
     def integrate(function=None, variable=None, methodstr=None, lower=None, upper=None):
         method = methodstr.get()
@@ -174,19 +194,6 @@ class Interpreter:
 
         return userinput_latex, output_latex, output_str
 
-    @staticmethod
-    def get_user_input(_=None):
-        user_input = app.input_entry.get()
-        if not user_input:
-            return
-        if user_input in Interpreter.memory_dict:
-            app.show_answer(Interpreter.memory_dict[user_input])
-        else:
-            answers = Interpreter.calculate(user_input)
-            if not answers: return
-            app.show_answer(*answers)
-            Interpreter.memory_dict[user_input] = [*answers]
-
 
 class Screen(Tk):
     def __init__(self):
@@ -194,7 +201,8 @@ class Screen(Tk):
 
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-
+        screen_width, screen_height = 700, 500
+        
         self.geometry(f"{screen_width}x{screen_height}")
         self.title("Wolframbeta")
 
@@ -280,7 +288,7 @@ class Screen(Tk):
         self.input_canvas = FigureCanvasTkAgg(self.input_fig, master=self.latex_in)
         self.input_canvas.get_tk_widget().pack()
 
-        self.enter_button = Button(self.mittle_frame, text="=", command=Interpreter.get_user_input, bd=0,
+        self.enter_button = Button(self.mittle_frame, text="=", command=self.new_func, bd=0,
                                    highlightbackground="#707070")
         self.enter_button.place(relx=0.45, rely=0.45, relwidth=0.1, relheight=0.1)
 
@@ -315,14 +323,17 @@ class Screen(Tk):
                           self.enter_button, self.latex_in, self.latex_out,
                           self.bottom_frame, self.exit_button]
 
-        self.bind("<Return>", Interpreter.get_user_input)
+        self.bind("<Return>", self.new_func)
         self.bind("<KP_Enter>", self.exit_screen)
 
-        self.mainloop()
+        # self.mainloop()
 
     def show_error(self, error):
         self.error_label.config(text=error)
         print(f"Error: {error}")
+        
+    def new_func(self, event=None):
+        object = Interpreter(self.input_entry.get())
 
     def show_answer(self, *answers):
         self.show_error("")
@@ -435,3 +446,4 @@ class Screen(Tk):
 
 if __name__ == "__main__":
     app = Screen()
+    app.mainloop()
