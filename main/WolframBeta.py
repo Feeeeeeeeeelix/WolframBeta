@@ -4,7 +4,7 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-from FunctionClass import Function, write_latex, NUMBERS, ALPHABET, flint
+from FunctionClass import Function, write_latex, NUMBERS, ALPHABET, flint, parse, write_latex, write
 from analysis import nullstellen, minimum, maximum, riemann, trapez, simpson, trapez_fehler, simpson_fehler
 from functions import *
 
@@ -47,6 +47,7 @@ class Interpreter:
     history = ()
     
     def __init__(self, user_input):
+        self.input = user_input
         if not user_input:
             return
         if user_input in self.memory_dict:
@@ -172,6 +173,7 @@ class Interpreter:
         #     userinput = userinput[1:-2]
         #     return derivative(userinput, "x")
         try:
+            # verscuht zu erkennen, ob es "Int_^..." ist, wenn nicht dann nichts
             maybe_something = Interpreter.interprete(userinput)
 
             if not maybe_something:
@@ -194,17 +196,16 @@ class Interpreter:
             pass
 
         return userinput_latex, output_latex, output_str
-
+    
 
 class AlgebraFrame(Frame):
     def __init__(self, container):
         super().__init__(container)
         
-        # self.mittle_frame = Frame(self)
-        # self.mittle_frame.place(rely=0.1, relx=0.1, relheight=0.8, relwidth=0.9)
-
-        self.io_frame = Frame(self)  # , highlightbackground="red", highlightcolor="green",
-        # highlightthickness=2)
+        self.memory = {}
+        self.input = ""
+        
+        self.io_frame = Frame(self)
         self.io_frame.place(relx=0.2, rely=0.1, relwidth=0.6, relheight=0.8)
 
         self.input_entry = Entry(self.io_frame, bd=2, relief="solid", highlightthickness=0, justify="center")
@@ -230,10 +231,65 @@ class AlgebraFrame(Frame):
         self.elements = [self.io_frame, self.input_entry,
                          self.einstellungs_frame, self.error_label,
                          self.enter_button, self.latex_io]
+        
+    def commit_input(self):
+        self.input = self.input_entry().get()
+        if not self.input:
+            return None
+        if self.input in self.memory:
+            self.show_answer(self.memory[self.input])
+        else:
+            answers = self.interprete(self.input)
+            if not answers: return None
+            self.show_answer(answers)
+            self.memory[self.input] = [*answers]
 
-    def show_answer(self, answers):
+    def interprete(self, input):
+        """
+        n! -> fact()
+        aCb -> C(a,b)
+        ggT(a,b) -> euclidiean_algorithm(a,b)
+        eratosthenes(n)
+        isprime(n)
+        prim_factors(n)
+        partition(n)
+        elementare funktionen: sin, cos
+
+        --> im parser
+        """
+    
+        input = input.replace(" ", "").replace("**", "^")
+        input = input.replace("²", "^2").replace("³", "^3")
+        input = input.replace("pi", "π")
+        for chr in userinput:
+            if chr not in ".,+-*/()_^`' π=3" + NUMBERS + ALPHABET:
+                self.show_error(f"Invalid input: '{chr}'")
+                return None
+        try:
+            if "=" in input:
+                n = input.find("=")
+                lp = parse(input[:n])
+                rp = input[n + 1:]
+                if "=" in rp[1:]:
+                    self.show_error(f"Invalid input")
+                    return None
+                rpt = parse(rp)
+                input_latex = f"{write_latex(lp)} == {write_latex(rp)}"
+                output_latex = eval(write(lp)) == eval(write(rp))
+            elif input.startswith("Int"):
+                pass
+            else:
+                input_latex = write_latex(parse(input))
+                output_latex = eval(write(parse(input)))
+        except Exception as error:
+            self.raise_error(error)
+            return None
+    
+        return input_latex, output_latex
+    
+    def show_answer(self, *answers):
         self.show_error("")
-        userinput_latex, output_latex, output_str = answers
+        userinput_latex, output_latex = answers
     
         self.io_figure.clear()
         latex_input = r"${}$".format(userinput_latex)
@@ -245,10 +301,27 @@ class AlgebraFrame(Frame):
                                 color=["black", "white"][app.color_mode], va="center", ha="center")
         self.io_canvas.draw()
     
+    def raise_error(self, error):
+        # print("error:", repr(error))
+        # print("error.args:", error.args)
+    
+        if error.args:
+            if len(error.args) > 1:
+                # Error mit verschieden Sprachen
+                err = error.args[lang]
+            else:
+                err = error.args[0]
+        else:
+            # zb: ZeroDivisionError (hat keine args)
+            # repr(error) würde ZeroDivisionError() ausgeben, man will die klammern weghaben
+            err = repr(error)[:-2]
+            
+        self.show_error(err)
+        
     def show_error(self, error):
-        self.error_label.config(text=error)
-        if error: print(f"Error: {error}")
-
+        self.error_label.config(text=erro)
+        if error: print(f"Error: {eror}")
+    
 
 class AnalysisFrame(Frame):
     def __init__(self, container):
@@ -437,5 +510,7 @@ class MainScreen(Tk):
 
 
 if __name__ == "__main__":
-    app = MainScreen()
-    app.mainloop()
+    # app = MainScreen()
+    # app.mainloop()
+    pass
+

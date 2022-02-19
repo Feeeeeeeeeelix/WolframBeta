@@ -579,7 +579,7 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "(d/dx(x^2) )/( d/dx(x^3))"
+    func = "2+sin(8)/7"
     
     try:
         f = Function(func)
