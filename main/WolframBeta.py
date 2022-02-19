@@ -242,7 +242,7 @@ class AlgebraFrame(Frame):
         # print(f"INPUT: {size = }, {length = }")
         if latex_input != "$$":
             self.io_figure.text(0.5, 0.5, latex_input, fontsize=size,
-                                color=["black", "white"][self.color_mode], va="center", ha="center")
+                                color=["black", "white"][app.color_mode], va="center", ha="center")
         self.io_canvas.draw()
     
     def show_error(self, error):
@@ -253,7 +253,8 @@ class AlgebraFrame(Frame):
 class AnalysisFrame(Frame):
     def __init__(self, container):
         super().__init__(container)
-        pass
+        self.label = Label(self, text="lol")
+        self.label.pack()
 
 
 class MatrixFrame(Frame):
@@ -301,12 +302,12 @@ class MainScreen(Tk):
         
         self.lightmode_image = PhotoImage(file="../pictures/lm.png").subsample(4, 4)
         self.lm_button = Button(self.cm_frame, bd=0, highlightbackground="#707070",
-                                image=self.lightmode_image, command=lambda: self.toggle_color_mode(0))
+                                image=self.lightmode_image, command=lambda: self.switch_color_mode(0))
         self.lm_button.grid(row=0, column=0, ipadx=3, ipady=3)
         
         self.darkmode_image = PhotoImage(file="../pictures/dm.png").subsample(4, 4)
         self.dm_button = Button(self.cm_frame, bd=0, highlightbackground="#707070",
-                                image=self.darkmode_image, command=lambda: self.toggle_color_mode(1))
+                                image=self.darkmode_image, command=lambda: self.switch_color_mode(1))
         self.dm_button.grid(row=0, column=1, padx=4, ipadx=3, ipady=3)
         
         # Logo
@@ -366,32 +367,29 @@ class MainScreen(Tk):
         self.current_frame = Frame(self)
         self.toggle_main_frame(0)
         
-        self.bind("<Return>", self.new_func)
+        # self.bind("<Return>", self.new_func)
         self.bind("<KP_Enter>", self.exit_screen)
-    
-    def initate_main_frame(self, n):
-        if n == 0:
-            self.algebra_frame = AlgebraFrame(self)
-            return self.algebra_frame
-        elif n == 1:
-            self.analysis_frame = AnalysisFrame(self)
-            return self.analysis_frame
-        elif n == 2:
-            self.matrix_frame = MatrixFrame(self)
-            return self.matrix_frame
-        elif n == 3:
-            self.code_frame = CodeFrame(self)
-            return self.code_frame
-        
+
     def toggle_main_frame(self, n):
         frame = (self.algebra_frame, self.analysis_frame, self.matrix_frame, self.code_frame)[n]
+
         if frame is None:
-            frame = self.initate_main_frame(n)
+            # initiate frame objects
+            if n == 0:
+                self.algebra_frame = AlgebraFrame(self)
+            elif n == 1:
+                self.analysis_frame = AnalysisFrame(self)
+            elif n == 2:
+                self.matrix_frame = MatrixFrame(self)
+            elif n == 3:
+                self.code_frame = CodeFrame(self)
+
+        frame = (self.algebra_frame, self.analysis_frame, self.matrix_frame, self.code_frame)[n]
         self.current_frame.place_forget()
         self.current_frame = frame
         frame.place(rely=0.1, relx=0.1, relheight=0.8, relwidth=0.9)
        
-    def toggle_color_mode(self, cm):
+    def switch_color_mode(self, cm):
         self.color_mode = cm
 
         for container in self.elements:
@@ -404,12 +402,11 @@ class MainScreen(Tk):
                 container["activeforeground"] = ["black", "#f0f0f0"][self.color_mode]
                 container["fg"] = ["black", "#f0f0f0"][self.color_mode]
 
-        self.io_figure.set_facecolor(["white", "#505050"][self.color_mode])
-        self.io_canvas.draw()
+        # self.io_figure.set_facecolor(["white", "#505050"][self.color_mode])
+        # self.io_canvas.draw()
 
     def selection_buttons(self, container, *names):
         buttons = []
-
         for i, name in enumerate(names):
             button = Button(container,
                             text=name,
@@ -436,7 +433,7 @@ class MainScreen(Tk):
 
     def exit_screen(self, event=None):
         self.destroy()
-        print(f"{Interpreter.memory_dict = }")
+        # print(f"{Interpreter.memory_dict = }")
 
 
 if __name__ == "__main__":
