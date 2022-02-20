@@ -4,7 +4,7 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-from FunctionClass import Function, write_latex, NUMBERS, ALPHABET, flint, parse, write_latex, write
+from FunctionClass import *
 from analysis import nullstellen, minimum, maximum, riemann, trapez, simpson, trapez_fehler, simpson_fehler
 from functions import *
 
@@ -42,7 +42,7 @@ def toggle_lang(language):
     print(f"changed language to {lang}")
 
 
-class Interpreter:
+"""class Interpreter:
     memory_dict = {}
     history = ()
     
@@ -196,7 +196,8 @@ class Interpreter:
             pass
 
         return userinput_latex, output_latex, output_str
-    
+"""
+
 
 class AlgebraFrame(Frame):
     def __init__(self, container):
@@ -225,15 +226,17 @@ class AlgebraFrame(Frame):
         self.io_canvas = FigureCanvasTkAgg(self.io_figure, master=self.latex_io)
         self.io_canvas.get_tk_widget().pack(expand=1, fill="both")
 
-        self.enter_button = Button(self.io_frame, text="=", bd=0,
+        self.enter_button = Button(self.io_frame, text="=", bd=0, command=self.commit_input,
                                    highlightbackground="#707070")
         self.enter_button.place(relx=0.425, rely=0.35, relwidth=0.15, relheight=0.08)
         self.elements = [self.io_frame, self.input_entry,
                          self.einstellungs_frame, self.error_label,
                          self.enter_button, self.latex_io]
+
+        self.input_entry.bind("<Return>", self.commit_input)
         
-    def commit_input(self):
-        self.input = self.input_entry().get()
+    def commit_input(self, event=None):
+        self.input = self.input_entry.get()
         if not self.input:
             return None
         if self.input in self.memory:
@@ -241,7 +244,7 @@ class AlgebraFrame(Frame):
         else:
             answers = self.interprete(self.input)
             if not answers: return None
-            self.show_answer(answers)
+            self.show_answer(*answers)
             self.memory[self.input] = [*answers]
 
     def interprete(self, input):
@@ -257,12 +260,11 @@ class AlgebraFrame(Frame):
 
         --> im parser
         """
-    
         input = input.replace(" ", "").replace("**", "^")
         input = input.replace("²", "^2").replace("³", "^3")
         input = input.replace("pi", "π")
-        for chr in userinput:
-            if chr not in ".,+-*/()_^`' π=3" + NUMBERS + ALPHABET:
+        for chr in input:
+            if chr not in ".,+-*/()_^`'! π=3" + NUMBERS + ALPHABET:
                 self.show_error(f"Invalid input: '{chr}'")
                 return None
         try:
@@ -279,8 +281,12 @@ class AlgebraFrame(Frame):
             elif input.startswith("Int"):
                 pass
             else:
-                input_latex = write_latex(parse(input))
-                output_latex = eval(write(parse(input)))
+                input_latex = write_latex_ws(parse_ws(input))
+                output_latex = write(parse(input, ableiten=True))
+                try:
+                    output_latex = eval(output_latex)
+                except:
+                    pass
         except Exception as error:
             self.raise_error(error)
             return None
@@ -292,12 +298,12 @@ class AlgebraFrame(Frame):
         userinput_latex, output_latex = answers
     
         self.io_figure.clear()
-        latex_input = r"${}$".format(userinput_latex)
-        length = len(latex_input)
+        text = r"${}={}$".format(userinput_latex, output_latex)
+        length = len(text)
         size = int(1800 / (length + 50))
         # print(f"INPUT: {size = }, {length = }")
-        if latex_input != "$$":
-            self.io_figure.text(0.5, 0.5, latex_input, fontsize=size,
+        if text != "$$":
+            self.io_figure.text(0.5, 0.5, text, fontsize=size,
                                 color=["black", "white"][app.color_mode], va="center", ha="center")
         self.io_canvas.draw()
     
@@ -319,8 +325,8 @@ class AlgebraFrame(Frame):
         self.show_error(err)
         
     def show_error(self, error):
-        self.error_label.config(text=erro)
-        if error: print(f"Error: {eror}")
+        self.error_label.config(text=error)
+        if error: print(f"Error: {error}")
     
 
 class AnalysisFrame(Frame):
@@ -506,11 +512,11 @@ class MainScreen(Tk):
 
     def exit_screen(self, event=None):
         self.destroy()
-        # print(f"{Interpreter.memory_dict = }")
+        print(f"{self.algebra_frame.memory = }")
 
 
 if __name__ == "__main__":
-    # app = MainScreen()
-    # app.mainloop()
-    pass
+    app = MainScreen()
+    app.mainloop()
+
 
