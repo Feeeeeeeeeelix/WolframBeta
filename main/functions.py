@@ -2,7 +2,7 @@ e = 2.7182818284590455
 pi = 3.141592653589793
 ln2 = .693147180559945
 ln3 = 1.098612288668110
-
+π = pi
 
 # pi=4 g=10=pi² e=2 phi=1 cos(x)=x sqrt(2)=-1
 # /-\-/-\-/-\-/-\-/-\-/-\-/-\-/-\-/-\-
@@ -68,7 +68,8 @@ def tanh(x):
 	return sinh(x) / cosh(x)
 
 
-def pow(a, n):  # Wollen wir das im Programm lassen? (bissn unnötig)
+# Wollen wir das im Programm lassen? (bissn unnötig)
+def pow(a, n):
 	nbin = bin(n)[2:]
 	teiler = [a]
 	b = a
@@ -197,6 +198,9 @@ def euclidean_algorithm(a, b):
 		a = b
 		b = rest
 	return a  # ggT von a,b nach dem euklidischen Algorithmus
+
+
+ggT = euclidean_algorithm
 
 
 def eratosthenes(n):

@@ -1,4 +1,3 @@
-from FunctionClass import Function
 
 
 def sekanten_verfahren(f, x1, x2):

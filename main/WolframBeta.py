@@ -17,22 +17,14 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-"""
-Andere Funktionen:
-- nullstellen (f(x) = 0)
-- min(), max()
-- Fläche (integral mit Riemann, Trapez oder simpson (Auswahl))
-- dafür optional fehler bestimmen
--
-
-
-todo:
-alles funktionert
-besseres design, struktur
-graph implementieren
+"""todo:
+Analysis: graph implementieren
 matrizen implementieren
 ein paar kürzungen (kein 2x^3 = 2*3*x^2)
 fehler: 234^(234^3) = 234^234,3 ??
+colormode mit allen frames (Style())
+language überall änderbar
+angepasste größe der latex outputs
 """
 
 
@@ -209,16 +201,30 @@ class AlgebraFrame(Frame):
         self.io_frame = Frame(self)
         self.io_frame.place(relx=0.2, rely=0.1, relwidth=0.6, relheight=0.8)
 
+        # Entry for user input
         self.input_entry = Entry(self.io_frame, bd=2, relief="solid", highlightthickness=0, justify="center")
-        self.input_entry.focus()
-        self.input_entry.place(relx=0.1, rely=0., relwidth=0.8, relheight=0.2)
+        self.input_entry.place(relx=0.1, rely=0, relwidth=0.8, relheight=0.2)
 
-        self.einstellungs_frame = Frame(self.io_frame)
-        # self.einstellungs_frame.place(x=0, y=0, relwidth=1, relheight=0.3)
+        # settings frame for integration methods
+        self.einstellungs_frame = Frame(self.io_frame, bd=2, relief="solid")
+        self.lab = Label(self.einstellungs_frame, text=["Integrationsmethode:", "Methode d'integration", "Integration method"][lang])
+        self.lab.grid(row=0, column=0)
+        Button(self.einstellungs_frame, text="X", bd=0, command=self.hide_einstellungen).grid(row=0, column=1)
+        self.method = StringVar(value="riemann")
+        self.method.trace("w", lambda *_: self.refresh_integration(self.method.get()))
+        Radiobutton(self.einstellungs_frame, text="Riemann", variable=self.method, value="riemann").grid(row=1, column=0, sticky="W", padx=10)
+        Radiobutton(self.einstellungs_frame, text="Trapez", variable=self.method, value="trapez").grid(row=2, column=0, sticky="W", padx=10)
+        Radiobutton(self.einstellungs_frame, text="Simpson", variable=self.method, value="simpson").grid(row=3, column=0, sticky="W", padx=10)
 
+        # Error Label für die Fehler im user input
         self.error_label = Label(self.io_frame, fg="red")
         self.error_label.place(relx=0.1, rely=0.2, relwidth=0.8, relheight=0.075)
 
+        # Enter Button
+        self.enter_button = Button(self.io_frame, text="=", bd=0, command=self.commit_input, highlightbackground="#707070")
+        self.enter_button.place(relx=0.425, rely=0.35, relwidth=0.15, relheight=0.08)
+
+        # Latex frame
         self.latex_io = Label(self.io_frame, bd=2, relief="solid")
         self.latex_io.place(relx=0, rely=0.45, relwidth=1, relheight=0.55)
 
@@ -226,9 +232,6 @@ class AlgebraFrame(Frame):
         self.io_canvas = FigureCanvasTkAgg(self.io_figure, master=self.latex_io)
         self.io_canvas.get_tk_widget().pack(expand=1, fill="both")
 
-        self.enter_button = Button(self.io_frame, text="=", bd=0, command=self.commit_input,
-                                   highlightbackground="#707070")
-        self.enter_button.place(relx=0.425, rely=0.35, relwidth=0.15, relheight=0.08)
         self.elements = [self.io_frame, self.input_entry,
                          self.einstellungs_frame, self.error_label,
                          self.enter_button, self.latex_io]
@@ -240,49 +243,42 @@ class AlgebraFrame(Frame):
         if not self.input:
             return None
         if self.input in self.memory:
-            self.show_answer(self.memory[self.input])
+            # Wenn das Eingegebene schon berechnet wurde, dann soll das gespeicherte Ergebnis angezeigt werden
+            self.show_answer(*self.memory[self.input])
         else:
             answers = self.interprete(self.input)
             if not answers: return None
             self.show_answer(*answers)
             self.memory[self.input] = [*answers]
 
-    def interprete(self, input):
-        """
-        n! -> fact()
-        aCb -> C(a,b)
-        ggT(a,b) -> euclidiean_algorithm(a,b)
-        eratosthenes(n)
-        isprime(n)
-        prim_factors(n)
-        partition(n)
-        elementare funktionen: sin, cos
-
-        --> im parser
-        """
-        input = input.replace(" ", "").replace("**", "^")
-        input = input.replace("²", "^2").replace("³", "^3")
-        input = input.replace("pi", "π")
-        for chr in input:
-            if chr not in ".,+-*/()_^`'! π=3" + NUMBERS + ALPHABET:
+    def interprete(self, user_input):
+        user_input = user_input.replace(" ", "").replace("**", "^")
+        user_input = user_input.replace("²", "^2").replace("³", "^3")
+        user_input = user_input.replace("pi", "π")
+        for chr in user_input:
+            if chr not in ".,+-*/()_^`'! π=3" + '"' + NUMBERS + ALPHABET:
                 self.show_error(f"Invalid input: '{chr}'")
                 return None
+
+        self.show_einstellungen() if "Int" in user_input else self.hide_einstellungen()
+
         try:
-            if "=" in input:
-                n = input.find("=")
-                lp = parse(input[:n])
-                rp = input[n + 1:]
+            if "=" in user_input:
+                # Gleichheit überprüfen
+                n = user_input.find("=")
+                lp = parse_ws(user_input[:n])
+                rp = user_input[n + 1:]
                 if "=" in rp[1:]:
                     self.show_error(f"Invalid input")
                     return None
-                rpt = parse(rp)
-                input_latex = f"{write_latex(lp)} == {write_latex(rp)}"
-                output_latex = eval(write(lp)) == eval(write(rp))
-            elif input.startswith("Int"):
-                pass
+                input_latex = f"{write_latex_ws(lp)} == {write_latex_ws(parse_ws(rp))}"
+                print(input_latex)
+                output_latex = eval("write(lp) == write(parse(rp))")
+
             else:
-                input_latex = write_latex_ws(parse_ws(input))
-                output_latex = write(parse(input, ableiten=True))
+                # sonstige Berechnungen
+                input_latex = write_latex_ws(parse_ws(user_input))
+                output_latex = write(parse(user_input, ableiten=True))
                 try:
                     output_latex = eval(output_latex)
                 except:
@@ -290,15 +286,15 @@ class AlgebraFrame(Frame):
         except Exception as error:
             self.raise_error(error)
             return None
-    
+
         return input_latex, output_latex
-    
+
     def show_answer(self, *answers):
         self.show_error("")
         userinput_latex, output_latex = answers
     
         self.io_figure.clear()
-        text = r"${}={}$".format(userinput_latex, output_latex)
+        text = r"${}  =  {}$".format(userinput_latex, output_latex)
         length = len(text)
         size = int(1800 / (length + 50))
         # print(f"INPUT: {size = }, {length = }")
@@ -308,9 +304,6 @@ class AlgebraFrame(Frame):
         self.io_canvas.draw()
     
     def raise_error(self, error):
-        # print("error:", repr(error))
-        # print("error.args:", error.args)
-    
         if error.args:
             if len(error.args) > 1:
                 # Error mit verschieden Sprachen
@@ -327,7 +320,20 @@ class AlgebraFrame(Frame):
     def show_error(self, error):
         self.error_label.config(text=error)
         if error: print(f"Error: {error}")
-    
+
+    def show_einstellungen(self):
+        self.input_entry.place(relwidth=0.55)
+        self.einstellungs_frame.place(relx=0.65, y=0, relwidth=0.25, relheight=0.2)
+
+    def hide_einstellungen(self):
+        self.input_entry.place(relwidth=0.8)
+        self.einstellungs_frame.place_forget()
+
+    def refresh_integration(self, method):
+        # Bei änderung der integrationsmethode (Riemann/Trapez/Simpson) wird der input erneut berechnet
+        set_default_integration_method(method)
+        self.show_answer(*self.interprete(self.input_entry.get()))
+
 
 class AnalysisFrame(Frame):
     def __init__(self, container):
@@ -485,6 +491,7 @@ class MainScreen(Tk):
         # self.io_canvas.draw()
 
     def selection_buttons(self, container, *names):
+        # für die 4 Buttons links
         buttons = []
         for i, name in enumerate(names):
             button = Button(container,
@@ -505,6 +512,7 @@ class MainScreen(Tk):
         return buttons
 
     def select_main_frame(self, n):
+        # die Farbe des jeweiligen buttons bleibt dunkler und das frame wird angezeigt
         for i in range(4):
             self.buttons[i]["bg"] = lblue
         self.toggle_main_frame(n)

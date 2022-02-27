@@ -1,8 +1,11 @@
 from functions import *
+import analysis
 
 
 """TODO:
 - definitonsmenge checken neu
+- latex 2*x -> 2x
+- aCb -> C(a,b) ? (auch mit P?)
 
 - Vereinfachen
 - 1/x*x -> 1
@@ -21,11 +24,13 @@ lol
 """
 
 FUNCTIONS = ["sqrt", "root", "exp", "ln", "log", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh",
-             "cosh", "sinh", "arccosh", "arcsinh", "arctanh", "fact"]
+             "cosh", "sinh", "arccosh", "arcsinh", "arctanh", "fact", "Int"]
 ALPHABET = "qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNMπ"
 NUMBERS = "0123456789"
 
 PRINT = ""
+
+dim = "riemann"
 
 
 def isfloat(n: str or int or float) -> bool:
@@ -53,7 +58,7 @@ def flint(x: int or float) -> int if int else float:
     return x if int(x) != x else int(x)
 
 
-def split_consts(f, test):
+def _split_consts(f, test):
     constants, functions = [], []
     for arg in f:
         if test(arg):
@@ -63,7 +68,7 @@ def split_consts(f, test):
     return constants, functions
 
 
-def extract_args(f):
+def _extract_args(f):
     # f = "3(x+4)(x+6^x)ln(x)^2" -->  f = "3@@ln@^2", args = ['3', 'x+4', 'x+6^x', 'x']
     
     def find_arg(f, i):
@@ -88,7 +93,7 @@ def extract_args(f):
     return f, args
 
 
-def insert_args(f, innerargs):
+def _insert_args(f, innerargs):
     # f = "3@@ln@^2", innerargs = ['3', 'x+4', 'x+6^x', 'x'] -->   f = "3(x+4)(x+6^x)ln(x)^2"
     if innerargs:
         n = 0
@@ -107,7 +112,7 @@ def check_ensemble_de_definition(funcname, arg):
         return True
     else:
         arg = [flint(arg) for arg in arg]
-    if funcname in ["ln", "log"] and int(arg[0]) <= 0:
+    if funcname in ["ln", "log"] and flint(arg[0]) <= 0:
         return False
     if funcname == "sqrt" and int(arg[0]) < 0:
         return False
@@ -134,7 +139,7 @@ def parse(f: str, ableiten=False):
         return f
     
     f0 = f
-    f, innerargs = extract_args(f)  # klammern und ihr inneres ersetzen
+    f, innerargs = _extract_args(f)  # klammern und ihr inneres ersetzen
     
     if f == "@":
         # unnötige klammern
@@ -189,9 +194,9 @@ def parse(f: str, ableiten=False):
         return arg_list
     
     if "+" in f:
-        summands = insert_args(f.split("+"), innerargs)
+        summands = _insert_args(f.split("+"), innerargs)
         
-        consts, funcs = split_consts(summands, isfloat)
+        consts, funcs = _split_consts(summands, isfloat)
         consts = sum([flint(s) for s in consts])
         consts = [str(flint(consts))] if consts else []
         
@@ -203,10 +208,10 @@ def parse(f: str, ableiten=False):
         return ["+", summands] if len(summands) > 1 else summands[0]
     
     if "*" in f:
-        factors = insert_args(f.split("*"), innerargs)
+        factors = _insert_args(f.split("*"), innerargs)
         PRINT += f"\n{factors = }"
         
-        consts, funcs = split_consts(factors, isfloat)
+        consts, funcs = _split_consts(factors, isfloat)
         PRINT += f"\n{consts = }, {funcs = }"
         consts = [str(prod(consts))] if consts else []
         
@@ -233,7 +238,7 @@ def parse(f: str, ableiten=False):
             return ["diff", parse(innerargs[0], ableiten), var]
     
     if "/" in f:
-        div = insert_args(f.split("/", 1), innerargs)
+        div = _insert_args(f.split("/", 1), innerargs)
         PRINT += f"\n{div = }"
         
         num, denom = parse(div[0], ableiten), parse(div[1], ableiten)
@@ -241,7 +246,7 @@ def parse(f: str, ableiten=False):
         return ["/", [num, denom]] if num != denom else 1
     
     if "^" in f:
-        base, exp = insert_args(f.split("^", 1), innerargs)
+        base, exp = _insert_args(f.split("^", 1), innerargs)
         PRINT += f"\n{base=}, {exp=}"
         return ["^", [parse(base, ableiten), parse(exp, ableiten)]]
     
@@ -250,9 +255,8 @@ def parse(f: str, ableiten=False):
         funcname = f[:-1]
         if funcname in FUNCTIONS:
             args = innerargs[0].split(",")
-            if len(args) > 2:
-                raise TypeError(*tuple(f"{funcname}  {text}" for text in
-                                       ["", "", "takes at most 2 arguments"]))
+            if funcname == "Int":
+                return ["Int", flint(args[0]), flint(args[1]), parse(args[2]), *args[3:]]
             if not check_ensemble_de_definition(funcname, args):
                 raise TypeError(*tuple(f"{args[0]} {text} {funcname}" for text in
                                        ["gehört nicht in den Definitionsbeeich von",
@@ -291,7 +295,7 @@ def parse_ws(f):
         return f
 
     f0 = f
-    f, innerargs = extract_args(f)  # klammern und ihr inneres ersetzen
+    f, innerargs = _extract_args(f)  # klammern und ihr inneres ersetzen
 
     if f == "@":
         # unnötige klammern
@@ -322,12 +326,12 @@ def parse_ws(f):
             f = f[:i] + "+" + f[i:]
 
     if "+" in f:
-        summands = insert_args(f.split("+"), innerargs)
+        summands = _insert_args(f.split("+"), innerargs)
         PRINT += f"\n{summands=}"
         return ["+", [parse_ws(s) for s in summands]]
 
     if "*" in f:
-        factors = insert_args(f.split("*"), innerargs)
+        factors = _insert_args(f.split("*"), innerargs)
         PRINT += f"\n{factors = }"
         return ["*", [parse_ws(factor) for factor in factors]]
 
@@ -342,7 +346,7 @@ def parse_ws(f):
         return ["diff", parse_ws(innerargs[0]), var]
 
     if "/" in f:
-        div = insert_args(f.split("/", 1), innerargs)
+        div = _insert_args(f.split("/", 1), innerargs)
         PRINT += f"\n{div = }"
 
         num, denom = parse_ws(div[0]), parse_ws(div[1])
@@ -350,7 +354,7 @@ def parse_ws(f):
         return ["/", [num, denom]]
 
     if "^" in f:
-        base, exp = insert_args(f.split("^", 1), innerargs)
+        base, exp = _insert_args(f.split("^", 1), innerargs)
         PRINT += f"\n{base=}, {exp=}"
         return ["^", [parse_ws(base), parse_ws(exp)]]
 
@@ -359,9 +363,11 @@ def parse_ws(f):
         funcname = f[:-1]
         if funcname in FUNCTIONS:
             args = innerargs[0].split(",")
-            if len(args) > 2:
-                raise TypeError(*tuple(f"{funcname}  {text}" for text in
-                                       ["", "", "takes at most 2 arguments"]))
+            # if len(args) > 2:
+            #     raise TypeError(*tuple(f"{funcname}  {text}" for text in
+            #                            ["", "", "takes at most 2 arguments"]))
+            if funcname == "Int":
+                return ["Int", flint(args[0]), flint(args[1]), parse_ws(args[2]), *args[3:]]
             if not check_ensemble_de_definition(funcname, args):
                 raise TypeError(*tuple(f"{args[0]} {text} {funcname}" for text in
                                        ["gehört nicht in den Definitionsbereich von",
@@ -369,6 +375,7 @@ def parse_ws(f):
                                         "is not included in the domain of"]))
             if funcname == "root" and len(args) == 1:
                 return ["root", args[0], 2]
+
             return [funcname, *[parse_ws(a) for a in args]]
 
         else:
@@ -400,10 +407,10 @@ def write(f: list) -> str or int:
         if not args:
             return 0
         
-        consts, funcs = split_consts(args, isfloat)
+        consts, funcs = _split_consts(args, isfloat)
         PRINT += f"\n{consts=}, {funcs=}"
         
-        consts = [str(sum(int(c) for c in consts))] if consts else []
+        consts = [str(sum(flint(c) for c in consts))] if consts else []
         summands = consts + funcs
         sum_ = summands[0]
         for s in summands[1:]:
@@ -422,7 +429,7 @@ def write(f: list) -> str or int:
             if factor != "1" and factor != "ln(e)":
                 args.append(factor)
         
-        consts, funcs = split_consts(args, isfloat)
+        consts, funcs = _split_consts(args, isfloat)
         consts = [str(prod(consts))] if consts else []
         
         return "*".join(consts + funcs) if consts + funcs else 1
@@ -450,6 +457,8 @@ def write(f: list) -> str or int:
         return f"{base}^{power}" if power != 1 and power != "(1)" else base if int(power) != 0 else 1
     
     if f[0] in FUNCTIONS:
+        if f[0] == "Int":
+            return integrate(*f[1:])
         args = ", ".join([str(write(arg)) for arg in f[1:]])
         return f"{f[0]}({args})"
     
@@ -471,10 +480,10 @@ def write_latex(f: list):
         if not args:
             return 0
         
-        consts, funcs = split_consts(args, isfloat)
+        consts, funcs = _split_consts(args, isfloat)
         PRINT += f"\n{consts=}, {funcs=}"
         
-        consts = [str(sum(int(c) for c in consts))] if consts else []
+        consts = [str(sum(flint(c) for c in consts))] if consts else []
         summands = consts + funcs
         sum_ = summands[0]
         for s in summands[1:]:
@@ -493,7 +502,7 @@ def write_latex(f: list):
             if factor != "1" and factor != "ln(e)":
                 args.append(factor)
         
-        consts, funcs = split_consts(args, isfloat)
+        consts, funcs = _split_consts(args, isfloat)
         consts = [str(prod(consts))] if consts else []
         
         return r" \cdot ".join(consts + funcs) if consts + funcs else 1
@@ -605,6 +614,9 @@ def write_latex_ws(f: list):
             else:
                 return str(f[1]) + "!"
 
+        if f[0] == "Int":
+            return "\\int_{" + str(f[1]) + "}^{" + str(f[2]) + "}{" + write_latex_ws(f[3]) + "}d" + f[4]
+
         return "\\" + f[0] + "(" + str(write_latex_ws(f[1])) + ")"
 
     if f[0] == "diff":
@@ -666,7 +678,7 @@ def diff(f: list, VAR: str) -> list or int:
         return 1 if f == VAR else 0
     
     if f[0] == "*":
-        constfactors, funcfactors = split_consts(f[1], isconst)
+        constfactors, funcfactors = _split_consts(f[1], isconst)
         
         PRINT += f"\ndiff:{constfactors=}, {funcfactors=}"
         
@@ -720,9 +732,21 @@ def diff(f: list, VAR: str) -> list or int:
         PRINT += f"\nDIFF: whats {f} ?"
 
 
+def set_default_integration_method(method):
+    global dim
+    dim = method
+
+
+def integrate(a, b, f, variable, method=None):
+    # method: riemann, trapez or simpson
+    f = Function(f, variable)
+    if not method:
+        method = dim
+    return getattr(analysis, method)(f, a, b)
+
+
 class Function:
     def __init__(self, inputfunc: str or list, variable="x"):
-        print(f"Function: {inputfunc = }")
         global PRINT
         if type(inputfunc) == str:
             self.str = inputfunc
@@ -773,20 +797,29 @@ class Function:
         f = Function(diff(self.tree, var))
         return Function(f.str, var)
 
+    def __call__(self, x):
+        return self.lam(x)
+
 
 if __name__ == "__main__":
-    func = "(2,3)!"
+    func = "Int(2,3,x^2,x)+1"
 
     try:
-        input = "d/dx(x^34)"
-        input_latex = write_latex_ws(parse_ws(input))
-        output_latex = (write_latex(parse(input, ableiten=True)))
-        print(input_latex," = ", output_latex)
+        # input = "d/dx(x^34)"
+        # input_latex = write_latex_ws(parse_ws(input))
+        # output_latex = (write(parse(input, ableiten=True)))
+        # print(input_latex," = ", output_latex)
 
+        a = parse_ws(func)
+        b = parse(func)
+        d = write_latex_ws(a)
+        c = write(b)
+        print(a)
+        print(d)
+        print()
+        print(b)
+        print(c)
 
-        # print(parse_ws(func))
-        # f = Function(func)
-        # PRINT += "\n\n" + str(f.lam(45))
     except Exception as e:
         print(PRINT)
         raise e
