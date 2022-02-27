@@ -25,19 +25,13 @@ fehler: 234^(234^3) = 234^234,3 ??
 colormode mit allen frames (Style())
 language überall änderbar
 angepasste größe der latex outputs
+Katalog aller Funktionen
 """
-
-
-def toggle_lang(language):
-    global lang
-    lang = language
-    print(f"changed language to {lang}")
-
 
 """class Interpreter:
     memory_dict = {}
     history = ()
-    
+
     def __init__(self, user_input):
         self.input = user_input
         if not user_input:
@@ -49,7 +43,7 @@ def toggle_lang(language):
             if not answers: return
             app.show_answer(answers)
             self.memory_dict[user_input] = [*answers]
-    
+
     @staticmethod
     def integrate(function=None, variable=None, methodstr=None, lower=None, upper=None):
         method = methodstr.get()
@@ -189,6 +183,12 @@ def toggle_lang(language):
 
         return userinput_latex, output_latex, output_str
 """
+
+
+def toggle_lang(language):
+    global lang
+    lang = language
+    print(f"changed language to {lang}")
 
 
 class AlgebraFrame(Frame):
