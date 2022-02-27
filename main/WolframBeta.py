@@ -278,11 +278,11 @@ class AlgebraFrame(Frame):
             else:
                 # sonstige Berechnungen
                 input_latex = write_latex_ws(parse_ws(user_input))
-                output_latex = write(parse(user_input, ableiten=True))
+                output_latex = parse(user_input, ableiten=True)
                 try:
-                    output_latex = eval(output_latex)
+                    output_latex = eval(write(output_latex))
                 except:
-                    pass
+                    output_latex = write_latex(output_latex)
         except Exception as error:
             self.raise_error(error)
             return None
@@ -296,8 +296,8 @@ class AlgebraFrame(Frame):
         self.io_figure.clear()
         text = r"${}  =  {}$".format(userinput_latex, output_latex)
         length = len(text)
-        size = int(1800 / (length + 50))
-        # print(f"INPUT: {size = }, {length = }")
+        size = int(2000 / (length + 60) + 5)
+        print(f"INPUT: {size = }, {length = }")
         if text != "$$":
             self.io_figure.text(0.5, 0.5, text, fontsize=size,
                                 color=["black", "white"][app.color_mode], va="center", ha="center")

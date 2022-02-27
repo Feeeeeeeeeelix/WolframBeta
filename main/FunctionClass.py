@@ -454,7 +454,7 @@ def write(f: list) -> str or int:
             PRINT += "\nEVAL: " + power
         except:
             pass
-        return f"{base}^{power}" if power != 1 and power != "(1)" else base if int(power) != 0 else 1
+        return f"{base}**{power}" if power != 1 and power != "(1)" else base if int(power) != 0 else 1
     
     if f[0] in FUNCTIONS:
         if f[0] == "Int":
@@ -545,7 +545,9 @@ def write_latex(f: list):
                 return write_latex(["^", [f[1], ["/", [1, f[2]]]]])
         if f[0] == "sqrt":
             return rf"\sqrt{'{'}{write_latex(f[1])}{'}'}"
-        
+        if f[0] == "Int":
+            return "\\int_{" + str(f[1]) + "}^{" + str(f[2]) + "}{" + write_latex(f[3]) + "}d" + f[4]
+
         return "\\" + f[0] + "(" + str(write_latex(f[1])) + ")"
     
     if f[0] == "diff":
@@ -802,23 +804,24 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "Int(2,3,x^2,x)+1"
+    func = "d/dx(e^x)"
 
     try:
         # input = "d/dx(x^34)"
         # input_latex = write_latex_ws(parse_ws(input))
-        # output_latex = (write(parse(input, ableiten=True)))
+        # output_latex = eval(write(parse(input, ableiten=True)))
         # print(input_latex," = ", output_latex)
 
         a = parse_ws(func)
-        b = parse(func)
         d = write_latex_ws(a)
+        b = parse(func, ableiten=True)
         c = write(b)
         print(a)
         print(d)
         print()
         print(b)
         print(c)
+        # print(eval(c))
 
     except Exception as e:
         print(PRINT)
