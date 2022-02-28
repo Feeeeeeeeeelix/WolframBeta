@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from FunctionClass import *
-from analysis import nullstellen, minimum, maximum, riemann, trapez, simpson, trapez_fehler, simpson_fehler
 from functions import *
 
 
@@ -21,7 +20,6 @@ lang = 0
 Analysis: graph implementieren
 matrizen implementieren
 ein paar kürzungen (kein 2x^3 = 2*3*x^2)
-fehler: 234^(234^3) = 234^234,3 ??
 colormode mit allen frames (Style())
 language überall änderbar
 angepasste größe der latex outputs
@@ -430,7 +428,7 @@ class MainScreen(Tk):
         # self.selection_frame.place(x=0, rely=0.305, relwidth=1, relheight=0.695)
 
         self.selection = 0
-        self.buttons = self.selection_buttons(self.left_frame, "select", "Analysis", "Algebra", "Numbers")
+        self.buttons = self.selection_buttons(self.left_frame, "Algebra", "Analysis", "Matrix", "Code")
 
         # Bottom frame
         self.bottom_frame = Label(self)

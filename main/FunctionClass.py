@@ -23,8 +23,9 @@ lol
 
 """
 
-FUNCTIONS = ["sqrt", "root", "exp", "ln", "log", "arccos", "arcsin", "arctan", "sin", "cos", "tan", "tanh",
-             "cosh", "sinh", "arccosh", "arcsinh", "arctanh", "fact", "Int"]
+FUNCTIONS = ['C', 'PGCD', 'PPCM', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctanh', 'cos', 'cosh', 'sin', 'sinh',
+             'eratosthenes', 'exp', 'fact', 'ggT', 'isprime', 'kgV', 'log', 'ln', 'partition', 'pow', 'root',
+             'sqrt', 'tan', 'tanh', 'Int']
 ALPHABET = "qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNMπ"
 NUMBERS = "0123456789"
 
@@ -828,3 +829,7 @@ if __name__ == "__main__":
         raise e
     
     print(PRINT)
+    
+    import functions
+    print(dir(functions))
+

@@ -200,7 +200,13 @@ def euclidean_algorithm(a, b):
     return a  # ggT von a,b nach dem euklidischen Algorithmus
 
 
+def kgV(a, b):
+    return a*b/euclidean_algorithm(a, b)
+
+
 ggT = euclidean_algorithm
+PGCD = ggT
+PPCM = kgV
 
 
 def eratosthenes(n):
