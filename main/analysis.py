@@ -1,4 +1,4 @@
-from functions import e
+from functions import e, sin, cos
 
 
 def sekanten_verfahren(f, x1, x2):
@@ -166,8 +166,24 @@ def euler_collatz(f_str, t_0, y_0, end, steps=1000):
     return y  # Die Menge der Funktionswerte (die dazugehörigen x-Werte sind [x_0 + i * dt for i in range(0,steps)])
 
 
+def der(f, x, n=1, dx=10 ** (-5)):
+    # approximation der n-ten Ableitung in x von f.
+    if float(n) != int(n) or float(n) < 0:
+        raise ValueError("nur positive integer erlaubt")
+    if n == 0:
+        return f(x)
+    if n == 1:
+        return (f(x + dx) - f(x - dx)) / (2 * dx)
+    
+    elif n % 2 == 0:
+        return (der(f, x + dx, n - 1) - der(f, x - dx, n - 1)) / (2 * dx)
+    
+    else:
+        return (der(f, x + dx, n - 2) - 2 * der(f, x, n - 2) + der(f, x - dx, n - 2)) / (dx * dx)
+
+
 if __name__ == "__main__":
-    print("Beispiele:\n")
+    """print("Beispiele:\n")
     
     y = euler_collatz("y", 0, 1, 3)  # Löse y' = y mit y(0) = 1   --> y(t) = e^t einzige Lösung
     print(y)
@@ -185,4 +201,14 @@ if __name__ == "__main__":
     y = euler_collatz("y*t", 0, 1,
                       2)  # Löse y'(t) = y*t mit y(0) = 1 auf Intervall (0,2) --> exakte Lösung y(t) = e^{1/2*t^2}
     print(y)
-    print("Zum Vergleich mit dem letzten Term: ", e ** (1 / 2 * 2 ** 2))
+    print("Zum Vergleich mit dem letzten Term: ", e ** (1 / 2 * 2 ** 2))"""
+
+    f = lambda x: sin(x ** 2)
+    df = lambda x: 2 * x * cos(x ** 2)
+    ddf = lambda x: 2 * cos(x ** 2) - 4 * x ** 2 * sin(x ** 2)
+
+    print(der(f, x=1, n=1))
+    print(df(1))
+
+    print(der(f, x=1, n=2))
+    print(ddf(1))
