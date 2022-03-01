@@ -459,7 +459,7 @@ def write(f: list) -> str or int:
     
     if f[0] in FUNCTIONS:
         if f[0] == "Int":
-            return integrate(*f[1:])
+            return str(integrate(*f[1:]))
         args = ", ".join([str(write(arg)) for arg in f[1:]])
         return f"{f[0]}({args})"
     
@@ -805,24 +805,24 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "d/dx(e^x)"
+    func = "Int(2,3,x,x)"
 
     try:
         # input = "d/dx(x^34)"
-        # input_latex = write_latex_ws(parse_ws(input))
-        # output_latex = eval(write(parse(input, ableiten=True)))
-        # print(input_latex," = ", output_latex)
+        input_latex = write_latex_ws(parse_ws(func))
+        output_latex = eval(write(parse(func, ableiten=True)))
+        print(input_latex," = ", output_latex)
 
-        a = parse_ws(func)
-        d = write_latex_ws(a)
-        b = parse(func, ableiten=True)
-        c = write(b)
-        print(a)
-        print(d)
-        print()
-        print(b)
-        print(c)
-        # print(eval(c))
+        # a = parse_ws(func)
+        # d = write_latex_ws(a)
+        # b = parse(func, ableiten=True)
+        # c = write(b)
+        # print(a)
+        # print(d)
+        # print()
+        # print(b)
+        # print(c)
+        # # print(eval(c))
 
     except Exception as e:
         print(PRINT)
@@ -830,6 +830,3 @@ if __name__ == "__main__":
     
     print(PRINT)
     
-    import functions
-    print(dir(functions))
-
