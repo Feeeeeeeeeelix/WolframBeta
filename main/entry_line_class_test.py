@@ -26,6 +26,7 @@ class MainFrame(Tk):
         
         self.fr = Frame(self, width=200, height=300, bg="white", bd=1, relief="solid")
         self.fr.place(x=100, y=100, height=300)
+        self.fr.focus_set()
         
         Button(self, text="Exit", command=quit).place(x=500, y=400)
         
@@ -42,10 +43,10 @@ class MainFrame(Tk):
         if self.check_line(index+1):
             self.lines[index+1].focus_set()
         else:
-            self.line = EntryLine(self.fr)
-            self.line.pack()
-            self.line.focus_set()
-            self.lines.append(self.line)
+            self.new_line = EntryLine(self.fr)
+            self.new_line.pack()
+            self.lines.append(self.new_line)
+            self.new_line.focus_set()
     
     def destroy_line(self, obj):
         index = self.lines.index(obj)
