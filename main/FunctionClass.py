@@ -172,6 +172,7 @@ def parse(f: str, ableiten=False):
     
     def find_repeated_args(args: list, operation) -> list:
         arg_list = []
+        factors = []
         # arg_and_factor = []
         # for arg in args:
         #     if arg not in arg_and_factor[::2]:
@@ -185,13 +186,15 @@ def parse(f: str, ableiten=False):
         #                 arg_and_factor[arg_and_factor.index(eventual_factor) + 1] +=  WTF ich gebe auf
         
         for arg in args:
+            if arg in factors:
+                continue
             count = args.count(arg)
             if count > 1:
                 arg_list.append(["^", [arg, count]]) if operation == "mult" else arg_list.append(["*", [count, arg]])
-                while arg in args:
-                    args.remove(arg)
+                factors.append(arg)
             else:
                 arg_list.append(arg)
+                factors.append(arg)
         return arg_list
     
     if "+" in f:
@@ -218,7 +221,7 @@ def parse(f: str, ableiten=False):
         
         PRINT += f"\n{consts = }"
         factors = [parse(f, ableiten) for f in consts + funcs]
-        factors = find_repeated_args(factors, "mult") if len(factors) > 2 else factors
+        factors = find_repeated_args(factors, "mult") if len(factors) >= 2 else factors
         
         PRINT += f"\n{factors=}, {consts = }, {funcs = }"
         return ["*", factors] if len(factors) > 1 else factors[0] if 0 not in factors else 0
@@ -805,12 +808,16 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "Int(2,3,x,x)"
+    func = "lol"
 
     try:
         # input = "d/dx(x^34)"
         input_latex = write_latex_ws(parse_ws(func))
-        output_latex = eval(write(parse(func, ableiten=True)))
+        output_latex = parse(func, ableiten=True)
+        try:
+            output_latex = eval(write(output_latex))
+        except:
+            output_latex = write_latex(output_latex)
         print(input_latex," = ", output_latex)
 
         # a = parse_ws(func)
