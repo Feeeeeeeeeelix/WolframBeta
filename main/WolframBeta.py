@@ -189,6 +189,25 @@ def toggle_lang(language):
     print(f"changed language to {lang}")
 
 
+def raise_error(error):
+    if isinstance(error, Exception):
+        # Costum or automatic exceptions
+        if error.args:
+            if len(error.args) > 1:
+                # Error mit verschieden Sprachen
+                return error.args[lang]
+            else:
+                # nur eine sprache
+                return error.args[0]
+        else:
+            # zb: ZeroDivisionError (hat keine args)
+            # repr(error) würde ZeroDivisionError() ausgeben, man will die klammern weghaben
+            return repr(error)[:-2]
+    else:
+        # nur costum text gegeben
+        return error
+
+
 class AlgebraFrame(Frame):
     def __init__(self, container):
         super().__init__(container)
@@ -287,7 +306,7 @@ class AlgebraFrame(Frame):
                 except:
                     output_latex = write_latex(output_latex)
         except Exception as error:
-            self.raise_error(error)
+            self.show_error(raise_error(error))
             return None
         
         return input_latex, output_latex
@@ -313,20 +332,6 @@ class AlgebraFrame(Frame):
                                 color=["black", "white"][app.color_mode], va="center", ha="center")
         self.io_canvas.draw()
     
-    def raise_error(self, error):
-        if error.args:
-            if len(error.args) > 1:
-                # Error mit verschieden Sprachen
-                err = error.args[lang]
-            else:
-                err = error.args[0]
-        else:
-            # zb: ZeroDivisionError (hat keine args)
-            # repr(error) würde ZeroDivisionError() ausgeben, man will die klammern weghaben
-            err = repr(error)[:-2]
-        
-        self.show_error(err)
-    
     def show_error(self, error):
         self.error_label.config(text=error)
         if error: print(f"Error: {error}")
@@ -343,13 +348,125 @@ class AlgebraFrame(Frame):
         # Bei änderung der integrationsmethode (Riemann/Trapez/Simpson) wird der input erneut berechnet
         set_default_integration_method(method)
         self.show_answer(self.interprete(self.input_entry.get()))
+    
+    def switch_color(self):
+        # refresh the canvas
+        self.show_answer()
+
+
+class EntryLine(Frame):
+    # einzelne Zeile im AnalysisFrame
+    def __init__(self, container, super_):
+        super().__init__(container, height=40, bg="red", bd=1, relief="groove")
+        
+        self.fr = Frame(self, height=30)
+        self.fr.pack(side="top", expand=1, fill="both")
+        
+        self.bttn = Button(self.fr, takefocus=0, bd=0, bg="white", highlightthickness=0)
+        self.bttn.pack(side="left", fill="both")
+        
+        self.pfeil = Label(self.fr, takefocus=0, text=" > ", bg="white", fg="black", height=2)
+        self.pfeil.pack(side="left", fill="both")
+        
+        self.entry = Entry(self.fr, takefocus=1, bd=0, highlightthickness=0, fg="black", bg="white")
+        self.entry.pack(side="left", fill="both", expand=True)
+        self.entry.focus_set()
+        
+        self.error_label = Label(self, takefocus=0, height=0, fg="red")
+        self.error_label.pack(side="bottom", fill="x", expand=0)
+        
+        self.entry.bind("<Return>", lambda _: super_.enter_pressed(self))
+        self.entry.bind("<BackSpace>", lambda _: super_.destroy_line(self) if not self.entry.get() else 0)
 
 
 class AnalysisFrame(Frame):
     def __init__(self, container):
         super().__init__(container)
-        self.label = Label(self, text="lol")
-        self.label.pack()
+        
+        self.entry_frame = Frame(self, bg="white", bd=1, relief="solid")
+        self.entry_frame.place(relx=0.1, rely=0.1, relheight=0.4, relwidth=0.35)
+        self.entry_frame.focus_set()
+        
+        self.lines = []
+        
+        self.line = EntryLine(self.entry_frame, self)
+        self.line.pack(fill="x")
+        self.line.entry.focus_set()
+        self.lines.append(self.line)
+        
+        self.canvas_frame = Frame(self)
+        self.canvas_frame.place(relx=0.5, rely=0.1, relheight=0.8, relwidth=0.4)
+        
+        self.figure = Figure(figsize=(5, 5), dpi=100)
+        self.subplot = self.figure.add_subplot(111)
+        self.canvas = FigureCanvasTkAgg(self.figure, self.canvas_frame)
+        self.canvas.get_tk_widget().pack(fill="both", expand=True)
+        
+    def enter_pressed(self, obj):
+        self.submit_input(obj.entry.get())
+        
+        index = self.lines.index(obj)
+        
+        if self.check_line(index + 1):
+            self.lines[index + 1].entry.focus_set()
+
+        else:
+            self.new_line = EntryLine(self.entry_frame, self)
+            self.new_line.pack(fill="x")
+            self.new_line.entry.focus_set()
+            self.lines.append(self.new_line)
+    
+    def destroy_line(self, obj):
+        index = self.lines.index(obj)
+        if self.check_line(index + 1):
+            self.lines[index].destroy()
+            self.lines.pop(index)
+            self.lines[-1].entry.focus_set()
+    
+    def check_line(self, index):
+        # Überprüft, ob es eine nächste Zeile gibt
+        try:
+            _ = self.lines[index]
+            return True
+        except IndexError:
+            return False
+        
+    def submit_input(self, user_input):
+        def rrange(a, b, n=1):
+            l, x = [], a
+            while x < b:
+                l.append(x)
+                x += n
+            return l
+    
+        self.x = rrange(0, 40, 0.1)
+        self.y = [exp(-x / 10) * sin(x) for x in self.x]
+    
+        self.subplot.plot(self.x, self.y)
+        
+    def switch_color(self):
+        pass
+
+    def interprete(self, user_input, n):
+        user_input = user_input.replace(" ", "").replace("**", "^")
+        user_input = user_input.replace("²", "^2").replace("³", "^3")
+        user_input = user_input.replace("pi", "π")
+        for chr in user_input:
+            if chr not in ".,+-*/()_^`'! π=3" + '"' + NUMBERS + ALPHABET:
+                self.show_error(f"Invalid input: '{chr}'", n)
+                return None
+    
+        try:
+            pass
+        except Exception as error:
+            self.show_error(raise_error(error), n)
+            return None
+    
+        return input_latex, output_latex
+
+    def show_error(self, error, n):
+        self.lines[n].error_label.config(text=error)
+        if error: print(f"Error: {error}")
 
 
 class MatrixFrame(Frame):
@@ -370,7 +487,7 @@ class MainScreen(Tk):
         
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        screen_width, screen_height = 700, 500
+        # screen_width, screen_height = 700, 500
         
         self.geometry(f"{screen_width}x{screen_height}")
         self.title("WolframBeta")
@@ -460,7 +577,7 @@ class MainScreen(Tk):
         
         self.algebra_frame = self.analysis_frame = self.matrix_frame = self.code_frame = None
         self.current_frame = Frame(self)
-        self.toggle_main_frame(0)
+        self.toggle_main_frame(1)
         
         self.bind("<KP_Enter>", self.exit_screen)
     
@@ -502,7 +619,7 @@ class MainScreen(Tk):
             else:
                 container["bg"] = [lgray, dgray][self.color_mode]
                 
-        self.algebra_frame.show_answer()
+        self.current_frame.switch_color()
     
     def selection_buttons(self, container, *names):
         # für die 4 Buttons links
@@ -534,7 +651,7 @@ class MainScreen(Tk):
     
     def exit_screen(self, event=None):
         self.destroy()
-        print(f"{self.algebra_frame.memory = }")
+        # print(f"{self.algebra_frame.memory = }")
 
 
 if __name__ == "__main__":
