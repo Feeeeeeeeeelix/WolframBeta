@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage, OptionMenu, StringVar, Radiobutton
+from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage, StringVar, Radiobutton
 
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
@@ -19,167 +19,9 @@ lang = 0
 Analysis: graph implementieren
 matrizen implementieren
 ein paar kürzungen (kein 2x^3 = 2*3*x^2)
-colormode mit allen frames (Style())
 language überall änderbar
 angepasste größe der latex outputs
 Katalog aller Funktionen
-colormode switch button statt 2 seperate
-"""
-
-"""class Interpreter:
-    memory_dict = {}
-    history = ()
-
-    def __init__(self, user_input):
-        self.input = user_input
-        if not user_input:
-            return
-        if user_input in self.memory_dict:
-            app.show_answer(self.memory_dict[user_input])
-        else:
-            answers = self.calculate(user_input)
-            if not answers: return
-            app.show_answer(answers)
-            self.memory_dict[user_input] = [*answers]
-
-    @staticmethod
-    def integrate(function=None, variable=None, methodstr=None, lower=None, upper=None):
-        method = methodstr.get()
-        global history
-        if function:
-            history = function, variable, lower, upper
-        else:
-            function, variable, lower, upper = history
-
-        if not (lower or upper):
-            return ""
-        f = Function(function, variable)
-        if method == "riemann":
-            return riemann(f, lower, upper)
-        elif method == "trapez":
-            return trapez(f, lower, upper)
-        elif method == "simpson":
-            return simpson(f, lower, upper)
-
-    @staticmethod
-    def interprete(f):
-        if f.startswith("Int") and f[-3:-1] == ")d" and isinstance(f[-1], str):
-            if f[3] == "(":
-                var = f[-1]
-                function = f[4:-3]
-                app.show_error(["Nicht berechenbar!", "Non-calculable!", "Not computable!"][lang])
-                return r"\int " + write_latex(function) + " d" + var, "", ""
-
-            elif f[3] == "_":  # "Int_12,3^1,23(f)dx"
-                lower_bound, i = "", 4
-                while f[i] in NUMBERS + ",eπ":
-                    lower_bound += f[i]
-                    i += 1
-                upper_bound = ""
-                i += 1
-                while f[i] in NUMBERS + ",eπ":
-                    upper_bound += f[i]
-                    i += 1
-                var = f[-1]
-                function = f[i + 1:-3]
-
-                method = StringVar(value="riemann")
-                Radiobutton(app.einstellungs_frame, text="Riemann", variable=method, value="riemann").pack()
-                Radiobutton(app.einstellungs_frame, text="Trapez", variable=method, value="trapez").pack()
-                Radiobutton(app.einstellungs_frame, text="Simpson", variable=method, value="simpson").pack()
-                method.trace("w", Interpreter.integrate)
-
-                latex_input = rf"\int_{'{'}{lower_bound}{'}^{'}{upper_bound}{'}'}{write_latex(function)}d{var}"
-                return latex_input, Interpreter.integrate(function, var, method, flint(lower_bound), flint(upper_bound)), ""
-        else:
-            return None
-
-    @staticmethod
-    def raise_error(error):
-        # print("error:", repr(error))
-        # print("error.args:", error.args)
-
-        if error.args:
-            if len(error.args) > 1:
-                # Error mit verschieden Sprachen
-                err = error.args[lang]
-            else:
-                err = error.args[0]
-        else:
-            # zb: ZeroDivisionError (hat keine args)
-            # repr(error) würde ZeroDivisionError() ausgeben, man will die klammern weghaben
-            err = repr(error)[:-2]
-        app.show_error(err)
-
-    @staticmethod
-    def calculate(userinput):
-        userinput = userinput.replace(" ", "").replace("**", "^")
-        userinput = userinput.replace("²", "^2").replace("³", "^3")
-        userinput = userinput.replace("pi", "π")
-
-        for chr in userinput:
-            if chr not in ".,+-*/()_^`' π" + NUMBERS + ALPHABET:
-                app.show_error(f"Invalid input: '{chr}'")
-                return
-        if userinput.count("(") != userinput.count(")"):
-            app.show_error(["Klammern unpaarig", "Il manque au moins une parenthese", "Unmatched parentheses"][lang])
-            return
-        if userinput[0] in "*/^'`":
-            app.show_error(
-                f"{['Erstes Zeichen kann nicht sein', 'Premier charactère ne peut pas être', 'First character cannot be'][lang]}: '{userinput[0]}'")
-            return
-        if userinput[-1] in "+-*/^":
-            app.show_error(
-                f"{['Letztes Zeichen kann nicht sein', 'Dernier charactère ne peut pas être', 'Last character cannot be'][lang]}: '{userinput[-1]}'")
-            return
-
-        output_str = userinput
-
-        # # Derivative
-        # def derivative(userinput, var):
-        #     try:
-        #         F = Function(userinput, var)
-        #         answer = F.diff()
-        #     except Exception as error:
-        #         return error, None
-        #     return answer.str, answer.latex
-        #
-        # if userinput.startswith("d/d"):
-        #     var = userinput[3]
-        #     if var == " ":
-        #         return f"Invalid syntax: {userinput[:4]}"
-        #
-        #     userinput = userinput[4:].lstrip()
-        #     print(userinput, var)
-        #     return derivative(userinput, var)
-        #
-        # elif userinput.startswith("(") and userinput.endswith((")'", ")`")):
-        #     userinput = userinput[1:-2]
-        #     return derivative(userinput, "x")
-        try:
-            # verscuht zu erkennen, ob es "Int_^..." ist, wenn nicht dann nichts
-            maybe_something = Interpreter.interprete(userinput)
-
-            if not maybe_something:
-                function = Function(userinput)
-
-                userinput_latex = function.latex_in
-                output_str = function.str_out
-                output_latex = function.latex_out
-            else:
-                return maybe_something
-
-        except Exception as error:
-            Interpreter.raise_error(error)
-            return
-
-        try:
-            # Falls man einen approximativen Wert berechnen kann
-            output_str += f"\n\n≈ {eval(output_str)}"
-        except Exception:
-            pass
-
-        return userinput_latex, output_latex, output_str
 """
 
 
@@ -462,18 +304,148 @@ class AnalysisFrame(Frame):
             self.show_error(raise_error(error), n)
             return None
     
-        return input_latex, output_latex
+        return
 
     def show_error(self, error, n):
         self.lines[n].error_label.config(text=error)
         if error: print(f"Error: {error}")
 
 
+class Matrix:
+    def __init__(self, super_frame, name, rows, columns):
+        self.name = name
+        self.values_frame = Frame(super_frame.edit_frame)
+        self.name_entry = super_frame.name_entry
+        
+        self.values = []
+        self.entries = self.entry_gitter(self.values_frame, rows, columns)
+    
+    @staticmethod
+    def entry_gitter(container, rows, columns):
+        entries = []
+        for n in range(rows):
+            container.rowconfigure(n, weight=1)
+            row = []
+            for m in range(columns):
+                container.columnconfigure(m, weight=1)
+                entry = Entry(container, width=2)
+                entry.grid(row=n, column=m)
+                row.append(entry)
+            entries.append(row)
+        return entries
+    
+    def save_values(self):
+        self.values = [[entry.get() for entry in row] for row in self.entries]
+    
+    def get_values(self):
+        self.save_values()
+        return self.values
+    
+    def show(self):
+        self.values_frame.pack(fill="both", expand=True)
+        self.name_entry.delete(0)
+        self.name_entry.insert(0, self.name)
+        
+    def hide(self):
+        self.values_frame.pack_forget()
+        self.name_entry.delete(0)
+
+
 class MatrixFrame(Frame):
     def __init__(self, container):
         super().__init__(container)
-        pass
+        
+        self.matrices = []
+        self.current_matrix = None
+        
+        # Auswahl Frame
+        self.matrix_auswahl = Frame(self, bd=1, relief="raised")
+        self.matrix_auswahl.place(relx=0.1, rely=0.0, relwidth=0.3, relheight=0.33)
+        Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2).pack(side="left")
+        
+        # Edit Frame
+        self.matrix_frame = Frame(self, bd=1, relief="raised")
+        self.matrix_frame.place(relx=0.45, rely=0.0, relwidth=0.45, relheight=0.5)
+        
+        self.matrix_frame.rowconfigure(0, weight=1)
+        self.matrix_frame.rowconfigure(1, weight=5)
+        self.matrix_frame.rowconfigure(2, weight=1)
+        self.matrix_frame.columnconfigure(0, weight=1)
+        self.matrix_frame.columnconfigure(1, weight=5)
+        self.matrix_frame.columnconfigure(2, weight=1)
+        
+        self.name_frame = Frame(self.matrix_frame)
+        self.name_frame.grid(row=1, column=0, sticky="e")
+        
+        self.name_entry = Entry(self.name_frame, width=2, justify="center")
+        self.name_entry.pack(side="left")
+        Label(self.name_frame, text=" = ").pack(side="right")
+        
+        self.edit_frame = Frame(self.matrix_frame, bd=1, relief="raised")
+        self.edit_frame.grid(row=1, column=1, sticky="news")
+        
+        self.vorschlag_frame = Frame(self.matrix_frame)
+        self.vorschlag_frame.grid(row=2, column=1)
+        
+        Button(self.vorschlag_frame, text="ID", command=None).pack(side="left")
+        Button(self.vorschlag_frame, text="Random", command=None).pack(side="left")
+        Button(self.vorschlag_frame, text="RandomSym", command=None).pack(side="left")
+        
+        Button(self.matrix_frame, text="Delete Matrix", command=self.delete_matrix).grid(row=0, column=2)
+        Button(self.matrix_frame, text="Save", command=self.submit_matrix).grid(row=2, column=2)
+        
+        self.error_label = Label(self, fg="red", text="jgnelvjerijbvi")
+        self.error_label.place(relx=0.45, rely=0.5, relheight=0.05, relwidth=0.45)
+        
+        # Entry Frame
+        self.entry_frame = Frame(self, bd=1, relief="raised")
+        self.entry_frame.place(relx=0.1, rely=0.4, relwidth=0.3, relheight=0.1)
+        
+        # Output Frame
+        self.output_frame = Frame(self, bd=1, relief="raised")
+        self.output_frame.place(relx=0.1, rely=0.55, relwidth=0.8, relheight=0.45)
+        
+        self.show_matrix()
+    
+    def delete_matrix(self):
+        self.matrices.remove(self.current_matrix)
+        self.refresh_auswahl()
+        self.current_matrix.hide()
+        m = self.current_matrix
+        del m
+        self.show_matrix()
 
+    def submit_matrix(self):
+        self.current_matrix.save_values()
+        name = self.name_entry.get()
+        if not name:
+            self.show_error("No name")
+        elif self.current_matrix not in self.matrices:
+            self.current_matrix.name = name
+            self.matrices.append(self.current_matrix)
+            self.refresh_auswahl()
+            
+    def refresh_auswahl(self):
+        for auswahl in self.matrix_auswahl.winfo_children():
+            auswahl.destroy()
+        for matrix in self.matrices:
+            Button(self.matrix_auswahl, text=matrix.name, command=lambda m=matrix: self.show_matrix(m), width=2, height=2).pack(side="left")
+        Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2).pack(side="left")
+        
+    def show_error(self, error):
+        self.error_label.config(text=error)
+        
+    def show_matrix(self, matrix=None):
+        if not matrix:
+            if self.current_matrix:
+                self.current_matrix.hide()
+            self.current_matrix = Matrix(self, "", 3, 3)
+            self.current_matrix.show()
+        else:
+            self.current_matrix.hide()
+            self.current_matrix = matrix
+            self.current_matrix.show()
+        
 
 class CodeFrame(Frame):
     def __init__(self, container):
@@ -487,7 +459,7 @@ class MainScreen(Tk):
         
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        # screen_width, screen_height = 700, 500
+        screen_width, screen_height = 700, 500
         
         self.geometry(f"{screen_width}x{screen_height}")
         self.title("WolframBeta")
@@ -500,7 +472,7 @@ class MainScreen(Tk):
         plt.rcParams["mathtext.fontset"] = "cm"
         
         # Top Frame
-        self.top_frame = Frame(self, bd=1, relief="solid")
+        self.top_frame = Frame(self, bd=0, relief="solid")
         self.top_frame.place(y=0, x=0, relheight=0.1, relwidth=1)
         
         self.top_frame.columnconfigure(0, weight=1)
@@ -577,7 +549,7 @@ class MainScreen(Tk):
         
         self.algebra_frame = self.analysis_frame = self.matrix_frame = self.code_frame = None
         self.current_frame = Frame(self)
-        self.toggle_main_frame(1)
+        self.toggle_main_frame(2)
         
         self.bind("<KP_Enter>", self.exit_screen)
     
