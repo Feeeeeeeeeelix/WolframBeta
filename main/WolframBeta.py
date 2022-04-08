@@ -15,6 +15,9 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
+default_frame = 1
+min_window = True
+
 """todo:
 Analysis: graph implementieren
 matrizen implementieren
@@ -225,19 +228,31 @@ class AnalysisFrame(Frame):
     def __init__(self, container):
         super().__init__(container)
         
-        self.entry_frame = Frame(self, bg="white", bd=1, relief="solid")
-        self.entry_frame.place(relx=0.1, rely=0.1, relheight=0.4, relwidth=0.35)
-        self.entry_frame.focus_set()
+        # Entry lines Frame
+        self.entry_lines_frame = Frame(self, bg="white", bd=1, relief="solid")
+        self.entry_lines_frame.place(relx=0.1, rely=0.05, relheight=0.4, relwidth=0.35)
+        self.entry_lines_frame.focus_set()
         
         self.lines = []
         
-        self.line = EntryLine(self.entry_frame, self)
+        self.line = EntryLine(self.entry_lines_frame, self)
         self.line.pack(fill="x")
         self.line.entry.focus_set()
         self.lines.append(self.line)
         
+        # single entry Frame
+        
+        self.entry_frame = Frame(self, bd=1, relief="raised")
+        self.entry_frame.place(relx=0.1, rely=0.55, relwidth=0.35, relheight=0.1)
+        
+        # latex output frame
+        
+        self.output_frame = Frame(self, bd=1, relief="raised")
+        self.output_frame.place(relx=0.1, rely=0.7, relwidth=0.35, relheight=0.25)
+        
+        # Canvas Frame
         self.canvas_frame = Frame(self)
-        self.canvas_frame.place(relx=0.5, rely=0.1, relheight=0.8, relwidth=0.4)
+        self.canvas_frame.place(relx=0.5, rely=0.05, relheight=0.9, relwidth=0.45)
         
         self.figure = Figure(figsize=(5, 5), dpi=100)
         self.subplot = self.figure.add_subplot(111)
@@ -253,7 +268,7 @@ class AnalysisFrame(Frame):
             self.lines[index + 1].entry.focus_set()
 
         else:
-            self.new_line = EntryLine(self.entry_frame, self)
+            self.new_line = EntryLine(self.entry_lines_frame, self)
             self.new_line.pack(fill="x")
             self.new_line.entry.focus_set()
             self.lines.append(self.new_line)
@@ -311,7 +326,7 @@ class AnalysisFrame(Frame):
         if error: print(f"Error: {error}")
 
 
-class Matrix:
+class MatrixInterface:
     def __init__(self, super_frame, name, rows, columns):
         self.name = name
         self.values_frame = Frame(super_frame.edit_frame)
@@ -439,7 +454,7 @@ class MatrixFrame(Frame):
         if not matrix:
             if self.current_matrix:
                 self.current_matrix.hide()
-            self.current_matrix = Matrix(self, "", 3, 3)
+            self.current_matrix = MatrixInterface(self, "", 3, 3)
             self.current_matrix.show()
         else:
             self.current_matrix.hide()
@@ -459,7 +474,8 @@ class MainScreen(Tk):
         
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        screen_width, screen_height = 700, 500
+        if min_window:
+            screen_width, screen_height = 700, 500
         
         self.geometry(f"{screen_width}x{screen_height}")
         self.title("WolframBeta")
@@ -549,7 +565,7 @@ class MainScreen(Tk):
         
         self.algebra_frame = self.analysis_frame = self.matrix_frame = self.code_frame = None
         self.current_frame = Frame(self)
-        self.toggle_main_frame(2)
+        self.toggle_main_frame(default_frame)
         
         self.bind("<KP_Enter>", self.exit_screen)
     
