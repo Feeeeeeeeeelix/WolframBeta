@@ -15,7 +15,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 1
+default_frame = 0
 min_window = True
 
 """todo:
@@ -58,6 +58,8 @@ class AlgebraFrame(Frame):
         super().__init__(container)
         
         self.memory = {}
+        self.listed_memory = []
+        self.rang = -1
         self.input = ""
         
         self.io_frame = Frame(self)
@@ -68,6 +70,8 @@ class AlgebraFrame(Frame):
         self.input_entry = Entry(self.io_frame, bd=2, relief="solid", highlightthickness=0, justify="center")
         self.input_entry.place(relx=0.1, rely=0, relwidth=0.8, relheight=0.2)
         self.input_entry.focus_set()
+        self.input_entry.bind("<Up>", lambda _: self.show_last(-1))
+        self.input_entry.bind("<Down>", lambda _: self.show_last(+1))
         
         # settings frame for integration methods
         self.einstellungs_frame = Frame(self.io_frame, bd=2, relief="solid")
@@ -106,9 +110,13 @@ class AlgebraFrame(Frame):
         self.input_entry.bind("<Return>", self.commit_input)
     
     def commit_input(self, event=None):
+        self.rang = -1
         self.input = self.input_entry.get()
         if not self.input:
             return None
+        if not (self.listed_memory and self.input == self.listed_memory[-1]):
+            self.listed_memory.append(self.input)
+        
         if self.input in self.memory:
             # Wenn das Eingegebene schon berechnet wurde, dann soll das gespeicherte Ergebnis angezeigt werden
             self.show_answer(self.memory[self.input])
@@ -117,7 +125,7 @@ class AlgebraFrame(Frame):
             if not answers: return None
             self.show_answer(answers)
             self.memory[self.input] = [*answers]
-    
+        
     def interprete(self, user_input):
         user_input = user_input.replace(" ", "").replace("**", "^")
         user_input = user_input.replace("²", "^2").replace("³", "^3")
@@ -193,7 +201,14 @@ class AlgebraFrame(Frame):
         # Bei änderung der integrationsmethode (Riemann/Trapez/Simpson) wird der input erneut berechnet
         set_default_integration_method(method)
         self.show_answer(self.interprete(self.input_entry.get()))
-    
+        
+    def show_last(self, dir):
+        # Im entry wird bei Pfeil hoch/runter das letzte/nächste eingegebene angezeigt
+        if not self.listed_memory: pass
+        self.rang += dir*1 if (not self.rang == dir*len(self.listed_memory)) and (not self.rang == -dir) else 0
+        self.input_entry.delete(0)
+        self.input_entry.insert(0, self.listed_memory[self.rang])
+        
     def switch_color(self):
         # refresh the canvas
         self.show_answer()
