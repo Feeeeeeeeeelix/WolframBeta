@@ -5,7 +5,9 @@ import analysis
 """TODO:
 - definitonsmenge checken neu
 - latex 2*x -> 2x
-- aCb -> C(a,b) ? (auch mit P?)
+
+möglichkeit, andere variablen zu verwenden (schwer)
+def menge bestimmen
 
 - Vereinfachen
 - 1/x*x -> 1
@@ -26,6 +28,7 @@ lol
 FUNCTIONS = ['C', 'PGCD', 'PPCM', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctanh', 'cos', 'cosh', 'sin', 'sinh',
              'eratosthenes', 'exp', 'fact', 'ggT', 'isprime', 'kgV', 'log', 'ln', 'partition', 'pow', 'root',
              'sqrt', 'tan', 'tanh', 'Int']
+SIMPLE_FUNCTIONS = ['cos', 'cosh', 'arccos', 'arccosh', 'sin', 'sinh', 'arcsin', 'arcsinh', 'tan', 'tanh', 'arctanh', 'exp', 'log', 'ln', 'sqrt']
 ALPHABET = "qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNMπ"
 NUMBERS = "0123456789"
 
@@ -60,6 +63,7 @@ def flint(x: int or float) -> int if int else float:
 
 
 def _split_consts(f, test):
+    # splittet Terme in f je nach test, zb mit test=isfloat
     constants, functions = [], []
     for arg in f:
         if test(arg):
@@ -71,6 +75,7 @@ def _split_consts(f, test):
 
 def _extract_args(f):
     # f = "3(x+4)(x+6^x)ln(x)^2" -->  f = "3@@ln@^2", args = ['3', 'x+4', 'x+6^x', 'x']
+    # nützlich für den parser, um klammerregelungen zu beachten
     
     def find_arg(f, i):
         arg, p = "", 0
@@ -96,6 +101,8 @@ def _extract_args(f):
 
 def _insert_args(f, innerargs):
     # f = "3@@ln@^2", innerargs = ['3', 'x+4', 'x+6^x', 'x'] -->   f = "3(x+4)(x+6^x)ln(x)^2"
+    # Gegenteil von _extract_args
+    
     if innerargs:
         n = 0
         fstr = str(f)
@@ -110,6 +117,7 @@ def _insert_args(f, innerargs):
 
 def check_ensemble_de_definition(funcname, arg):
     if not isfloat(arg[0]):
+        # bei variable
         return True
     else:
         arg = [flint(arg) for arg in arg]
@@ -132,11 +140,19 @@ def parse(f: str, ableiten=False):
     PRINT += f"\nparse:{f}"
     
     # Leerzeichen entfernen
-    f = f.replace(" ", "")
+    f = f.replace(" ", "").replace("**", "^")
+    if not f:
+        raise SyntaxError("str leer")
     
     if isfloat(f):
         return flint(f)
-    if f in ALPHABET:
+    if f[:-1] in SIMPLE_FUNCTIONS and f[-1] in ALPHABET+NUMBERS:
+        # ex: sinx, sin2 -> sin(x), sin(2)
+        return parse_ws(f"{f[:-1]}({f[-1]})")
+    if len(f) == 3 and f[1] == "C" and f[0] in NUMBERS and f[2] in NUMBERS:
+        # 2C3 -> C(2,3)
+        return parse(f"C({f[0]},{f[2]})")
+    if f in ALPHABET and len(f) == 1:
         return f
     
     f0 = f
@@ -295,7 +311,13 @@ def parse_ws(f):
 
     if isfloat(f):
         return flint(f)
-    if f in ALPHABET:
+    if f[:-1] in SIMPLE_FUNCTIONS and f[-1] in ALPHABET+NUMBERS:
+        # ex: sinx, sin2 -> sin(x), sin(2)
+        return parse_ws(f"{f[:-1]}({f[-1]})")
+    if len(f) >= 3 and "C" in f and isfloat(f[:f.index("C")]) and isfloat(f[f.index("C")+1:]):
+        # 2C3 -> C(2,3)
+        return parse(f"C({f[:f.index('C')]},{f[f.index('C')+1:]})")
+    if f in ALPHABET and len(f) == 1:
         return f
 
     f0 = f
@@ -309,8 +331,9 @@ def parse_ws(f):
     i = 0
     while i < len(f) - 1:
         # 2@ / 2x / @@ / @x / ax(keine funktion) --> implizierte multiplikation
-        if f[i] in NUMBERS + "@" and f[i + 1] in "@" + ALPHABET or (
-                f[i] in ALPHABET and f[i + 1] in ALPHABET and "@" not in f and f[i] != "d"):
+        if f[i] in NUMBERS + "@" and f[i + 1] in "@" + ALPHABET\
+                or (f[i] in ALPHABET and f[i + 1] in ALPHABET and "@" not in f and f[i] != "d"
+                and not any([f.find(func)+len(func) < len(f) and func in f for func in SIMPLE_FUNCTIONS])):
             f = f[:i + 1] + "*" + f[i + 1:]
 
         # @2 -> verboten
@@ -327,6 +350,7 @@ def parse_ws(f):
 
         # 2-x / x-x / @-x --> implizierte addition mit negativem zweiten summand
         if f[i] == "-" and f[i - 1] in "@" + NUMBERS + ALPHABET:
+            # aus "3-2" wird intern mit "3+-2" weitergerechnet
             f = f[:i] + "+" + f[i:]
 
     if "+" in f:
@@ -787,7 +811,7 @@ class Function:
             self.latex_out = str(write_latex(self.tree))
             PRINT += f"\n\nself.latex = " + self.latex_out
             
-            self.lam = lambda value: eval(self.str_out.replace("^", "**").replace(self.var, str(value)))
+            self.lam = lambda x: eval(self.str_out.replace("^", "**"))
         else:
             self.tree = inputfunc
             PRINT += f"\n\n{self.tree = }"
@@ -813,12 +837,12 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "exp(8)"
-    f = Function(func)
+    func = "qwert"
 
     try:
-        print(f(3))
-        
+        # print(parse_ws(func))
+        f = Function("x**2")
+        print(f.lam(8))
         # input = "d/dx(x^34)"
         # input_latex = write_latex_ws(parse_ws(func))
         # output_latex = parse(func, ableiten=True)

@@ -19,8 +19,8 @@ default_frame = 1
 min_window = True
 
 """todo:
-Analysis: graph implementieren
-matrizen implementieren
+AnalysisFrame
+MatrixFrame
 ein paar kürzungen (kein 2x^3 = 2*3*x^2)
 language überall änderbar
 angepasste größe der latex outputs
@@ -53,7 +53,7 @@ def raise_error(error):
         return error
     
 
-def rrange(a, b, n=1):
+def rrange(a, b, n=1.0):
     # range(), aber auch mit float abständen
     l, x = [], a
     while x < b:
@@ -226,7 +226,7 @@ class AlgebraFrame(Frame):
 class EntryLine(Frame):
     # einzelne Zeile im AnalysisFrame
     def __init__(self, container, super_):
-        super().__init__(container, height=40, bg="red", bd=1, relief="groove")
+        super().__init__(container, height=40, bd=1, relief="groove")
         
         self.fr = Frame(self, height=30)
         self.fr.pack(side="top", expand=1, fill="both")
@@ -241,8 +241,8 @@ class EntryLine(Frame):
         self.entry.pack(side="left", fill="both", expand=True)
         self.entry.focus_set()
         
-        self.error_label = Label(self, takefocus=0, height=0, fg="red")
-        self.error_label.pack(side="bottom", fill="x", expand=0)
+        # self.error_label = Label(self, takefocus=0, height=0, fg="red")
+        # self.error_label.pack(side="bottom", fill="x", expand=0)
         
         self.entry.bind("<Return>", lambda _: super_.enter_pressed(self))
         self.entry.bind("<BackSpace>", lambda _: super_.destroy_line(self) if not self.entry.get() else 0)
@@ -255,6 +255,7 @@ class AnalysisFrame(Frame):
         # Entry lines Frame
         self.entry_lines_frame = Frame(self, bg="white", bd=1, relief="solid")
         self.entry_lines_frame.place(relx=0.1, rely=0.05, relheight=0.4, relwidth=0.35)
+        
         self.entry_lines_frame.focus_set()
         
         self.lines = []
@@ -266,8 +267,8 @@ class AnalysisFrame(Frame):
         
         # single entry Frame
         
-        self.entry_frame = Frame(self, bd=1, relief="raised")
-        self.entry_frame.place(relx=0.1, rely=0.55, relwidth=0.35, relheight=0.1)
+        self.compute_entry = Entry(self, justify="center", highlightbackground="black")
+        self.compute_entry.place(relx=0.1, rely=0.55, relwidth=0.35, relheight=0.1)
         
         # latex output frame
         
@@ -328,9 +329,17 @@ class AnalysisFrame(Frame):
         self.functions.append(function)
         obj.insert(0, f"{name}(x) = ")
         
-        I = rrange(0.01, 5, 0.01)
-        J = [function(x) for x in I]
+        I_max = rrange(-5, 5, 0.01)
+        I, J = [], []
+        for x in I_max:
+            try:
+                # print(x, function(x))
+                J.append(function(x))
+                I.append(x)
+            except Exception as e:
+                raise e
         
+        # print(I_max, I, J)
         self.subplot.plot(I, J)
         self.canvas.draw()
         
