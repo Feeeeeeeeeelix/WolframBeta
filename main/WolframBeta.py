@@ -15,7 +15,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 0
+default_frame = 1
 min_window = True
 
 """todo:
@@ -49,8 +49,17 @@ def raise_error(error):
             # repr(error) würde ZeroDivisionError() ausgeben, man will die klammern weghaben
             return repr(error)[:-2]
     else:
-        # nur costum text gegeben
+        # nur costum error text gegeben
         return error
+    
+
+def rrange(a, b, n=1):
+    # range(), aber auch mit float abständen
+    l, x = [], a
+    while x < b:
+        l.append(x)
+        x += n
+    return l
 
 
 class AlgebraFrame(Frame):
@@ -273,9 +282,12 @@ class AnalysisFrame(Frame):
         self.subplot = self.figure.add_subplot(111)
         self.canvas = FigureCanvasTkAgg(self.figure, self.canvas_frame)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
+
+        self.functions = []
+        self.funcnames_order = ["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"]
         
     def enter_pressed(self, obj):
-        self.submit_input(obj.entry.get())
+        self.submit_input(obj.entry)
         
         index = self.lines.index(obj)
         
@@ -303,18 +315,24 @@ class AnalysisFrame(Frame):
         except IndexError:
             return False
         
-    def submit_input(self, user_input):
-        def rrange(a, b, n=1):
-            l, x = [], a
-            while x < b:
-                l.append(x)
-                x += n
-            return l
-    
-        self.x = rrange(0, 40, 0.1)
-        self.y = [exp(-x / 10) * sin(x) for x in self.x]
-    
-        self.subplot.plot(self.x, self.y)
+    def submit_input(self, obj):
+        user_input = obj.get()
+        
+        # find a function name:
+        n = 0
+        while self.funcnames_order[n] in [f.name for f in self.functions]:
+            n += 1
+        name = self.funcnames_order[n]
+        
+        function = Function(user_input, "x", name)
+        self.functions.append(function)
+        obj.insert(0, f"{name}(x) = ")
+        
+        I = rrange(0.01, 5, 0.01)
+        J = [function(x) for x in I]
+        
+        self.subplot.plot(I, J)
+        self.canvas.draw()
         
     def switch_color(self):
         pass

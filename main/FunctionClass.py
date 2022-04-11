@@ -752,7 +752,12 @@ def integrate(a, b, f, variable, method=None):
 
 
 class Function:
-    def __init__(self, inputfunc: str or list, variable="x"):
+    def __init__(self, inputfunc: str or list, variable="x", name=None, df=None):
+        self.var = variable
+        self.name = name
+        # ensemble de definition:
+        self.df = df
+        
         global PRINT
         if type(inputfunc) == str:
             self.str = inputfunc
@@ -782,7 +787,7 @@ class Function:
             self.latex_out = str(write_latex(self.tree))
             PRINT += f"\n\nself.latex = " + self.latex_out
             
-            self.lam = lambda value: eval(self.str_out.replace("^", "**").replace(variable, str(value)))
+            self.lam = lambda value: eval(self.str_out.replace("^", "**").replace(self.var, str(value)))
         else:
             self.tree = inputfunc
             PRINT += f"\n\n{self.tree = }"
@@ -808,17 +813,20 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "lol"
+    func = "exp(8)"
+    f = Function(func)
 
     try:
+        print(f(3))
+        
         # input = "d/dx(x^34)"
-        input_latex = write_latex_ws(parse_ws(func))
-        output_latex = parse(func, ableiten=True)
-        try:
-            output_latex = eval(write(output_latex))
-        except:
-            output_latex = write_latex(output_latex)
-        print(input_latex," = ", output_latex)
+        # input_latex = write_latex_ws(parse_ws(func))
+        # output_latex = parse(func, ableiten=True)
+        # try:
+        #     output_latex = eval(write(output_latex))
+        # except:
+        #     output_latex = write_latex(output_latex)
+        # print(input_latex," = ", output_latex)
 
         # a = parse_ws(func)
         # d = write_latex_ws(a)
