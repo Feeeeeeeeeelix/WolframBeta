@@ -15,7 +15,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 1
+default_frame = 0
 min_window = True
 
 """todo:
@@ -161,12 +161,12 @@ class AlgebraFrame(Frame):
             
             else:
                 # sonstige Berechnungen
-                input_latex = write_latex_ws(parse_ws(user_input))
-                output_latex = parse(user_input, ableiten=True)
+                input_latex = write_latex(parse(user_input))
+                output_tree = parse(user_input, simp=True)
                 try:
-                    output_latex = eval(write(output_latex))
+                    output_latex = eval(write(output_tree))
                 except:
-                    output_latex = write_latex(output_latex)
+                    output_latex = write_latex(output_tree, simp=True)
         except Exception as error:
             self.show_error(raise_error(error))
             return None
@@ -215,7 +215,7 @@ class AlgebraFrame(Frame):
         # Im entry wird bei Pfeil hoch/runter das letzte/nächste eingegebene angezeigt
         if not self.listed_memory: pass
         self.rang += dir*1 if (not self.rang == dir*len(self.listed_memory)) and (not self.rang == -dir) else 0
-        self.input_entry.delete(0)
+        self.input_entry.delete(0, "end")
         self.input_entry.insert(0, self.listed_memory[self.rang])
         
     def switch_color(self):
@@ -531,7 +531,7 @@ class MainScreen(Tk):
         
         # Top Frame
         self.top_frame = Frame(self, bd=0, relief="solid")
-        self.top_frame.place(y=0, x=0, relheight=0.1, relwidth=1)
+        self.top_frame.place(y=0, relx=0.07, relheight=0.1, relwidth=0.93)
         
         self.top_frame.columnconfigure(0, weight=1)
         self.top_frame.columnconfigure(1, weight=5)
@@ -578,7 +578,7 @@ class MainScreen(Tk):
         
         # Left frame
         self.left_frame = Frame(self, bg=lblue)
-        self.left_frame.place(rely=0.1, x=0, relheight=0.9, relwidth=0.07)
+        self.left_frame.place(rely=0, x=0, relheight=1, relwidth=0.07)
         
         # self.sep = Label(self.left_frame, bg="white")
         # self.sep.place(x=0, rely=0.299, relwidth=1, height=3)
