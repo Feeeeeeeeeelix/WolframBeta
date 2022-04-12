@@ -553,7 +553,7 @@ class MainScreen(Tk):
         self.cm_button.grid(row=0, column=0)
         
         # Logo
-        self.logo_pic = PhotoImage(file="../pictures/logo.png").subsample(2, 2)
+        self.logo_pic = PhotoImage(file="../pictures/logo.png").subsample(3,3)
         self.logo = Label(self.top_frame, image=self.logo_pic)
         self.logo.grid(row=0, column=1, sticky="news")
         

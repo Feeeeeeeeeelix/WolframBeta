@@ -131,17 +131,17 @@ def check_ensemble_de_definition(funcname, arg, n):
     else:
         arg = [flint(arg) for arg in arg]
     if funcname in ["ln", "log"] and arg[0] <= 0:
-        raise df_error(funcname, args)
+        raise df_error(funcname, arg)
     elif funcname == "sqrt" and arg[0] < 0:
-        raise df_error(funcname, args)
+        raise df_error(funcname, arg)
     elif funcname == "root" and int(arg[0]) < 0 and not arg[1] % 2:
-        raise df_error(funcname, args)
+        raise df_error(funcname, arg)
     elif funcname in ["arccos", "arcsin"] and not -1 <= arg[0] <= 1:
-        raise df_error(funcname, args)
+        raise df_error(funcname, arg)
     elif funcname in ['PGCD', 'PPCM', 'ggT', 'kgV'] and not arg[0] == int(arg[0]):
-        raise df_error(funcname, args)
+        raise df_error(funcname, arg)
     elif funcname in ['C', 'eratosthenes', 'fact', 'isprime', 'partition'] and not arg[0] == abs(int(arg[0])):
-        raise df_error(funcname, args)
+        raise df_error(funcname, arg)
     elif funcname in ['arccosh', 'arcsin', 'arcsinh', 'arctanh', 'cos', 'cosh', 'sin', 'sinh', 'eratosthenes',
                       'exp', 'fact', 'isprime', 'log', 'ln', 'partition', 'sqrt', 'tan', 'tanh'] and n > 1:
         raise n_error(funcname, 1)
