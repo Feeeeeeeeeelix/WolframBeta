@@ -260,8 +260,10 @@ def parse(f: str, simp=False):
     
     if f[0] == "-":
         # keine substraktion
-        return f"-{parse(f[1:], simp)}"
-        # return ["*", [-1, parse(f[1:], simp)]]
+        if len(f) == 2 and f[1] in ALPHABET+NUMBERS:
+            return f"-{f[1]}"
+        else:
+            return ["*", [-1, parse(f[1:], simp)]]
 
     # Ableitung
     if f[0:3] == "d/d" and f[4] == "@" and len(f) == 5:

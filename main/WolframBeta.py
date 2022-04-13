@@ -15,7 +15,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 0
+default_frame = 1
 min_window = True
 
 """todo:
@@ -54,6 +54,7 @@ Zahlentheorie:
 * prim_factors(n)
 * partition(n)
 """]
+
 
 def toggle_lang(language):
     global lang
@@ -305,15 +306,20 @@ class AnalysisFrame(Frame):
         self.line.entry.focus_set()
         self.lines.append(self.line)
         
+        """ TODO: scrollbar """
+
         # single entry Frame
         
         self.compute_entry = Entry(self, justify="center", highlightbackground="black")
         self.compute_entry.place(relx=0.1, rely=0.55, relwidth=0.35, relheight=0.1)
         
         # latex output frame
-        
-        self.output_frame = Frame(self, bd=1, relief="raised")
+        self.output_frame = Label(self, bd=1, relief="solid")
         self.output_frame.place(relx=0.1, rely=0.7, relwidth=0.35, relheight=0.25)
+
+        self.io_figure = Figure()
+        self.io_canvas = FigureCanvasTkAgg(self.io_figure, master=self.output_frame)
+        self.io_canvas.get_tk_widget().pack(expand=1, fill="both")
         
         # Canvas Frame
         self.canvas_frame = Frame(self)
@@ -328,13 +334,14 @@ class AnalysisFrame(Frame):
         self.help_label = Message(self, text=algebra_help[lang], relief="raised")
         self.help_show = False
 
-        self.functions = []
+        self.functions = [] # alle gespeicherte funktionen
+        self.active_functions = [] # Funktions die auf dem graph angezeigt werden
         self.funcnames_order = ["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"]
         
     def enter_pressed(self, obj):
-        self.submit_input(obj.entry)
         
         index = self.lines.index(obj)
+        self.submit_input(obj.entry, index)
         
         if self.check_line(index + 1):
             self.lines[index + 1].entry.focus_set()
@@ -359,53 +366,68 @@ class AnalysisFrame(Frame):
             return True
         except IndexError:
             return False
+    
+    def graph(self):
+        I_max = rrange(-5, 5, 0.01)
         
-    def submit_input(self, obj):
+        for function in self.active_functions:
+            I, J = [], []
+            for x in I_max:
+                try:
+                    # print(x, function(x))
+                    J.append(function(x))
+                    I.append(x)
+                except Exception as e:
+                    if type(e) is not ValueError:
+                        raise e
+            
+            # print(I_max, I, J)
+            self.subplot.plot(I, J)
+        self.canvas.draw()
+      
+    def submit_input(self, obj, n):
         user_input = obj.get()
         
-        # find a function name:
-        n = 0
-        while self.funcnames_order[n] in [f.name for f in self.functions]:
-            n += 1
-        name = self.funcnames_order[n]
-        
-        function = Function(user_input, "x", name)
-        self.functions.append(function)
-        obj.insert(0, f"{name}(x) = ")
-        
-        I_max = rrange(-5, 5, 0.01)
-        I, J = [], []
-        for x in I_max:
-            try:
-                # print(x, function(x))
-                J.append(function(x))
-                I.append(x)
-            except Exception as e:
-                raise e
-        
-        # print(I_max, I, J)
-        self.subplot.plot(I, J)
-        self.canvas.draw()
-        
-    def switch_color(self):
-        pass
+        self.interprete(obj, n)
 
-    def interprete(self, user_input, n):
-        user_input = user_input.replace(" ", "").replace("**", "^")
-        user_input = user_input.replace("²", "^2").replace("³", "^3")
-        user_input = user_input.replace("pi", "π")
-        for chr in user_input:
+    def interprete(self, obj, n):
+        string = obj.get()
+        string = string.replace(" ", "").replace("**", "^")
+        string = string.replace("²", "^2").replace("³", "^3")
+        string = string.replace("pi", "π")
+        for chr in string:
             if chr not in ".,+-*/()_^`'! π=3" + '"' + NUMBERS + ALPHABET:
                 self.show_error(f"Invalid input: '{chr}'", n)
                 return None
     
-        try:
-            pass
-        except Exception as error:
-            self.show_error(raise_error(error), n)
-            return None
+        if "=" not in string:
+            # Funktionsterm gegeben, das geplottet werden soll
     
-        return
+            # Funktionsname suchen:
+            n = 0
+            while self.funcnames_order[n] in [f.name for f in self.functions]:
+                n_max = len(self.funcnames_order)
+                n += 1
+                if n == n_max - 1:
+                    # Wenn die namen aufgebraucht sind, geht es mit f_1, g_1, ... , f_2, g_2 ... weiter
+                    self.funcnames_order.append(f"{self.funcnames_order[(n + 1)% 11]}_{(n + 1) // 11}")
+            name = self.funcnames_order[n]
+            
+            # funktionsfarbe suchen
+            """TODO: Farbe
+            """
+            
+            # Funktion draus machen:
+            try:
+                print(f"new func: {name = }, {string = }")
+                function = Function(string, "x", name)
+                self.functions.append(function)
+                self.active_functions.append(function)
+                obj.insert(0, f"{name}(x) = ")
+                self.graph()
+            except Exception as error:
+                self.show_error(raise_error(error), n)
+                return None
 
     def show_error(self, error, n):
         self.lines[n].error_label.config(text=error)
@@ -419,6 +441,9 @@ class AnalysisFrame(Frame):
         else:
             self.help_label.place_forget()
     
+    def switch_color(self):
+        pass
+
 
 class MatrixInterface:
     def __init__(self, super_frame, name, rows, columns):
