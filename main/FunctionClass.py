@@ -186,6 +186,8 @@ def parse(f: str, simp=False):
     if not f:
         raise SyntaxError("str leer")
     
+    if f[0] == "+":
+        return parse(f[1:], simp)
     if isfloat(f):
         return flint(f)
     if f[:-1] in SIMPLE_FUNCTIONS and f[-1] in ALPHABET + NUMBERS:
@@ -601,12 +603,8 @@ def integrate(a, b, f, variable, method=None):
 
 
 class Function:
-    def __init__(self, inputfunc: str or list, variable="x", name=None, df=None):
+    def __init__(self, inputfunc: str or list, variable="x"):
         self.var = variable
-        self.name = name
-        # ensemble de definition:
-        self.df = df
-        
         global PRINT
         if type(inputfunc) == str:
             self.str = inputfunc

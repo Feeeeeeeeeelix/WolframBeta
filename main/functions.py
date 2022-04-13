@@ -14,6 +14,8 @@ ln3 = 1.098612288668110
 
 
 def fact(n):
+    if int(n) != float(n) or n < 0:
+        raise ValueError
     return n * fact(n - 1) if n > 1 else 1
 
 

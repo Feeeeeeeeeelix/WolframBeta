@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage, StringVar, Radiobutton, Message
+from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage, StringVar, Radiobutton, Message, Scrollbar
 
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
@@ -63,6 +63,7 @@ def toggle_lang(language):
 
 
 def raise_error(error):
+    # formatiert ein error code
     if isinstance(error, Exception):
         # Costum or automatic exceptions
         if error.args:
@@ -272,7 +273,8 @@ class EntryLine(Frame):
         self.fr = Frame(self, height=30)
         self.fr.pack(side="top", expand=1, fill="both")
         
-        self.bttn = Button(self.fr, takefocus=0, bd=0, bg="white", highlightthickness=0)
+        self.bttn = Button(self.fr, takefocus=0, bd=0, bg="white", highlightthickness=0,
+                           image=super_.gray_ring, command=lambda : super_.toggle_visibility(self))
         self.bttn.pack(side="left", fill="both")
         
         self.pfeil = Label(self.fr, takefocus=0, text=" > ", bg="white", fg="black", height=2)
@@ -282,11 +284,27 @@ class EntryLine(Frame):
         self.entry.pack(side="left", fill="both", expand=True)
         self.entry.focus_set()
         
-        # self.error_label = Label(self, takefocus=0, height=0, fg="red")
+        self.error_label = Label(self, takefocus=0, height=0, fg="red")
         # self.error_label.pack(side="bottom", fill="x", expand=0)
         
         self.entry.bind("<Return>", lambda _: super_.enter_pressed(self))
         self.entry.bind("<BackSpace>", lambda _: super_.destroy_line(self) if not self.entry.get() else 0)
+        
+    def show_error(self, error_message):
+        self.error_label.config(text=error_message)
+        self.error_label.pack(side="bottom", fill="x", expand=0)
+    
+    def hide_error(self):
+        self.error_label.pack_forget()
+
+
+class FunctionWrapper(Function):
+    def __init__(self, string, variable="x", name=None, color=None, isvisible=True, entry_index=None):
+        super().__init__(string, variable)
+        self.name = name
+        self.color = color
+        self.isvisible = isvisible
+        self.index = entry_index
 
 
 class AnalysisFrame(Frame):
@@ -296,9 +314,16 @@ class AnalysisFrame(Frame):
         # Entry lines Frame
         self.entry_lines_frame = Frame(self, bg="white", bd=1, relief="solid")
         self.entry_lines_frame.place(relx=0.1, rely=0.05, relheight=0.4, relwidth=0.35)
-        
         self.entry_lines_frame.focus_set()
         
+        self.scrollbar = Scrollbar(self.entry_lines_frame, orient="vertical")
+        self.scrollbar.pack(side="right", fill="y")
+        
+        # self.entry_lines_frame.config("yscrollcommand"=self.scrollbar.set)
+        
+        self.gray_ring = PhotoImage(file="../pictures/gray_ring.png").subsample(3, 3)
+        self.red_ring = PhotoImage(file="../pictures/red_ring.png").subsample(3, 3)
+
         self.lines = []
         
         self.line = EntryLine(self.entry_lines_frame, self)
@@ -310,7 +335,7 @@ class AnalysisFrame(Frame):
 
         # single entry Frame
         
-        self.compute_entry = Entry(self, justify="center", highlightbackground="black")
+        self.compute_entry = Entry(self, justify="center")
         self.compute_entry.place(relx=0.1, rely=0.55, relwidth=0.35, relheight=0.1)
         
         # latex output frame
@@ -334,64 +359,31 @@ class AnalysisFrame(Frame):
         self.help_label = Message(self, text=algebra_help[lang], relief="raised")
         self.help_show = False
 
-        self.functions = [] # alle gespeicherte funktionen
-        self.active_functions = [] # Funktions die auf dem graph angezeigt werden
+        self.functions = {} # alle gespeicherte funktionen
         self.funcnames_order = ["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"]
+        self.all_colors = ["r", "g", "b", "c", "m", "y", "k"]
         
     def enter_pressed(self, obj):
+        obj.hide_error()
         
         index = self.lines.index(obj)
-        self.submit_input(obj.entry, index)
+        if not self.interprete(obj, index): return None
         
         if self.check_line(index + 1):
             self.lines[index + 1].entry.focus_set()
 
-        else:
+        elif obj.entry.get():
             self.new_line = EntryLine(self.entry_lines_frame, self)
             self.new_line.pack(fill="x")
             self.new_line.entry.focus_set()
             self.lines.append(self.new_line)
-    
-    def destroy_line(self, obj):
-        index = self.lines.index(obj)
-        if self.check_line(index + 1):
-            self.lines[index].destroy()
-            self.lines.pop(index)
-            self.lines[-1].entry.focus_set()
-    
-    def check_line(self, index):
-        # Überprüft, ob es eine nächste Zeile gibt
-        try:
-            _ = self.lines[index]
-            return True
-        except IndexError:
-            return False
-    
-    def graph(self):
-        I_max = rrange(-5, 5, 0.01)
-        
-        for function in self.active_functions:
-            I, J = [], []
-            for x in I_max:
-                try:
-                    # print(x, function(x))
-                    J.append(function(x))
-                    I.append(x)
-                except Exception as e:
-                    if type(e) is not ValueError:
-                        raise e
-            
-            # print(I_max, I, J)
-            self.subplot.plot(I, J)
-        self.canvas.draw()
-      
-    def submit_input(self, obj, n):
-        user_input = obj.get()
-        
-        self.interprete(obj, n)
 
     def interprete(self, obj, n):
-        string = obj.get()
+        entry = obj.entry
+        string = entry.get()
+        
+        if not string:
+            return None
         string = string.replace(" ", "").replace("**", "^")
         string = string.replace("²", "^2").replace("³", "^3")
         string = string.replace("pi", "π")
@@ -402,36 +394,108 @@ class AnalysisFrame(Frame):
     
         if "=" not in string:
             # Funktionsterm gegeben, das geplottet werden soll
-    
+            
             # Funktionsname suchen:
             n = 0
-            while self.funcnames_order[n] in [f.name for f in self.functions]:
+            while self.funcnames_order[n] in [f.name for f in self.functions.values()]:
                 n_max = len(self.funcnames_order)
                 n += 1
                 if n == n_max - 1:
                     # Wenn die namen aufgebraucht sind, geht es mit f_1, g_1, ... , f_2, g_2 ... weiter
-                    self.funcnames_order.append(f"{self.funcnames_order[(n + 1)% 11]}_{(n + 1) // 11}")
+                    self.funcnames_order.append(f"{self.funcnames_order[(n + 1) % 11]}_{(n + 1) // 11}")
             name = self.funcnames_order[n]
-            
+        
             # funktionsfarbe suchen
-            """TODO: Farbe
-            """
-            
+            color = self.all_colors[n % 7]
+        
             # Funktion draus machen:
             try:
-                print(f"new func: {name = }, {string = }")
-                function = Function(string, "x", name)
-                self.functions.append(function)
-                self.active_functions.append(function)
-                obj.insert(0, f"{name}(x) = ")
+                function = FunctionWrapper(string, "x", name, color, True, n)
+                self.functions[n] = function
+                entry.insert(0, f"{name}(x) = ")
                 self.graph()
+                obj.bttn.config(image=self.red_ring)
+                return True
             except Exception as error:
                 self.show_error(raise_error(error), n)
                 return None
+    
+        elif "(x)=" in string[:string.index("=") + 1]:
+            # eigener funktionsname gegeben oder ältere Funktion geändert
+        
+            func = string[string.index("=") + 1:]
+            funcname = string[:string.index("(x)=")]
+            previous_function = self.functions[n]
+        
+            if previous_function:
+                # es ist nur eine Änderung einer alten schon eingegebenen Funktion
+                color = previous_function.color
+                isvisible = previous_function.isvisible
+            else:
+                color = self.all_colors[n % 7]
+                isvisible = True
+        
+            try:
+                function = FunctionWrapper(func, "x", funcname, color, isvisible, n)
+                self.functions[n] = function
+                self.graph()
+                return True
+            except Exception as error:
+                self.show_error(raise_error(error), n)
+                return False
+    
+        return True
+    
+    def graph(self):
+        # Default range:
+        I_max = rrange(-5, 5, 0.01)
+        
+        self.subplot.clear()
+        for function in self.functions.values():
+            if function.isvisible:
+                I, J = [], []
+                for x in I_max:
+                    try:
+                        J.append(function(x))
+                        I.append(x)
+                    except Exception as e:
+                        # wenn x nicht im definitionsbereich der Funktion liegt, gibts nen ValueError
+                        if type(e) is not ValueError:
+                            raise e
+                self.subplot.plot(I, J, color=function.color, label=f"y = {function.name}(x)")
+                
+        self.canvas.draw()
+    
+    def toggle_visibility(self, obj):
+        index = self.lines.index(obj)
+        if index not in self.functions:
+            return None
+        isvisible = self.functions[index].isvisible
+        self.functions[index].isvisible = not isvisible
+        self.graph()
+        if isvisible:
+            obj.bttn.config(image=self.gray_ring)
+        else:
+            obj.bttn.config(image=self.red_ring)
+    
+    def destroy_line(self, obj):
+        index = self.lines.index(obj)
+        if self.check_line(index + 1) or self.check_line(index - 1) and not self.lines[index - 1].entry.get():
+            self.lines[index].destroy()
+            self.lines.pop(index)
+            self.lines[-1].entry.focus_set()
+
+    def check_line(self, index):
+        # Überprüft, ob es eine nächste Zeile gibt
+        try:
+            _ = self.lines[index]
+            return True
+        except IndexError:
+            return False
 
     def show_error(self, error, n):
-        self.lines[n].error_label.config(text=error)
-        if error: print(f"Error: {error}")
+        self.lines[n].show_error(error)
+        if error: print(f"Error({n}): {error}")
         
     def show_help(self, force=None):
         self.help_show = not self.help_show if force is None else force
