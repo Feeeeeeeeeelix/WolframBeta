@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage, StringVar, Radiobutton
+from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage, StringVar, Radiobutton, Message
 
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
@@ -27,6 +27,33 @@ angepasste größe der latex outputs
 Katalog aller Funktionen
 """
 
+algebra_help = ["""Hilfe für AlgebraFrame:
+
+Elementare Funktionen:
+* alle trigonometrischen Funktionen (sin, sinh,
+arcsin, arcsinh, cos, cosh, arccos, arccosh,
+tan, tanh, arctan, arctanh)
+* exp(x) oder e^x
+* pow(a, b) oder a^b
+* sqrt(x)
+* root(x, n)
+* ln(x)
+* log(x, n)
+* C(a, b) oder aCb
+* fact(n) oder n!
+
+Funktionen:
+* d/dx(f(x))
+* Int(a, b, f(x), x)
+
+Zahlentheorie:
+* KgV(a, b) oder PDCM(a, b)
+* ggT(a, b) oder PGCD(a, b)
+* isprime(n)
+* eratosthenes(n)
+* prim_factors(n)
+* partition(n)
+"""]
 
 def toggle_lang(language):
     global lang
@@ -112,6 +139,11 @@ class AlgebraFrame(Frame):
         self.io_canvas.get_tk_widget().pack(expand=1, fill="both")
         self.answers = "", ""
         
+        # Help label
+        self.help_label = Message(self, text=algebra_help[lang], relief="raised")
+        self.help_show = False
+
+        
         self.elements = [self, self.io_frame, self.input_entry,
                          self.einstellungs_frame, self.error_label,
                          self.enter_button, self.latex_io]
@@ -150,12 +182,12 @@ class AlgebraFrame(Frame):
             if "=" in user_input:
                 # Gleichheit überprüfen
                 n = user_input.find("=")
-                lp = parse_ws(user_input[:n])
+                lp = parse(user_input[:n])
                 rp = user_input[n + 1:]
                 if "=" in rp[1:]:
                     self.show_error(f"Invalid input")
                     return None
-                input_latex = f"{write_latex_ws(lp)} == {write_latex_ws(parse_ws(rp))}"
+                input_latex = f"{write_latex(lp)} == {write_latex(parse(rp))}"
                 print(input_latex)
                 output_latex = eval("write(lp) == write(parse(rp))")
             
@@ -221,6 +253,14 @@ class AlgebraFrame(Frame):
     def switch_color(self):
         # refresh the canvas
         self.show_answer()
+    
+    def show_help(self, force=None):
+        #
+        self.help_show = not self.help_show if force is None else force
+        if self.help_show:
+            self.help_label.place(x=10, y=0)
+        else:
+            self.help_label.place_forget()
 
 
 class EntryLine(Frame):
@@ -283,6 +323,10 @@ class AnalysisFrame(Frame):
         self.subplot = self.figure.add_subplot(111)
         self.canvas = FigureCanvasTkAgg(self.figure, self.canvas_frame)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
+        
+        # Help Label
+        self.help_label = Message(self, text=algebra_help[lang], relief="raised")
+        self.help_show = False
 
         self.functions = []
         self.funcnames_order = ["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"]
@@ -366,7 +410,15 @@ class AnalysisFrame(Frame):
     def show_error(self, error, n):
         self.lines[n].error_label.config(text=error)
         if error: print(f"Error: {error}")
-
+        
+    def show_help(self, force=None):
+        self.help_show = not self.help_show if force is None else force
+        
+        if self.help_show:
+            self.help_label.place(x=10, y=0)
+        else:
+            self.help_label.place_forget()
+    
 
 class MatrixInterface:
     def __init__(self, super_frame, name, rows, columns):
@@ -461,6 +513,10 @@ class MatrixFrame(Frame):
         # Output Frame
         self.output_frame = Frame(self, bd=1, relief="raised")
         self.output_frame.place(relx=0.1, rely=0.55, relwidth=0.8, relheight=0.45)
+
+        # Help Label
+        self.help_label = Message(self, text=algebra_help[lang], relief="raised")
+        self.help_show = False
         
         self.show_matrix()
     
@@ -502,6 +558,14 @@ class MatrixFrame(Frame):
             self.current_matrix.hide()
             self.current_matrix = matrix
             self.current_matrix.show()
+
+    def show_help(self, force=None):
+        self.help_show = not self.help_show if force is None else force
+    
+        if self.help_show:
+            self.help_label.place(x=10, y=0)
+        else:
+            self.help_label.place_forget()
         
 
 class CodeFrame(Frame):
@@ -534,32 +598,30 @@ class MainScreen(Tk):
         self.top_frame.place(y=0, relx=0.07, relheight=0.1, relwidth=0.93)
         
         self.top_frame.columnconfigure(0, weight=1)
-        self.top_frame.columnconfigure(1, weight=5)
-        self.top_frame.columnconfigure(2, weight=1)
+        self.top_frame.columnconfigure(1, weight=1)
+        self.top_frame.columnconfigure(2, weight=5)
+        self.top_frame.columnconfigure(3, weight=1)
         self.top_frame.rowconfigure(0, weight=1)
         
+        # Help Button
+        self.help_button = Button(self.top_frame, text="?", command=self.show_help)
+        self.help_button.grid(row=0, column=0)
+        
         # Colormode Buttons
-        # self.cm_frame = Frame(self.top_frame)
-        # self.cm_frame.grid(row=0, column=0)
-        
-        # self.lm_button = Button(self.cm_frame, bd=0, highlightbackground="#707070",
-        #                         image=self.lightmode_image, command=self.switch_color_mode)
-        # self.lm_button.grid(row=0, column=0, ipadx=3, ipady=3)
-        
         self.lightmode_image = PhotoImage(file="../pictures/lm.png").subsample(4, 4)
         self.darkmode_image = PhotoImage(file="../pictures/dm.png").subsample(4, 4)
         self.cm_button = Button(self.top_frame, bd=0, highlightbackground="#707070",
                                 image=self.darkmode_image, command=self.switch_color_mode)
-        self.cm_button.grid(row=0, column=0)
+        self.cm_button.grid(row=0, column=1)
         
         # Logo
-        self.logo_pic = PhotoImage(file="../pictures/logo.png").subsample(3,3)
+        self.logo_pic = PhotoImage(file="../pictures/static_logo.png").subsample(3,3)
         self.logo = Label(self.top_frame, image=self.logo_pic)
-        self.logo.grid(row=0, column=1, sticky="news")
+        self.logo.grid(row=0, column=2, sticky="news")
         
         # Language Buttons
         self.lang_frame = Frame(self.top_frame)
-        self.lang_frame.grid(row=0, column=2)
+        self.lang_frame.grid(row=0, column=3)
         
         self.de_flag = PhotoImage(file="../pictures/de.png").subsample(4, 4)
         self.de_button = Button(self.lang_frame, bd=0, highlightbackground="#707070",
@@ -630,6 +692,7 @@ class MainScreen(Tk):
         frame = (self.algebra_frame, self.analysis_frame, self.matrix_frame, self.code_frame)[n]
         self.current_frame.place_forget()
         self.current_frame = frame
+        self.current_frame.show_help(False)
         self.current_frame.place(rely=0.1, relx=0.07, relheight=0.8, relwidth=0.93)
         self.current_frame.focus_set()
     
@@ -678,6 +741,9 @@ class MainScreen(Tk):
             self.buttons[i]["bg"] = lblue
         self.toggle_main_frame(n)
         self.buttons[n]["bg"] = dblue
+    
+    def show_help(self):
+        self.current_frame.show_help()
     
     def exit_screen(self, event=None):
         self.destroy()
