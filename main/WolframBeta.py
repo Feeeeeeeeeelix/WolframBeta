@@ -6,6 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from FunctionClass import *
 from functions import *
+from analysis import min, minimum, max, maximum, nullstellen, der
 
 lblue = "#1e3799"
 dblue = "#001B81"
@@ -18,13 +19,14 @@ lang = 0
 default_frame = 1
 min_window = True
 
-"""todo:
+"""TODO:
 AnalysisFrame
 MatrixFrame
+CodeFrame
 ein paar kürzungen (kein 2x^3 = 2*3*x^2)
 language überall änderbar
+Farbe überall änderbar
 angepasste größe der latex outputs
-Katalog aller Funktionen
 """
 
 algebra_help = ["""Hilfe für AlgebraFrame:
@@ -53,6 +55,27 @@ Zahlentheorie:
 * eratosthenes(n)
 * prim_factors(n)
 * partition(n)
+"""]
+analysis_help = ["""Hilfe für AnalysisFrame:
+EntryLines:
+Gebe einen Funktionsterm ein, es wird
+automatisch ein Funktionsname generiert
+und die Funktion auf dem Graph angezeigt.
+Du kannst die Anzeige mit hilfe des
+Knopfes ein/ausschalten, und die funktion
+ändern.
+Außerdem kannst du Differentialgleichungen
+approximativ lösen lassen. Die gesuchte
+Funktion wird auf dem Graph angezeigt
+
+Compute Input:
+gebe ein, was du berechnen willst:
+* min(f) / max(f)
+* f(x) = 0
+* f'(x) / df(x)/dx
+* f^n(a) / d^nf(a)/dx^n
+* int(a, b, f(x))
+
 """]
 
 
@@ -308,6 +331,18 @@ class FunctionWrapper(Function):
 
 
 class AnalysisFrame(Frame):
+    
+    """TODO:
+    scrollbar
+    compute-eingabe
+    Alle Farben als Ring
+    Ring besser
+    Funktionskatalog
+    Differerentialgleichung
+    graph axis
+    (design)
+    
+    """
     def __init__(self, container):
         super().__init__(container)
         
@@ -330,13 +365,20 @@ class AnalysisFrame(Frame):
         self.line.pack(fill="x")
         self.line.entry.focus_set()
         self.lines.append(self.line)
-        
-        """ TODO: scrollbar """
 
         # single entry Frame
+        self.compute_frame = Frame(self, bd=1, relief="solid")
+        self.compute_frame.place(relx=0.1, rely=0.55, relwidth=0.35, relheight=0.1)
         
-        self.compute_entry = Entry(self, justify="center")
-        self.compute_entry.place(relx=0.1, rely=0.55, relwidth=0.35, relheight=0.1)
+        self.compute_entry = Entry(self.compute_frame, justify="center")
+        self.compute_entry.pack(side="left", fill="both", expand=True)
+        self.compute_entry.bind("<Return>", self.interprete_input)
+        
+        self.submit_bttn = Button(self.compute_frame, text="?", command=self.interprete_input)
+        self.submit_bttn.pack(side="right", fill="both")
+        
+        self.compute_error_label = Label(self, fg="red")
+        self.compute_error_label.place(relx=0.1, rely=0.65, relheight=0.05, relwidth=0.35)
         
         # latex output frame
         self.output_frame = Label(self, bd=1, relief="solid")
@@ -359,7 +401,7 @@ class AnalysisFrame(Frame):
         self.help_label = Message(self, text=algebra_help[lang], relief="raised")
         self.help_show = False
 
-        self.functions = {} # alle gespeicherte funktionen
+        self.functions = {}  # alle gespeicherte funktionen
         self.funcnames_order = ["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"]
         self.all_colors = ["r", "g", "b", "c", "m", "y", "k"]
         
@@ -367,7 +409,7 @@ class AnalysisFrame(Frame):
         obj.hide_error()
         
         index = self.lines.index(obj)
-        if not self.interprete(obj, index): return None
+        if not self.interprete_function(obj, index): return None
         
         if self.check_line(index + 1):
             self.lines[index + 1].entry.focus_set()
@@ -378,7 +420,7 @@ class AnalysisFrame(Frame):
             self.new_line.entry.focus_set()
             self.lines.append(self.new_line)
 
-    def interprete(self, obj, n):
+    def interprete_function(self, obj, n):
         entry = obj.entry
         string = entry.get()
         
@@ -493,9 +535,60 @@ class AnalysisFrame(Frame):
         except IndexError:
             return False
 
-    def show_error(self, error, n):
-        self.lines[n].show_error(error)
+    def show_error(self, error, n=None):
+        if n is not None:
+            # Fehler in der n'ten EntryLine
+            self.lines[n].show_error(error)
+        else:
+            # Fehler in dem computeentry
+            self.compute_error_label.config(text=error)
         if error: print(f"Error({n}): {error}")
+    
+    def interprete_input(self, _=None):
+        """
+        * min(f) / max(f)
+        * f(x) = 0 / nullstelle(f)
+        * f'(x) / df(x)/dx
+        * f^n(a) / d^nf(a)/dx^n
+        * int(a, b, f(x))
+        """
+        string = self.compute_entry.get()
+        
+        if not string:
+            return None
+        string = string.replace(" ", "").replace("**", "^")
+        string = string.replace("²", "^2").replace("³", "^3")
+        string = string.replace("pi", "π")
+        for chr in string:
+            if chr not in ".,+-*/()_^`'! π=3" + '"' + NUMBERS + ALPHABET:
+                self.show_error(f"Invalid input: '{chr}'")
+                return None
+        try:
+            if "=" in string:
+                pass
+            else:
+                
+                input_latex = write_latex(parse(string))
+                output_tree = parse(string, simp=True)
+                try:
+                    for func in self.functions.values():
+                        locals()[func.name] = func
+                    print(locals())
+                    output_latex = eval(write(output_tree))
+                except Exception as e:
+                    print(f"couldnt eval {write(output_tree)}, {e}")
+                    output_latex = write_latex(output_tree, simp=True)
+        except Exception as error:
+            self.show_error(raise_error(error))
+            return None
+        
+        self.show_answer(input_latex, output_latex)
+        
+    def show_answer(self, input_latex, output_latex):
+        text = rf"${input_latex} = {output_latex}$"
+        self.io_figure.clear()
+        self.io_figure.text(0.5, 0.5, text)
+        self.io_canvas.draw()
         
     def show_help(self, force=None):
         self.help_show = not self.help_show if force is None else force

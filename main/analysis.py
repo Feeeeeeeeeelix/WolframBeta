@@ -98,6 +98,10 @@ def minimum(f, a, b):
     return min_fx
 
 
+min = minimum
+max = maximum
+
+
 def riemann(f, a, b):
     n = 5000
     Int = 0

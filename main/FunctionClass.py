@@ -26,7 +26,7 @@ lol
 
 FUNCTIONS = ['C', 'PGCD', 'PPCM', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctanh', 'cos', 'cosh', 'sin', 'sinh',
              'eratosthenes', 'exp', 'fact', 'ggT', 'isprime', 'kgV', 'log', 'ln', 'partition', 'pow', 'root',
-             'sqrt', 'tan', 'tanh', 'Int']
+             'sqrt', 'tan', 'tanh', 'Int', 'min', 'max', 'prim_factors']
 SIMPLE_FUNCTIONS = ['cos', 'cosh', 'arccos', 'arccosh', 'sin', 'sinh', 'arcsin', 'arcsinh', 'tan', 'tanh', 'arctanh',
                     'exp', 'log', 'ln', 'sqrt']
 ALPHABET = "qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNMπ"
@@ -462,7 +462,6 @@ def write_latex(f: list, simp=False):
         # args = [str(write(arg)) for arg in f[1:]]
         if f[0] == "log":
             return "\\" + f[0] + "_{" + str(write_latex(f[2], simp)) + "}(" + str(write_latex(f[1], simp)) + ")"
-        
         if f[0] == "root":
             n = write_latex(f[2], simp)
             if isfloat(n):
@@ -474,7 +473,11 @@ def write_latex(f: list, simp=False):
         if f[0] == "Int":
             return "\\int_{" + str(f[1]) + "}^{" + str(f[2]) + "}{" + write_latex(f[3], simp) + "}d" + f[4]
         
-        return "\\" + f[0] + "(" + str(write_latex(f[1], simp)) + ")"
+        if f[0] in SIMPLE_FUNCTIONS:
+            return "\\" + f[0] + "(" + str(write_latex(f[1], simp)) + ")"
+        else:
+            args = ", ".join(str(write_latex(arg, simp)) for arg in f[1:])
+            return f"{f[0]}({args})"
     
     if f[0] == "diff":
         return rf"\frac{'{d}{d'}{f[2]}{'}'}({write_latex(f[1], simp)})"
@@ -660,12 +663,11 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "1+x-x+sin(x)+sinx"
+    func = "prim_factors(111)"
     
     try:
         # print(parse_ws(func))
-        f = Function(func)
-        print(f.lam(8))
+        print(write(parse(func)))
         # input = "d/dx(x^34)"
         # input_latex = write_latex_ws(parse_ws(func))
         # output_latex = parse(func, ableiten=True)
