@@ -184,7 +184,7 @@ def parse(f: str, simp=False):
     # Leerzeichen entfernen
     f = f.replace(" ", "").replace("**", "^")
     if not f:
-        raise SyntaxError("str leer")
+        return ""
     
     if f[0] == "+":
         return parse(f[1:], simp)

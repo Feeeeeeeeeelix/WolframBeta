@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage, StringVar, Radiobutton, Message, Scrollbar
+from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage, StringVar, Radiobutton, Message, Scrollbar, Canvas
 
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
@@ -85,7 +85,7 @@ def toggle_lang(language):
     print(f"changed language to {lang}")
 
 
-def raise_error(error):
+def format_error(error):
     # formatiert ein error code
     if isinstance(error, Exception):
         # Costum or automatic exceptions
@@ -112,6 +112,18 @@ def rrange(a, b, n=1.0):
         l.append(x)
         x += n
     return l
+
+
+def check_and_clean(string):
+    if not string:
+        return None
+    string = string.replace(" ", "").replace("**", "^")
+    string = string.replace("²", "^2").replace("³", "^3")
+    string = string.replace("pi", "π")
+    for char in string:
+        if char not in ".,+-*/()_^`'! π=3" + '"' + NUMBERS + ALPHABET:
+            return SyntaxError(f"Invalid input: '{char}'")
+    return string
 
 
 class AlgebraFrame(Frame):
@@ -193,13 +205,11 @@ class AlgebraFrame(Frame):
             self.memory[self.input] = [*answers]
         
     def interprete(self, user_input):
-        user_input = user_input.replace(" ", "").replace("**", "^")
-        user_input = user_input.replace("²", "^2").replace("³", "^3")
-        user_input = user_input.replace("pi", "π")
-        for chr in user_input:
-            if chr not in ".,+-*/()_^`'! π=3" + '"' + NUMBERS + ALPHABET:
-                self.show_error(f"Invalid input: '{chr}'")
-                return None
+        
+        user_input = check_and_clean(user_input)
+        if type(user_input) == SyntaxError:
+            self.show_error(format_error(user_input))
+            return None
         
         self.show_einstellungen() if "Int" in user_input else self.hide_einstellungen()
         
@@ -225,7 +235,7 @@ class AlgebraFrame(Frame):
                 except:
                     output_latex = write_latex(output_tree, simp=True)
         except Exception as error:
-            self.show_error(raise_error(error))
+            self.show_error(format_error(error))
             return None
         
         return input_latex, output_latex
@@ -292,12 +302,14 @@ class EntryLine(Frame):
     # einzelne Zeile im AnalysisFrame
     def __init__(self, container, super_):
         super().__init__(container, height=40, bd=1, relief="groove")
+        self.focus_set()
         
         self.fr = Frame(self, height=30)
         self.fr.pack(side="top", expand=1, fill="both")
+        self.fr.focus_set()
         
         self.bttn = Button(self.fr, takefocus=0, bd=0, bg="white", highlightthickness=0,
-                           image=super_.gray_ring, command=lambda : super_.toggle_visibility(self))
+                           image=super_.gray_ring, command=lambda: super_.toggle_visibility(self))
         self.bttn.pack(side="left", fill="both")
         
         self.pfeil = Label(self.fr, takefocus=0, text=" > ", bg="white", fg="black", height=2)
@@ -333,7 +345,6 @@ class FunctionWrapper(Function):
 class AnalysisFrame(Frame):
     
     """TODO:
-    scrollbar
     compute-eingabe
     Alle Farben als Ring
     Ring besser
@@ -347,27 +358,51 @@ class AnalysisFrame(Frame):
         super().__init__(container)
         
         # Entry lines Frame
-        self.entry_lines_frame = Frame(self, bg="white", bd=1, relief="solid")
-        self.entry_lines_frame.place(relx=0.1, rely=0.05, relheight=0.4, relwidth=0.35)
-        self.entry_lines_frame.focus_set()
+        self.entry_lines_outer_frame = Frame(self, bg="white", bd=1, relief="solid")
+        self.entry_lines_outer_frame.place(relx=0.1, rely=0.05, relheight=0.35, relwidth=0.35)
+        self.entry_lines_outer_frame.focus_set()
         
-        self.scrollbar = Scrollbar(self.entry_lines_frame, orient="vertical")
+        self.scroll_canvas = Canvas(self.entry_lines_outer_frame, borderwidth=0, highlightthickness=0)
+        self.scroll_canvas.pack(side="left", fill="both", expand=True)
+        self.scroll_canvas.focus_set()
+        
+        self.scrollbar = Scrollbar(self.entry_lines_outer_frame, orient="vertical")
         self.scrollbar.pack(side="right", fill="y")
         
-        # self.entry_lines_frame.config("yscrollcommand"=self.scrollbar.set)
+        self.scroll_canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.scroll_canvas.yview)
+        
+        self.scrolled_frame = Frame(self.scroll_canvas, bg="blue")
+        self.scrolled_frame.focus_set()
+        self.canvas_window = self.scroll_canvas.create_window(0, 0, window=self.scrolled_frame, anchor="nw")
+        self.scrolled_frame.bind("<Configure>", self.configure_canvas)
         
         self.gray_ring = PhotoImage(file="../pictures/gray_ring.png").subsample(3, 3)
         self.red_ring = PhotoImage(file="../pictures/red_ring.png").subsample(3, 3)
 
         self.lines = []
         
-        self.line = EntryLine(self.entry_lines_frame, self)
+        self.line = EntryLine(self.scrolled_frame, self)
         self.line.pack(fill="x")
+        self.line.focus_set()
         self.line.entry.focus_set()
         self.lines.append(self.line)
-
+        
+        # New func or dgl buttons:
+        self.new_frame = Frame(self, bd=1, relief="solid")
+        self.new_frame.place(relx=0.1, rely=0.39, relwidth=0.35, relheight=0.05)
+        
+        self.new_frame.rowconfigure(0, weight=1)
+        self.new_frame.columnconfigure(0, weight=1)
+        self.new_frame.columnconfigure(1, weight=3)
+        self.new_frame.columnconfigure(2, weight=3)
+        
+        Label(self.new_frame, text=["Neu: ", "Nouveau: ", "New: "][lang]).grid(row=0, column=0, sticky="news")
+        Button(self.new_frame, text="f(x) = ...", command=self.add_new_func).grid(row=0, column=1, sticky="news")
+        Button(self.new_frame, text="y' = ...", command=self.add_new_dgl).grid(row=0, column=2, sticky="news")
+        
         # single entry Frame
-        self.compute_frame = Frame(self, bd=1, relief="solid")
+        self.compute_frame = Frame(self, bd=1, relief="solid", highlightthickness=0)
         self.compute_frame.place(relx=0.1, rely=0.55, relwidth=0.35, relheight=0.1)
         
         self.compute_entry = Entry(self.compute_frame, justify="center")
@@ -398,56 +433,73 @@ class AnalysisFrame(Frame):
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
         
         # Help Label
-        self.help_label = Message(self, text=algebra_help[lang], relief="raised")
+        self.help_label = Message(self, text=analysis_help[lang], relief="raised")
         self.help_show = False
 
         self.functions = {}  # alle gespeicherte funktionen
+        self.dgl = {}
         self.funcnames_order = ["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"]
         self.all_colors = ["r", "g", "b", "c", "m", "y", "k"]
+    
+    def configure_canvas(self, event):
+        width = self.scroll_canvas.winfo_width()
+        self.scroll_canvas.configure(scrollregion=self.scroll_canvas.bbox(self.canvas_window))
+        self.scroll_canvas.itemconfig(self.canvas_window, width=width)
+    
+    def add_new_func(self):
+        line = self.get_first_empty_line()
+        index = self.lines.index(line)
+        name = self.generate_func_name()
+        color = self.all_colors[index % 7]
+        line.entry.insert(0, f"{name}(x) = ")
+        self.functions[index] = FunctionWrapper("", "x", name, color, False, index)
+        line.entry.focus_set()
+    
+    def add_new_dgl(self):
+        line = self.get_first_empty_line()
+        line.entry.insert(0, "y' = ")
+        line.entry.focus_set()
+    
+    def get_first_empty_line(self):
+        for line in self.lines:
+            if not line.entry.get():
+                return line
+        return self.create_new_line()
         
+    def create_new_line(self):
+        self.new_line = EntryLine(self.scrolled_frame, self)
+        self.new_line.pack(fill="x")
+        self.new_line.entry.focus_set()
+        self.lines.append(self.new_line)
+        return self.new_line
+    
     def enter_pressed(self, obj):
         obj.hide_error()
         
         index = self.lines.index(obj)
-        if not self.interprete_function(obj, index): return None
+        if not self.interprete_function(obj, index):
+            # Wenn es einen Fehler im input gibt, wird nicht zur nächsten Zeile gegangen
+            return None
         
         if self.check_line(index + 1):
             self.lines[index + 1].entry.focus_set()
 
         elif obj.entry.get():
-            self.new_line = EntryLine(self.entry_lines_frame, self)
-            self.new_line.pack(fill="x")
-            self.new_line.entry.focus_set()
-            self.lines.append(self.new_line)
+            self.create_new_line()
 
     def interprete_function(self, obj, n):
         entry = obj.entry
         string = entry.get()
         
-        if not string:
+        string = check_and_clean(string)
+        if type(string) == SyntaxError:
+            self.show_error(format_error(string), n)
             return None
-        string = string.replace(" ", "").replace("**", "^")
-        string = string.replace("²", "^2").replace("³", "^3")
-        string = string.replace("pi", "π")
-        for chr in string:
-            if chr not in ".,+-*/()_^`'! π=3" + '"' + NUMBERS + ALPHABET:
-                self.show_error(f"Invalid input: '{chr}'", n)
-                return None
     
         if "=" not in string:
             # Funktionsterm gegeben, das geplottet werden soll
             
-            # Funktionsname suchen:
-            n = 0
-            while self.funcnames_order[n] in [f.name for f in self.functions.values()]:
-                n_max = len(self.funcnames_order)
-                n += 1
-                if n == n_max - 1:
-                    # Wenn die namen aufgebraucht sind, geht es mit f_1, g_1, ... , f_2, g_2 ... weiter
-                    self.funcnames_order.append(f"{self.funcnames_order[(n + 1) % 11]}_{(n + 1) // 11}")
-            name = self.funcnames_order[n]
-        
-            # funktionsfarbe suchen
+            name = self.generate_func_name()
             color = self.all_colors[n % 7]
         
             # Funktion draus machen:
@@ -459,17 +511,20 @@ class AnalysisFrame(Frame):
                 obj.bttn.config(image=self.red_ring)
                 return True
             except Exception as error:
-                self.show_error(raise_error(error), n)
-                return None
+                self.show_error(format_error(error), n)
+                return False
     
         elif "(x)=" in string[:string.index("=") + 1]:
             # eigener funktionsname gegeben oder ältere Funktion geändert
         
             func = string[string.index("=") + 1:]
             funcname = string[:string.index("(x)=")]
-            previous_function = self.functions[n]
+            if not func:
+                self.show_error("Error: no input", n)
+                return False
         
-            if previous_function:
+            if n in self.functions:
+                previous_function = self.functions[n]
                 # es ist nur eine Änderung einer alten schon eingegebenen Funktion
                 color = previous_function.color
                 isvisible = previous_function.isvisible
@@ -483,10 +538,24 @@ class AnalysisFrame(Frame):
                 self.graph()
                 return True
             except Exception as error:
-                self.show_error(raise_error(error), n)
+                self.show_error(format_error(error), n)
                 return False
+            
+        elif string.startswith("y'="):
+            pass
     
         return True
+    
+    def generate_func_name(self):
+        n = 0
+        while self.funcnames_order[n] in [f.name for f in self.functions.values()]:
+            n_max = len(self.funcnames_order)
+            n += 1
+            if n == n_max - 1:
+                # Wenn die namen aufgebraucht sind, geht es mit f_1, g_1, ... , f_2, g_2 ... weiter
+                self.funcnames_order.append(f"{self.funcnames_order[(n + 1) % 11]}_{(n + 1) // 11}")
+                
+        return self.funcnames_order[n]
     
     def graph(self):
         # Default range:
@@ -501,7 +570,7 @@ class AnalysisFrame(Frame):
                         J.append(function(x))
                         I.append(x)
                     except Exception as e:
-                        # wenn x nicht im definitionsbereich der Funktion liegt, gibts nen ValueError
+                        # wenn x nicht im definitionsbereich der Funktion liegt, gibts nen ValueError (wird ignoriert)
                         if type(e) is not ValueError:
                             raise e
                 self.subplot.plot(I, J, color=function.color, label=f"y = {function.name}(x)")
@@ -514,11 +583,11 @@ class AnalysisFrame(Frame):
             return None
         isvisible = self.functions[index].isvisible
         self.functions[index].isvisible = not isvisible
-        self.graph()
         if isvisible:
             obj.bttn.config(image=self.gray_ring)
         else:
             obj.bttn.config(image=self.red_ring)
+        self.graph()
     
     def destroy_line(self, obj):
         index = self.lines.index(obj)
@@ -579,15 +648,16 @@ class AnalysisFrame(Frame):
                     print(f"couldnt eval {write(output_tree)}, {e}")
                     output_latex = write_latex(output_tree, simp=True)
         except Exception as error:
-            self.show_error(raise_error(error))
+            self.show_error(format_error(error))
             return None
         
         self.show_answer(input_latex, output_latex)
         
     def show_answer(self, input_latex, output_latex):
+        self.show_error("")
         text = rf"${input_latex} = {output_latex}$"
         self.io_figure.clear()
-        self.io_figure.text(0.5, 0.5, text)
+        self.io_figure.text(0.5, 0.5, text, size=int(100/(len(text)+50)+5), va="center", ha="center")
         self.io_canvas.draw()
         
     def show_help(self, force=None):

@@ -1,11 +1,11 @@
-from functions import e, sin, cos
+from functions import e, pi, sin, cos
 
 
 def sekanten_verfahren(f, x1, x2):
     eps_stop = 10 ** -15
     
-    y1 = f.lam(x1)
-    y2 = f.lam(x2)
+    y1 = f(x1)
+    y2 = f(x2)
     
     if y1 == 0:
         return x1
@@ -20,9 +20,9 @@ def sekanten_verfahren(f, x1, x2):
         x_old = x1
         x_old_old = x2
         while abs(x_old - x_old_old) > eps_stop:
-            if f.lam(x_old) != f.lam(x_old_old):
+            if f(x_old) != f(x_old_old):
                 # Schnittstelle von Gerade durch (x_old, f(x_old) und  (x_old_old, f(x_old_old)) mit x-Achse
-                x_new = x_old - (x_old - x_old_old) / (f.lam(x_old) - f.lam(x_old_old)) * f.lam(x_old)
+                x_new = x_old - (x_old - x_old_old) / (f(x_old) - f(x_old_old)) * f(x_old)
                 
                 x_old_old = x_old
                 x_old = x_new
@@ -43,13 +43,10 @@ def nullstellen(f, a, b):
     schrittweite = (b - a) / number_of_test_values
     
     # Values bestimmen auf allen Test-Punkten
-    while True:
-        Values.append([x, sign(f.lam(x))])
+    while x <= b:
+        Values.append([x, sign(f(x))])
         x += schrittweite
-        
-        if x > b:
-            break
-    
+
     Nulls = []
     Vorzeichen_wechsel = []
     
@@ -68,7 +65,7 @@ def nullstellen(f, a, b):
     
     # Überprüfen, ob kein Fehler entstanden ist
     for element in Nulls:
-        if f.lam(element) > 10 ** -10:
+        if f(element) > 10 ** -10:
             Nulls.remove(element)
     
     return Nulls
@@ -77,11 +74,11 @@ def nullstellen(f, a, b):
 def maximum(f, a, b):
     n = 3000
     x = a
-    max_fx = f.lam(x)
+    max_fx = f(x)
     while x < b:
         x += (b - a) / n
-        if f.lam(x) > max_fx:
-            max_fx = f.lam(x)
+        if f(x) > max_fx:
+            max_fx = f(x)
         # max_x = x
     return max_fx
 
@@ -89,11 +86,11 @@ def maximum(f, a, b):
 def minimum(f, a, b):
     n = 3000
     x = a
-    min_fx = f.lam(x)
+    min_fx = f(x)
     while x < b:
         x += (b - a) / n
-        if f.lam(x) < min_fx:
-            min_fx = f.lam(x)
+        if f(x) < min_fx:
+            min_fx = f(x)
         # min_x = x
     return min_fx
 
@@ -109,7 +106,7 @@ def riemann(f, a, b):
     schrittweite = (b - a) / n
     
     for i in range(n):
-        Int += f.lam(a + i * schrittweite)
+        Int += f(a + i * schrittweite)
     
     Int *= schrittweite
     
@@ -122,9 +119,9 @@ def trapez(f, a, b):
     x = a
     schrittweite = (b - a) / n
     
-    Int += 1 / 2 * f.lam(a)
-    Int += sum(f.lam(a + i * schrittweite) for i in range(n))
-    Int += 1 / 2 * f.lam(b)
+    Int += 1 / 2 * f(a)
+    Int += sum(f(a + i * schrittweite) for i in range(n))
+    Int += 1 / 2 * f(b)
     
     Int *= schrittweite
     
@@ -136,9 +133,9 @@ def simpson(f, a, b):
     Int = 0
     schrittweite = (b - a) / n
     
-    Int += 1 / 2 * f.lam(a)
-    Int += sum((1 + i % 2) * f.lam(a + i * schrittweite) for i in range(1, n))
-    Int += 1 / 2 * f.lam(b)
+    Int += 1 / 2 * f(a)
+    Int += sum((1 + i % 2) * f(a + i * schrittweite) for i in range(1, n))
+    Int += 1 / 2 * f(b)
     
     Int *= 2 / 3 * schrittweite
     return Int
@@ -207,7 +204,7 @@ if __name__ == "__main__":
     print(y)
     print("Zum Vergleich mit dem letzten Term: ", e ** (1 / 2 * 2 ** 2))"""
 
-    f = lambda x: sin(x ** 2)
+    """f = lambda x: sin(x ** 2)
     df = lambda x: 2 * x * cos(x ** 2)
     ddf = lambda x: 2 * cos(x ** 2) - 4 * x ** 2 * sin(x ** 2)
 
@@ -215,4 +212,8 @@ if __name__ == "__main__":
     print(df(1))
 
     print(der(f, x=1, n=2))
-    print(ddf(1))
+    print(ddf(1))"""
+    
+    print(riemann(sin, 0, 3.142592))
+    print(trapez(sin, 0, 3.142592))
+    print(simpson(sin, 0, 3.142592))
