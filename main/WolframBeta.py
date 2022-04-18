@@ -7,6 +7,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from FunctionClass import *
 from functions import *
 from analysis import min, minimum, max, maximum, nullstellen, der
+from matrix import Matrix
 
 lblue = "#1e3799"
 dblue = "#001B81"
@@ -16,7 +17,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 1
+default_frame = 2
 min_window = True
 
 """TODO:
@@ -427,10 +428,13 @@ class AnalysisFrame(Frame):
         self.canvas_frame = Frame(self)
         self.canvas_frame.place(relx=0.5, rely=0.05, relheight=0.9, relwidth=0.45)
         
-        self.figure = Figure(figsize=(5, 5), dpi=100)
+        self.figure = Figure(facecolor=dgray)
         self.subplot = self.figure.add_subplot(111)
         self.canvas = FigureCanvasTkAgg(self.figure, self.canvas_frame)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
+        # self.subplot.set_facecolor("red")
+        # self.figure.set_facecolor("blue")
+        self.subplot.grid(True)
         
         # Help Label
         self.help_label = Message(self, text=analysis_help[lang], relief="raised")
@@ -575,6 +579,13 @@ class AnalysisFrame(Frame):
                             raise e
                 self.subplot.plot(I, J, color=function.color, label=f"y = {function.name}(x)")
                 
+        # self.subplot.spines["left"].set_position("center")
+        # self.subplot.spines["bottom"].set_position("center")
+        # self.subplot.spines["top"].set_color(None)
+        # self.subplot.spines["right"].set_color(None)
+        self.subplot.grid(True)
+        
+        self.subplot.legend(loc="upper left")
         self.canvas.draw()
     
     def toggle_visibility(self, obj):
@@ -672,8 +683,42 @@ class AnalysisFrame(Frame):
         pass
 
 
-class MatrixInterface:
+class EntryTable(Frame):
+    def __init__(self, container, rows, columns):
+        super().__init__(container)
+        
+        self.n, self.m = rows, columns
+        
+        self.entries = []
+        self.values = []
+        for m in range(self.m):
+            self.columnconfigure(m, weight=1)
+            column = []
+            for n in range(self.n):
+                self.rowconfigure(n, weight=1)
+                entry = Entry(container, width=3)
+                entry.grid(row=n, column=m)
+                column.append(entry)
+            self.entries.append(column)
+            
+    def get_values(self):
+        self.values = [[entry.get() for entry in column] for column in self.entries]
+        return self.values
+    
+    def insert_values(self, values):
+        if len(self.entries) != len(values):
+            raise TypeError("not gleiche column anzahl beim einfügen")
+        for m in range(len(self.entries)):
+            for n in range(m):
+                entry = self.entries[m][n]
+                value = values[m][n]
+                entry.delete(0, "end")
+                entry.insert(0, value)
+
+
+class MatrixWrapper:
     def __init__(self, super_frame, name, rows, columns):
+        
         self.name = name
         self.values_frame = Frame(super_frame.edit_frame)
         self.name_entry = super_frame.name_entry
@@ -689,14 +734,14 @@ class MatrixInterface:
             row = []
             for m in range(columns):
                 container.columnconfigure(m, weight=1)
-                entry = Entry(container, width=2)
+                entry = Entry(container, width=3)
                 entry.grid(row=n, column=m)
                 row.append(entry)
             entries.append(row)
         return entries
     
     def save_values(self):
-        self.values = [[entry.get() for entry in row] for row in self.entries]
+        self.values = [[entry.get() if entry.get() else 0 for entry in row] for row in self.entries]
     
     def get_values(self):
         self.save_values()
@@ -704,12 +749,12 @@ class MatrixInterface:
     
     def show(self):
         self.values_frame.pack(fill="both", expand=True)
-        self.name_entry.delete(0)
+        self.name_entry.delete(0, "end")
         self.name_entry.insert(0, self.name)
         
     def hide(self):
         self.values_frame.pack_forget()
-        self.name_entry.delete(0)
+        self.name_entry.delete(0, "end")
 
 
 class MatrixFrame(Frame):
@@ -749,13 +794,14 @@ class MatrixFrame(Frame):
         self.vorschlag_frame.grid(row=2, column=1)
         
         Button(self.vorschlag_frame, text="ID", command=None).pack(side="left")
+        Button(self.vorschlag_frame, text="Zero", command=None).pack(side="left")
         Button(self.vorschlag_frame, text="Random", command=None).pack(side="left")
         Button(self.vorschlag_frame, text="RandomSym", command=None).pack(side="left")
         
         Button(self.matrix_frame, text="Delete Matrix", command=self.delete_matrix).grid(row=0, column=2)
         Button(self.matrix_frame, text="Save", command=self.submit_matrix).grid(row=2, column=2)
         
-        self.error_label = Label(self, fg="red", text="jgnelvjerijbvi")
+        self.error_label = Label(self, fg="red")
         self.error_label.place(relx=0.45, rely=0.5, relheight=0.05, relwidth=0.45)
         
         # Entry Frame
@@ -776,8 +822,8 @@ class MatrixFrame(Frame):
         self.matrices.remove(self.current_matrix)
         self.refresh_auswahl()
         self.current_matrix.hide()
-        m = self.current_matrix
-        del m
+        # m = self.current_matrix
+        # del m
         self.show_matrix()
 
     def submit_matrix(self):
@@ -785,6 +831,8 @@ class MatrixFrame(Frame):
         name = self.name_entry.get()
         if not name:
             self.show_error("No name")
+        elif name in [m.name for m in self.matrices]:
+            self.show_error("Name is already taken")
         elif self.current_matrix not in self.matrices:
             self.current_matrix.name = name
             self.matrices.append(self.current_matrix)
@@ -804,7 +852,7 @@ class MatrixFrame(Frame):
         if not matrix:
             if self.current_matrix:
                 self.current_matrix.hide()
-            self.current_matrix = MatrixInterface(self, "", 3, 3)
+            self.current_matrix = MatrixWrapper(self, "", 3, 3)
             self.current_matrix.show()
         else:
             self.current_matrix.hide()

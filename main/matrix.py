@@ -759,9 +759,10 @@ class Matrix:
         return eigenwerte
 
 
-A = Matrix.Random(20, 20, -10, 10)
-print(A)
-
-t = time()
-print(A.eigenvalues())
-print(time() - t)
+if __name__ == "__main__":
+    A = Matrix.Random(20, 20, -10, 10)
+    print(A)
+    
+    t = time()
+    print(A.eigenvalues())
+    print(time() - t)
