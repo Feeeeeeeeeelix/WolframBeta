@@ -378,8 +378,8 @@ class AnalysisFrame(Frame):
         self.canvas_window = self.scroll_canvas.create_window(0, 0, window=self.scrolled_frame, anchor="nw")
         self.scrolled_frame.bind("<Configure>", self.configure_canvas)
         
-        self.gray_ring = PhotoImage(file="../pictures/gray_ring.png").subsample(3, 3)
-        self.red_ring = PhotoImage(file="../pictures/red_ring.png").subsample(3, 3)
+        self.gray_ring = PhotoImage(file="../pictures/Rings/gray_ring.png").subsample(3, 3)
+        self.red_ring = PhotoImage(file="../pictures/Rings/red_ring.png").subsample(3, 3)
 
         self.lines = []
         
@@ -915,9 +915,15 @@ class MainScreen(Tk):
         self.cm_button.grid(row=0, column=1)
         
         # Logo
-        self.logo_pic = PhotoImage(file="../pictures/static_logo.png").subsample(3,3)
-        self.logo = Label(self.top_frame, image=self.logo_pic)
+        self.logo_frames = [PhotoImage(file="../pictures/moving_logo.gif", format=f"gif -index {n}").subsample(5, 5) for n in range(20)]
+        self.logo_index = 0
+        self.logo_state = False
+        
+        self.logo = Label(self.top_frame, image=self.logo_frames[0])
         self.logo.grid(row=0, column=2, sticky="news")
+        
+        self.logo.bind("<Enter>", lambda _: self.move_logo(True))
+        self.logo.bind("<Leave>", lambda _: self.move_logo(False))
         
         # Language Buttons
         self.lang_frame = Frame(self.top_frame)
@@ -972,6 +978,14 @@ class MainScreen(Tk):
         self.toggle_main_frame(default_frame)
         
         self.bind("<KP_Enter>", self.exit_screen)
+        
+    def move_logo(self, state):
+        self.logo_state = state
+        self.logo.config(image=self.logo_frames[self.logo_index])
+        self.logo_index += 1
+        self.logo_index %= 20
+        if self.logo_state:
+            self.after(40, lambda:self.move_logo(self.logo_state))
     
     def toggle_main_frame(self, n):
         frame = (self.algebra_frame, self.analysis_frame, self.matrix_frame, self.code_frame)[n]
