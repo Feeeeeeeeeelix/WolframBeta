@@ -1,5 +1,9 @@
 from functions import *
 
+"""
+kann weg?
+"""
+
 operators = ["sin", "cos", "exp", "log", "cosh", "sinh", "tan", "tanh", "arccos", "arcsin", "arctan", "arccosh",
              "arcsinh", "arctanh"]
 

@@ -1,7 +1,17 @@
-from functions import e, pi, sin, cos
+
+"""
+analysis.py module:
+
+- find nullstellen of functions
+- find extrema
+- compute integrals with 3 methods and their precision
+- evaluate higher order derivatives
+- approximate first order differential equations
+
+"""
 
 
-def sekanten_verfahren(f, x1, x2):
+def _sekanten_verfahren(f, x1, x2):
     eps_stop = 10 ** -15
     
     y1 = f(x1)
@@ -31,7 +41,7 @@ def sekanten_verfahren(f, x1, x2):
         return x_new
 
 
-def sign(x):
+def _sign(x):
     return 1 if x > 0 else 0 if x == 0 else -1
 
 
@@ -44,7 +54,7 @@ def nullstellen(f, a, b):
     
     # Values bestimmen auf allen Test-Punkten
     while x <= b:
-        Values.append([x, sign(f(x))])
+        Values.append([x, _sign(f(x))])
         x += schrittweite
 
     Nulls = []
@@ -61,7 +71,7 @@ def nullstellen(f, a, b):
     
     # Sekanten verfahren für alle Vorzeichenwechsel verwenden
     for elements in Vorzeichen_wechsel:
-        Nulls.append(sekanten_verfahren(f, elements[0], elements[1]))
+        Nulls.append(_sekanten_verfahren(f, elements[0], elements[1]))
     
     # Überprüfen, ob kein Fehler entstanden ist
     for element in Nulls:
@@ -184,6 +194,8 @@ def der(f, x, n=1, dx=10 ** (-5)):
 
 
 if __name__ == "__main__":
+    from functions import sin
+    
     """print("Beispiele:\n")
     
     y = euler_collatz("y", 0, 1, 3)  # Löse y' = y mit y(0) = 1   --> y(t) = e^t einzige Lösung

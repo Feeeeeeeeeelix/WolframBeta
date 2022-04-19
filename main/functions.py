@@ -1,16 +1,26 @@
+
+"""
+functions.py module:
+
+- essential constants (π, e) (3)
+- all trigonometric functions
+- logarithmic, exponential and root functions
+- zahlentheorie baaic functions
+- n! and aCb
+
+"""
+
+#  KONSTANTEN
+
+
 e = 2.7182818284590455
 pi = 3.141592653589793
 ln2 = .693147180559945
 ln3 = 1.098612288668110
 π = pi
 
-# pi=4 g=10=pi² e=2 phi=1 cos(x)=x sqrt(2)=-1
-# /-\-/-\-/-\-/-\-/-\-/-\-/-\-/-\-/-\-
 
-# ELEMENTARE FUNKTIONEN
-
-# /-\-/-\-/-\-/-\-/-\-/-\-/-\-/-\-/-\-
-# pi=4 g=10=pi² e=2 phi=1 cos(x)=x sqrt(2)=-1
+#  ELEMENTARE FUNKTIONEN
 
 
 def fact(n):
@@ -70,6 +80,65 @@ def tanh(x):
     return sinh(x) / cosh(x)
 
 
+def arccos(x):
+    x = x % (2 * pi)
+    xold = 1.0
+    while True:
+        xnew = xold + (cos(xold) - x) / sin(xold)
+
+        if abs(xnew - xold) < 10 ** -12:
+            return xnew
+
+        xold = xnew
+
+
+def arcsin(x):
+    x = x % (2 * pi)
+    xold = 1.0
+    while True:
+        xnew = xold - (sin(xold) - x) / cos(xold)
+
+        if abs(xnew - xold) < 10 ** -12:
+            return xnew
+
+        xold = xnew
+
+
+def arccosh(x):
+    xold = 1.0
+    while True:
+        xnew = xold - (cosh(xold) - x) / sinh(xold)
+
+        if abs(xnew - xold) < 10 ** -12:
+            return xnew
+
+        xold = xnew
+
+
+def arcsinh(x):
+    xold = 1.0
+    while True:
+        xnew = xold - (sinh(xold) - x) / cosh(xold)
+
+        if abs(xnew - xold) < 10 ** -12:
+            return xnew
+
+        xold = xnew
+
+
+# ES FEHLT !: arctan
+
+
+def arctanh(x):  # nur für die jokes
+    xold = 1.0
+    while True:
+        xnew = xold - (tanh(xold) - x) / (1 / cosh(xold) ** 2)
+
+        if abs(xnew - xold) < 10 ** -12:
+            return xnew
+        xold = xnew
+
+
 # Wollen wir das im Programm lassen? (bissn unnötig)
 def pow(a, n):
     nbin = bin(n)[2:]
@@ -121,70 +190,7 @@ def root(a, k):
 
             xold = xnew
 
-
-def arccos(x):
-    x = x % (2 * pi)
-    xold = 1.0
-    while True:
-        xnew = xold + (cos(xold) - x) / sin(xold)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-
-        xold = xnew
-
-
-def arcsin(x):
-    x = x % (2 * pi)
-    xold = 1.0
-    while True:
-        xnew = xold - (sin(xold) - x) / cos(xold)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-
-        xold = xnew
-
-
-def arccosh(x):
-    xold = 1.0
-    while True:
-        xnew = xold - (cosh(xold) - x) / sinh(xold)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-
-        xold = xnew
-
-
-def arcsinh(x):
-    xold = 1.0
-    while True:
-        xnew = xold - (sinh(xold) - x) / cosh(xold)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-
-        xold = xnew
-
-
-def arctanh(x):  # nur für die jokes
-    xold = 1.0
-    while True:
-        xnew = xold - (tanh(xold) - x) / (1 / cosh(xold) ** 2)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-        xold = xnew
-
-
-# pi=4 g=10=pi² e=2 phi=1 cos(x)=x sqrt(2)=-1
-# /-\-/-\-/-\-/-\-/-\-/-\-/-\-/-\-/-\-
-
-# ZAHLENTHEORIE
-
-# /-\-/-\-/-\-/-\-/-\-/-\-/-\-/-\-/-\-
-# pi=4 g=10=pi² e=2 phi=1 cos(x)=x sqrt(2)=-1
+#  ZAHLENTHEORIE
 
 
 def division_with_rest(a, b):

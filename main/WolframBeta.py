@@ -17,7 +17,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 2
+default_frame = 0
 min_window = True
 
 """TODO:
@@ -78,6 +78,8 @@ gebe ein, was du berechnen willst:
 * int(a, b, f(x))
 
 """]
+matrix_help = [""]
+code_help = [""]
 
 
 def toggle_lang(language):
@@ -125,6 +127,15 @@ def check_and_clean(string):
         if char not in ".,+-*/()_^`'! π=3" + '"' + NUMBERS + ALPHABET:
             return SyntaxError(f"Invalid input: '{char}'")
     return string
+
+
+def get_all_children(top_frame):
+    all_children = [top_frame] + top_frame.winfo_children()
+    
+    for item in all_children:
+        all_children.extend(item.winfo_children())
+        
+    return all_children
 
 
 class AlgebraFrame(Frame):
@@ -181,11 +192,8 @@ class AlgebraFrame(Frame):
         self.help_label = Message(self, text=algebra_help[lang], relief="raised")
         self.help_show = False
 
-        
-        self.elements = [self, self.io_frame, self.input_entry,
-                         self.einstellungs_frame, self.error_label,
-                         self.enter_button, self.latex_io]
-        
+        self.elements = get_all_children(self)
+
         self.input_entry.bind("<Return>", self.commit_input)
     
     def commit_input(self, event=None):
@@ -915,7 +923,8 @@ class MainScreen(Tk):
         self.cm_button.grid(row=0, column=1)
         
         # Logo
-        self.logo_frames = [PhotoImage(file="../pictures/moving_logo.gif", format=f"gif -index {n}").subsample(5, 5) for n in range(20)]
+        logo_file = "../pictures/alpha_anim.gif"
+        self.logo_frames = [PhotoImage(file=logo_file, format=f"gif -index {n}").subsample(5, 5) for n in range(20)]
         self.logo_index = 0
         self.logo_state = False
         
@@ -969,9 +978,7 @@ class MainScreen(Tk):
                                   highlightbackground="red")
         self.exit_button.place(relx=0.85, rely=0.2, relwidth=0.1, relheight=0.6)
         
-        self.elements = [self.top_frame, self.logo, self.cm_button,
-                         self.lang_frame, self.de_button, self.fr_button, self.gb_button,
-                         self.bottom_frame, self.exit_button]
+        self.elements = get_all_children(self)
         
         self.algebra_frame = self.analysis_frame = self.matrix_frame = self.code_frame = None
         self.current_frame = Frame(self)
@@ -994,12 +1001,13 @@ class MainScreen(Tk):
             # initiate frame objects
             if n == 0:
                 self.algebra_frame = AlgebraFrame(self)
-                self.algebra_frame.focus_set()
-                self.elements += self.algebra_frame.elements
+                self.elements.extend(get_all_children(self.algebra_frame))
             elif n == 1:
                 self.analysis_frame = AnalysisFrame(self)
+                self.elements.extend(get_all_children(self.analysis_frame))
             elif n == 2:
                 self.matrix_frame = MatrixFrame(self)
+                self.elements.extend(get_all_children(self.matrix_frame))
             elif n == 3:
                 self.code_frame = CodeFrame(self)
         
@@ -1018,15 +1026,22 @@ class MainScreen(Tk):
             if type(container) == Entry:
                 container["fg"] = ["black", "white"][self.color_mode]
                 container["bg"] = ["white", "#505050"][self.color_mode]
+                container["highlightbackground"] = [lgray, dgray][self.color_mode]
             elif type(container) == Button:
-                container["bg"] = [lgray, dgray][self.color_mode]
-                container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
-                container["activeforeground"] = ["black", "#f0f0f0"][self.color_mode]
                 container["fg"] = ["black", "#f0f0f0"][self.color_mode]
+                container["bg"] = [lgray, dgray][self.color_mode]
+                container["activeforeground"] = ["black", "#f0f0f0"][self.color_mode]
+                container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
+                container["highlightbackground"] = [lgray, dgray][self.color_mode]
+            elif type(container) == Label or type(container) == Message:
+                container["bg"] = [lgray, dgray][self.color_mode]
+                container["fg"] = ["black", "white"][self.color_mode]
             else:
                 container["bg"] = [lgray, dgray][self.color_mode]
-                
-        self.current_frame.switch_color()
+        try:
+            self.current_frame.switch_color()
+        except:
+            pass
     
     def selection_buttons(self, container, *names):
         # für die 4 Buttons links

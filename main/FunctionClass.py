@@ -1,5 +1,13 @@
-from functions import *
-import analysis
+from analysis import trapez, riemann, simpson
+
+"""
+FunctionClass module:
+- parse mathematical expression into a syntax tree
+- write expressions as LaTeX code
+- differentiate expressions
+- simplify expressions
+
+"""
 
 """TODO:
 - definitonsmenge checken neu
@@ -602,7 +610,7 @@ def integrate(a, b, f, variable, method=None):
     f = Function(f, variable)
     if not method:
         method = dim
-    return getattr(analysis, method)(f, a, b)
+    return {"riemann": riemann, "trapez": trapez, "simpson": simpson}[method](f, a, b)
 
 
 class Function:
@@ -667,7 +675,7 @@ if __name__ == "__main__":
     
     try:
         # print(parse_ws(func))
-        print(write(parse(func)))
+        print(integrate(2,3,"sinx", "x"))
         # input = "d/dx(x^34)"
         # input_latex = write_latex_ws(parse_ws(func))
         # output_latex = parse(func, ableiten=True)
