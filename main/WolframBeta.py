@@ -126,6 +126,12 @@ def check_and_clean(string):
     for char in string:
         if char not in ".,+-*/()_^`'! π=3" + '"' + NUMBERS + ALPHABET:
             return SyntaxError(f"Invalid input: '{char}'")
+    if "++" in string or "**" in string or "//" in string or "^^" in string or ".." in string or ",," in string:
+        return SyntaxError("invalid input!")
+    if string[0] in "*/^).,_!=":
+        return SyntaxError(f"Invalid first character: {string[0]}")
+    if string[-1] in "+-*/^(.,_":
+        return SyntaxError(f"Invalid last character: {string[-1]}")
     return string
 
 
@@ -1033,7 +1039,7 @@ class MainScreen(Tk):
                 container["activeforeground"] = ["black", "#f0f0f0"][self.color_mode]
                 container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
                 container["highlightbackground"] = [lgray, dgray][self.color_mode]
-            elif type(container) == Label or type(container) == Message:
+            elif type(container) == Message:
                 container["bg"] = [lgray, dgray][self.color_mode]
                 container["fg"] = ["black", "white"][self.color_mode]
             else:

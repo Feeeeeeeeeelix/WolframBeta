@@ -12,9 +12,7 @@ FunctionClass module:
 """TODO:
 - definitonsmenge checken neu
 - latex 2*x -> 2x
-
-möglichkeit, andere variablen zu verwenden (schwer)
-def menge bestimmen
+möglicherweise fehler in dem erkennen von operationsreihenfolge bei division und multiplication in einem ausdruck
 
 - Vereinfachen
 - 1/x*x -> 1
@@ -241,7 +239,8 @@ def parse(f: str, simp=False):
     
     if "+" in f:
         summands = _insert_args(f.split("+"), innerargs)
-        
+        if not all(summands):
+            raise SyntaxError("summand fehlt")
         if simp:
             # bei zb "2+sin(x)+3+x" wird 2,3 von sinx,x getrennt
             # 2 und 3 werden addiert -> consts
@@ -259,7 +258,8 @@ def parse(f: str, simp=False):
     if "*" in f:
         factors = _insert_args(f.split("*"), innerargs)
         PRINT += f"\n{factors = }"
-        
+        if not all(factors):
+            raise SyntaxError("faktor fehlt")
         if simp:
             consts, funcs = _split_consts(factors, isfloat)
             consts = [str(prod(consts))] if consts else []
@@ -290,14 +290,17 @@ def parse(f: str, simp=False):
     if "/" in f:
         div = _insert_args(f.split("/", 1), innerargs)
         PRINT += f"\n{div = }"
-        
+        if not all(div):
+            raise SyntaxError("Term fehlt")
         num, denom = parse(div[0], simp), parse(div[1], simp)
         if not denom: raise ZeroDivisionError
-        return ["/", [num, denom]] if num != denom and simp else 1
+        return ["/", [num, denom]] if not(num == denom and simp) else 1
     
     if "^" in f:
         base, exp = _insert_args(f.split("^", 1), innerargs)
         PRINT += f"\n{base=}, {exp=}"
+        if not base or not exp:
+            raise SyntaxError("Term fehlt")
         return ["^", [parse(base, simp), parse(exp, simp)]]
     
     # Funktion
@@ -463,8 +466,7 @@ def write_latex(f: list, simp=False):
                 return base
             elif str(power) == "0":
                 return 1
-        else:
-            return "{" + str(base) + "}^{" + str(power) + "}"
+        return "{" + str(base) + "}^{" + str(power) + "}"
     
     if f[0] in FUNCTIONS:
         # args = [str(write(arg)) for arg in f[1:]]
@@ -671,11 +673,11 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "prim_factors(111)"
+    func = "3/2^4*0+3^5"
     
     try:
-        # print(parse_ws(func))
-        print(integrate(2,3,"sinx", "x"))
+        s = Function(func)
+        print(s.latex_out)
         # input = "d/dx(x^34)"
         # input_latex = write_latex_ws(parse_ws(func))
         # output_latex = parse(func, ableiten=True)
