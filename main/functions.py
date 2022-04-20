@@ -81,7 +81,9 @@ def tanh(x):
 
 
 def arccos(x):
-    x = x % (2 * pi)
+    if x >= pi or x <=0:    # x muss in [0 ; pi] sein
+        return ValueError
+    
     xold = 1.0
     while True:
         xnew = xold + (cos(xold) - x) / sin(xold)
@@ -93,7 +95,9 @@ def arccos(x):
 
 
 def arcsin(x):
-    x = x % (2 * pi)
+    if x >= pi/2 or x <= -pi/2:    # x muss in [-pi/2 ; pi/2] sein
+        return ValueError
+    
     xold = 1.0
     while True:
         xnew = xold - (sin(xold) - x) / cos(xold)
@@ -105,7 +109,10 @@ def arcsin(x):
 
 
 def arccosh(x):
-    xold = 1.0
+    if x <=1:
+        return ValueError
+    
+    xold = 2.0
     while True:
         xnew = xold - (cosh(xold) - x) / sinh(xold)
 
@@ -140,7 +147,10 @@ def arctan(x):
 
 
 def arctanh(x):  # nur für die jokes
-    xold = 1.0
+    if x>=1 or x<=-1:
+        return ValueError
+    
+    xold = 0
     while True:
         xnew = xold - (tanh(xold) - x) / (1 / cosh(xold) ** 2)
 
