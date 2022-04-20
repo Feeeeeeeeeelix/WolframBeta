@@ -84,7 +84,7 @@ def arccos(x):
     if x >= pi or x <=0:    # x muss in [0 ; pi] sein
         return ValueError
     
-    xold = 1.0
+    xold = x
     while True:
         xnew = xold + (cos(xold) - x) / sin(xold)
 
@@ -98,7 +98,7 @@ def arcsin(x):
     if x >= pi/2 or x <= -pi/2:    # x muss in [-pi/2 ; pi/2] sein
         return ValueError
     
-    xold = 1.0
+    xold = x
     while True:
         xnew = xold - (sin(xold) - x) / cos(xold)
 
@@ -112,7 +112,7 @@ def arccosh(x):
     if x <=1:
         return ValueError
     
-    xold = 2.0
+    xold = x
     while True:
         xnew = xold - (cosh(xold) - x) / sinh(xold)
 
@@ -123,7 +123,7 @@ def arccosh(x):
 
 
 def arcsinh(x):
-    xold = 1.0
+    xold = x
     while True:
         xnew = xold - (sinh(xold) - x) / cosh(xold)
 
@@ -136,7 +136,7 @@ def arcsinh(x):
 # ES FEHLT !: arctan
 
 def arctan(x):
-    xold = 1.0
+    xold = x
     while True:
         xnew = xold - (tan(xold) - x) / (1 / cos(xold) ** 2)
 
@@ -150,7 +150,7 @@ def arctanh(x):  # nur für die jokes
     if x>=1 or x<=-1:
         return ValueError
     
-    xold = 0
+    xold = x
     while True:
         xnew = xold - (tanh(xold) - x) / (1 / cosh(xold) ** 2)
 
