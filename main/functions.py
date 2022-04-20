@@ -1,4 +1,4 @@
-import time
+from analysis import _sekanten_verfahren
 """
 functions.py module:
 
@@ -34,7 +34,7 @@ def C(n, k):
 
 
 def exp(x):
-    return sum([x ** i / fact(i) for i in range(20+3*abs(int(x)))])
+    return sum([x ** i / fact(i) for i in range(20+3*abs(x))])
 
 
 def log(x, base="e"):  # Patent
@@ -131,24 +131,26 @@ def sinh(x):
 def tanh(x):
     return sinh(x) / cosh(x)
 
-
 def arcsin(x):
     if x <= -1 or x >= 1:
         raise ValueError(f"arcsin argument must be between -1 and 1")
-    if abs(x) == 1:
-        return x*pi/2
-    sum = 0
-    term = x
-    k = 1
-    print(f"arcsin({x})")
-    while abs(term) > 10 ** -12:
-        print(f"{sum = }, {term = }")
-        sum += term
-        k += 2
-        term *= x ** 2 * (k - 2) * (k - 2) / (k * (k - 1))
     
-    return sum
-
+    #arcsin(x) = arctan( x/sqrt(1-x^2) ) und arctan ist durch rationales polynom gut approximiert
+    x =  x/sqrt(1-x**2)
+    
+    #Approximation mit 0.005 Fehler
+    if x>1:
+        approx =  pi/2 - x/(x**2+0.28)
+    elif x>-1:
+        approx = x/(1+0.28*x**2)
+    else:
+        approx = -pi/2 - x/(x**2+0.28)
+        
+    #verbesserte Approximation durch Newton-Verfahren
+    for k in range(3):
+        approx -= (tan(approx)-x)*cos(approx)**2
+        
+    return approx
 
 def arccos(x):
     if x <= -1 or x >= 1:
@@ -157,16 +159,20 @@ def arccos(x):
 
 
 def arctan(x):
-    sum = 0
-    stored_value = x ** 2 / (1 + x ** 2)
-    term = x / (1 + x ** 2)
-    k = 0
+    #Approximation mit 0.005 Fehler
+    if x>1:
+        approx =  pi/2 - x/(x**2+0.28)
+    elif x>-1:
+        approx = x/(1+0.28*x**2)
+    else:
+        approx = -pi/2 - x/(x**2+0.28)
+        
+    #verbesserte Approximation durch Newton-Verfahren
+    for k in range(3):
+        approx -= (tan(approx)-x)*cos(approx)**2
     
-    while term > 10 ** -14:
-        sum += term
-        k += 1
-        term *= 4 * k ** 2 / ((2 * k + 1) * (2 * k)) * stored_value
-    return sum
+    return approx
+
 
 
 def arccosh(x):
@@ -265,9 +271,5 @@ def partition(n):
 
 
 if __name__ == '__main__':
-    for func in [sin, cos, tan, arccos, arcsin, arctan, sinh, cosh, tanh, arcsinh, arctanh]:
-        t0 = time.time()
-        print("\n", func.__name__)
-        func(.99)
-        print(1000*(time.time()-t0))
-    arcsin(0.9999999999999384)
+    print(cos(arccos(0.99)))    
+    pass
