@@ -33,8 +33,8 @@ def C(n, k):
     return fact(n) / (fact(n - k) * fact(k))
 
 
-def exp(x, i):
-    return sum([x ** i / fact(i) for i in range(i)])
+def exp(x):
+    return sum([x ** i / fact(i) for i in range(20+3*abs(x))])
 
 
 def log(x, base="e"):  # Patent
@@ -261,6 +261,4 @@ def partition(n):
 
 
 if __name__ == '__main__':
-    for i in range(100):
-        
-        print(i, exp(10, i))
+

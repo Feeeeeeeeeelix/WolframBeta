@@ -392,6 +392,8 @@ class AnalysisFrame(Frame):
         self.scrolled_frame.focus_set()
         self.canvas_window = self.scroll_canvas.create_window(0, 0, window=self.scrolled_frame, anchor="nw")
         self.entry_lines_outer_frame.bind("<Configure>", self.configure_canvas)
+        self.entry_lines_outer_frame.bind("<Enter>", self.configure_canvas)
+        self.configure_canvas()
         
         self.gray_ring = PhotoImage(file="../pictures/Rings/gray_ring.png").subsample(3, 3)
         self.red_ring = PhotoImage(file="../pictures/Rings/red_ring.png").subsample(3, 3)
@@ -461,7 +463,7 @@ class AnalysisFrame(Frame):
         self.all_colors = ["r", "g", "b", "c", "m", "y", "k"]
         self.stored_values = {}
     
-    def configure_canvas(self, event):
+    def configure_canvas(self, event=None):
         width = self.scroll_canvas.winfo_width()
         self.scroll_canvas.configure(scrollregion=self.scroll_canvas.bbox(self.canvas_window))
         self.scroll_canvas.itemconfig(self.canvas_window, width=width)
@@ -588,7 +590,7 @@ class AnalysisFrame(Frame):
         for function in self.functions.values():
             if function.isvisible:
                 if function.str_out in self.stored_values:
-                    I, J = self.stored_values[function.name]
+                    I, J = self.stored_values[function.str_out]
                 else:
                     I, J = [], []
                     for x in I_max:
@@ -657,15 +659,11 @@ class AnalysisFrame(Frame):
         """
         string = self.compute_entry.get()
         
-        if not string:
+        string = check_and_clean(string)
+        if type(string) == SyntaxError:
+            self.show_error(format_error(string))
             return None
-        string = string.replace(" ", "").replace("**", "^")
-        string = string.replace("²", "^2").replace("³", "^3")
-        string = string.replace("pi", "π")
-        for chr in string:
-            if chr not in ".,+-*/()_^`'! π=3" + '"' + NUMBERS + ALPHABET:
-                self.show_error(f"Invalid input: '{chr}'")
-                return None
+
         try:
             if "=" in string:
                 pass
