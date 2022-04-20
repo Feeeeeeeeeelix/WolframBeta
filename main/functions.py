@@ -128,6 +128,16 @@ def arcsinh(x):
 
 # ES FEHLT !: arctan
 
+def arctan(x):
+    xold = 1.0
+    while True:
+        xnew = xold - (tan(xold) - x) / (1 / cos(xold) ** 2)
+
+        if abs(xnew - xold) < 10 ** -12:
+            return xnew
+        xold = xnew
+
+
 
 def arctanh(x):  # nur für die jokes
     xold = 1.0
