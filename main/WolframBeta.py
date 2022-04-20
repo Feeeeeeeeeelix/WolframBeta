@@ -350,6 +350,7 @@ class EntryLine(Frame):
 
 class FunctionWrapper(Function):
     def __init__(self, string, variable="x", name=None, color=None, isvisible=True, entry_index=None):
+        print(f"neue funktion: {string}, {name = }")
         super().__init__(string, variable)
         self.name = name
         self.color = color
@@ -387,10 +388,10 @@ class AnalysisFrame(Frame):
         self.scroll_canvas.configure(yscrollcommand=self.scrollbar.set)
         self.scrollbar.configure(command=self.scroll_canvas.yview)
         
-        self.scrolled_frame = Frame(self.scroll_canvas, bg="blue")
+        self.scrolled_frame = Frame(self.scroll_canvas)
         self.scrolled_frame.focus_set()
         self.canvas_window = self.scroll_canvas.create_window(0, 0, window=self.scrolled_frame, anchor="nw")
-        self.scrolled_frame.bind("<Configure>", self.configure_canvas)
+        self.entry_lines_outer_frame.bind("<Configure>", self.configure_canvas)
         
         self.gray_ring = PhotoImage(file="../pictures/Rings/gray_ring.png").subsample(3, 3)
         self.red_ring = PhotoImage(file="../pictures/Rings/red_ring.png").subsample(3, 3)
@@ -442,7 +443,7 @@ class AnalysisFrame(Frame):
         self.canvas_frame = Frame(self)
         self.canvas_frame.place(relx=0.5, rely=0.05, relheight=0.9, relwidth=0.45)
         
-        self.figure = Figure(facecolor=dgray)
+        self.figure = Figure()
         self.subplot = self.figure.add_subplot(111)
         self.canvas = FigureCanvasTkAgg(self.figure, self.canvas_frame)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
@@ -458,6 +459,7 @@ class AnalysisFrame(Frame):
         self.dgl = {}
         self.funcnames_order = ["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"]
         self.all_colors = ["r", "g", "b", "c", "m", "y", "k"]
+        self.stored_values = {}
     
     def configure_canvas(self, event):
         width = self.scroll_canvas.winfo_width()
@@ -537,9 +539,12 @@ class AnalysisFrame(Frame):
         
             func = string[string.index("=") + 1:]
             funcname = string[:string.index("(x)=")]
+            print(f"got old func: {func}")
             if not func:
                 self.show_error("Error: no input", n)
                 return False
+            if funcname in [func.name if n != index else "" for index, func in self.functions.items()]:
+                self.show_error("Error: function name already taken", n)
         
             if n in self.functions:
                 previous_function = self.functions[n]
@@ -582,15 +587,19 @@ class AnalysisFrame(Frame):
         self.subplot.clear()
         for function in self.functions.values():
             if function.isvisible:
-                I, J = [], []
-                for x in I_max:
-                    try:
-                        J.append(function(x))
-                        I.append(x)
-                    except Exception as e:
-                        # wenn x nicht im definitionsbereich der Funktion liegt, gibts nen ValueError (wird ignoriert)
-                        if type(e) is not ValueError:
-                            raise e
+                if function.str_out in self.stored_values:
+                    I, J = self.stored_values[function.name]
+                else:
+                    I, J = [], []
+                    for x in I_max:
+                        try:
+                            J.append(function(x))
+                            I.append(x)
+                        except Exception as e:
+                            # wenn x nicht im defbereich der Funktion liegt, gibts nen ValueError (wird ignoriert)
+                            if type(e) is not ValueError:
+                                raise e
+                    self.stored_values[function.str_out] = [I, J]
                 self.subplot.plot(I, J, color=function.color, label=f"y = {function.name}(x)")
                 
         # self.subplot.spines["left"].set_position("center")
@@ -664,10 +673,14 @@ class AnalysisFrame(Frame):
                 
                 input_latex = write_latex(parse(string))
                 output_tree = parse(string, simp=True)
+                # print(input_latex, output_tree)
                 try:
                     for func in self.functions.values():
                         locals()[func.name] = func
-                    print(locals())
+                    for func in SIMPLE_FUNCTIONS:
+                        locals()[func] = globals()[func]
+                    # print(locals())
+                    
                     output_latex = eval(write(output_tree))
                 except Exception as e:
                     print(f"couldnt eval {write(output_tree)}, {e}")
@@ -682,7 +695,7 @@ class AnalysisFrame(Frame):
         self.show_error("")
         text = rf"${input_latex} = {output_latex}$"
         self.io_figure.clear()
-        self.io_figure.text(0.5, 0.5, text, size=int(100/(len(text)+50)+5), va="center", ha="center")
+        self.io_figure.text(0.5, 0.5, text, size=int(1000/(len(text)+50)), va="center", ha="center")
         self.io_canvas.draw()
         
     def show_help(self, force=None):
@@ -1032,13 +1045,13 @@ class MainScreen(Tk):
             if type(container) == Entry:
                 container["fg"] = ["black", "white"][self.color_mode]
                 container["bg"] = ["white", "#505050"][self.color_mode]
-                container["highlightbackground"] = [lgray, dgray][self.color_mode]
+                # container["highlightbackground"] = [lgray, dgray][self.color_mode]
             elif type(container) == Button:
                 container["fg"] = ["black", "#f0f0f0"][self.color_mode]
                 container["bg"] = [lgray, dgray][self.color_mode]
                 container["activeforeground"] = ["black", "#f0f0f0"][self.color_mode]
                 container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
-                container["highlightbackground"] = [lgray, dgray][self.color_mode]
+                # container["highlightbackground"] = [lgray, dgray][self.color_mode]
             elif type(container) == Message:
                 container["bg"] = [lgray, dgray][self.color_mode]
                 container["fg"] = ["black", "white"][self.color_mode]

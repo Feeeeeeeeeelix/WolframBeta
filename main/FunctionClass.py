@@ -1,4 +1,5 @@
 from analysis import trapez, riemann, simpson
+from functions import *
 
 """
 FunctionClass module:
@@ -32,7 +33,9 @@ lol
 
 FUNCTIONS = ['C', 'PGCD', 'PPCM', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctanh', 'cos', 'cosh', 'sin', 'sinh',
              'eratosthenes', 'exp', 'fact', 'ggT', 'isprime', 'kgV', 'log', 'ln', 'partition', 'pow', 'root',
-             'sqrt', 'tan', 'tanh', 'Int', 'min', 'max', 'prim_factors']
+             'sqrt', 'tan', 'tanh', 'Int', 'min', 'max', 'prim_factors', 'nullstellen']
+FUNCTIONS.extend(["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"])
+
 SIMPLE_FUNCTIONS = ['cos', 'cosh', 'arccos', 'arccosh', 'sin', 'sinh', 'arcsin', 'arcsinh', 'tan', 'tanh', 'arctanh',
                     'exp', 'log', 'ln', 'sqrt']
 ALPHABET = "qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNMπ"
@@ -127,8 +130,8 @@ def check_ensemble_de_definition(funcname, arg, n):
                                                         "n'est pas dans l'ensemble de definition de",
                                                         "is not included in the domain of"]))
     n_error = lambda funcname, n: TypeError(*tuple(f"{funcname} {text} " for text in
-                                                   [f"braucht nur {n} Werte",
-                                                    f"ne prend que {n} donnés",
+                                                   [f"braucht nur {n} Argument",
+                                                    f"ne prend que {n} argmuents",
                                                     f"only takes {n} arguments"]))
     
     if not isfloat(arg[0]):
@@ -199,6 +202,8 @@ def parse(f: str, simp=False):
     if f[:-1] in SIMPLE_FUNCTIONS and f[-1] in ALPHABET + NUMBERS:
         # ex: sinx, sin2 -> sin(x), sin(2)
         return parse(f"{f[:-1]}({f[-1]})", simp)
+    if f in SIMPLE_FUNCTIONS:
+        return f
     if len(f) >= 3 and "C" in f and isfloat(f[:f.index("C")]) and isfloat(f[f.index("C") + 1:]):
         # 2C3 -> C(2,3)
         return parse(f"C({f[:f.index('C')]},{f[f.index('C') + 1:]})", simp)
@@ -636,7 +641,7 @@ class Function:
             PRINT += f"\n\nself.latex = " + self.latex_in
             
             PRINT += "\n\nPARSING STR.."
-            self.tree = parse(self.str_in, simp=True)
+            self.tree = parse(self.str, simp=True)
             PRINT += f"\n\n{self.tree = }"
             
             PRINT += "\n\nWRITING TREE.."
@@ -673,7 +678,7 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "3/2^4*0+3^5"
+    func = "ln"
     
     try:
         s = Function(func)

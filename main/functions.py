@@ -33,8 +33,8 @@ def C(n, k):
     return fact(n) / (fact(n - k) * fact(k))
 
 
-def exp(x):
-    return sum([x ** i / fact(i) for i in range(100)])
+def exp(x, i):
+    return sum([x ** i / fact(i) for i in range(i)])
 
 
 def log(x, base="e"):  # Patent
@@ -124,12 +124,45 @@ def cosh(x):
 
 
 def sinh(x):
+    print(f"sinh({x})")
     return (exp(x) - exp(-x)) / 2
 
 
 def tanh(x):
     return sinh(x) / cosh(x)
 
+
+def arcsin(x):
+    if x <= -1 or x >= 1:
+        raise ValueError(f"arcsin argument must be between -1 and 1")
+    sum = 0
+    term = x
+    k = 1
+    while term > 10 ** -12:
+        sum += term
+        k += 2
+        term *= x ** 2 * (k - 2) * (k - 2) / (k * (k - 1))
+    
+    return sum
+
+
+def arccos(x):
+    if x <= -1 or x >= 1:
+        raise ValueError(f"arccos argument must be between -1 and 1")
+    return pi / 2 - arcsin(x)
+
+
+def arctan(x):
+    sum = 0
+    stored_value = x ** 2 / (1 + x ** 2)
+    term = x / (1 + x ** 2)
+    k = 0
+    
+    while term > 10 ** -14:
+        sum += term
+        k += 1
+        term *= 4 * k ** 2 / ((2 * k + 1) * (2 * k)) * stored_value
+    return sum
 
 
 def arccosh(x):
@@ -148,39 +181,6 @@ def arctanh(x):
     return 0.5*ln((1+x)/(1-x))
 
 
-def arcsin(x):
-    if x <= -1 or x >= 1:
-        raise ValueError(f"arcsin argument must be between -1 and 1")
-    sum = 0
-    term = x
-    k = 1
-    while term > 10 ** -12:
-        sum += term
-        k += 2
-        term *= x**2*(k-2)*(k-2)/(k*(k-1))
-    
-    return sum
-
-def arccos(x):
-    if x <= -1 or x >= 1:
-        raise ValueError(f"arccos argument must be between -1 and 1")
-    return pi/2 - arcsin(x)
-    
-    
-
-def arctan(x):
-    sum = 0
-    stored_value = x**2/(1+x**2)
-    term = x/(1+x**2)
-    k = 0
-    
-    while term > 10**-14:
-        sum += term
-        k += 1
-        term *= 4*k**2/((2*k+1)*(2*k)) * stored_value
-    return sum
-    
-    
 #  ZAHLENTHEORIE
 
 
@@ -261,5 +261,6 @@ def partition(n):
 
 
 if __name__ == '__main__':
-    print("start")
-    print(tan(arctan(2)))
+    for i in range(100):
+        
+        print(i, exp(10, i))
