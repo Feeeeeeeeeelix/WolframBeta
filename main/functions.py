@@ -1,4 +1,4 @@
-
+import time
 """
 functions.py module:
 
@@ -34,7 +34,7 @@ def C(n, k):
 
 
 def exp(x):
-    return sum([x ** i / fact(i) for i in range(20+3*abs(x))])
+    return sum([x ** i / fact(i) for i in range(20+3*abs(int(x)))])
 
 
 def log(x, base="e"):  # Patent
@@ -135,10 +135,14 @@ def tanh(x):
 def arcsin(x):
     if x <= -1 or x >= 1:
         raise ValueError(f"arcsin argument must be between -1 and 1")
+    if abs(x) == 1:
+        return x*pi/2
     sum = 0
     term = x
     k = 1
-    while term > 10 ** -12:
+    print(f"arcsin({x})")
+    while abs(term) > 10 ** -12:
+        print(f"{sum = }, {term = }")
         sum += term
         k += 2
         term *= x ** 2 * (k - 2) * (k - 2) / (k * (k - 1))
@@ -261,4 +265,9 @@ def partition(n):
 
 
 if __name__ == '__main__':
-    pass
+    for func in [sin, cos, tan, arccos, arcsin, arctan, sinh, cosh, tanh, arcsinh, arctanh]:
+        t0 = time.time()
+        print("\n", func.__name__)
+        func(.99)
+        print(1000*(time.time()-t0))
+    arcsin(0.9999999999999384)

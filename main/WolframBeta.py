@@ -17,7 +17,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 0
+default_frame = 1
 min_window = True
 
 """TODO:
