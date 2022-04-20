@@ -1,0 +1,58 @@
+#logo{
+    position:absolute;
+    left:80px;
+    top:0;
+    width:400px;
+}
+
+#ana3{
+	position:absolute;
+	left:1275px;
+	top:180px;
+	max-width: 22%;
+	box-shadow: 6px 8px 15px grey;
+	border-radius: 5px 20px 5px 15px;
+	transform: rotate(7deg);
+}
+
+a{
+margin-left: 70px;
+width: 1150px;
+}
+
+p {
+ font-size: 1.25em;
+ margin-left: 90px;
+ width: 1150px;
+}
+
+h4 {
+ font-size: 1.4em;
+ margin-left:70px;
+ width: 1150px;
+}
+
+h3 {
+ color:white;
+ margin:40px 150px 20px 65px;
+ padding:10px 80px 10px 30px;
+ border:solid 2px black;
+ width:290px;
+ background-color: #001B81;
+ box-shadow: 6px 8px 15px grey;
+ border-radius: 5px 20px 5px 15px;
+}
+
+ul,ol {
+font-size: 1.25em;
+margin-left: 80px;
+width: 1150px;
+}
+
+
+
+
+body {
+    background-image:url('Hintergrund.png');
+    background-repeat: repeat-y
+}
