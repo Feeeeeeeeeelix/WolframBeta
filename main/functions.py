@@ -131,43 +131,6 @@ def tanh(x):
     return sinh(x) / cosh(x)
 
 
-def arccos(x):
-    if x < -1 or x > 1:
-        raise ValueError(f"arccos argument must be between -1 and 1")
-    
-    xold = x
-    while True:
-        xnew = xold + (cos(xold) - x) / sin(xold)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-
-        xold = xnew
-
-
-def arcsin(x):
-    if x < -1 or x > 1:
-        raise ValueError(f"arcsin argument must be between -1 and 1")
-    
-    xold = x
-    while True:
-        xnew = xold - (sin(xold) - x) / cos(xold)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-
-        xold = xnew
-
-
-def arctan(x):
-    xold = x
-    while True:
-        xnew = xold - (tan(xold) - x) / (1 / cos(xold) ** 2)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-        xold = xnew
-
 
 def arccosh(x):
     if x <= 1:
@@ -182,10 +145,42 @@ def arcsinh(x):
 def arctanh(x):
     if x <= -1 or x >= 1:
         raise ValueError(f"arctanh argument must be between -1 and 1")
-    
     return 0.5*ln((1+x)/(1-x))
 
 
+def arcsin(x):
+    if x <= -1 or x >= 1:
+        raise ValueError(f"arcsin argument must be between -1 and 1")
+    sum = 0
+    term = x
+    k = 1
+    while term > 10 ** -12:
+        sum += term
+        k += 2
+        term *= x**2*(k-2)*(k-2)/(k*(k-1))
+    
+    return sum
+
+def arccos(x):
+    if x <= -1 or x >= 1:
+        raise ValueError(f"arccos argument must be between -1 and 1")
+    return pi/2 - arcsin(x)
+    
+    
+
+def arctan(x):
+    sum = 0
+    stored_value = x**2/(1+x**2)
+    term = x/(1+x**2)
+    k = 0
+    
+    while term > 10**-14:
+        sum += term
+        k += 1
+        term *= 4*k**2/((2*k+1)*(2*k)) * stored_value
+    return sum
+    
+    
 #  ZAHLENTHEORIE
 
 
@@ -266,4 +261,5 @@ def partition(n):
 
 
 if __name__ == '__main__':
-    print(cosh(-5))
+    print("start")
+    print(tan(arctan(2)))
