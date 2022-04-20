@@ -56,110 +56,6 @@ def ln(x):
     return log(x)
 
 
-def sin(x):
-    return sum([(-1) ** i * (x % (2 * pi)) ** (2 * i + 1) / fact(2 * i + 1) for i in range(19)])
-
-
-def cos(x):
-    return sum([(-1) ** i * (x % (2 * pi)) ** (2 * i) / fact(2 * i) for i in range(19)])
-
-
-def tan(x):
-    return sin(x) / cos(x)
-
-
-def cosh(x):
-    return (exp(x) + exp(-x)) / 2
-
-
-def sinh(x):
-    return (exp(x) - exp(-x)) / 2
-
-
-def tanh(x):
-    return sinh(x) / cosh(x)
-
-
-def arccos(x):
-    if x >= pi or x <=0:    # x muss in [0 ; pi] sein
-        return ValueError
-    
-    xold = x
-    while True:
-        xnew = xold + (cos(xold) - x) / sin(xold)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-
-        xold = xnew
-
-
-def arcsin(x):
-    if x >= pi/2 or x <= -pi/2:    # x muss in [-pi/2 ; pi/2] sein
-        return ValueError
-    
-    xold = x
-    while True:
-        xnew = xold - (sin(xold) - x) / cos(xold)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-
-        xold = xnew
-
-
-def arccosh(x):
-    if x <=1:
-        return ValueError
-    
-    xold = x
-    while True:
-        xnew = xold - (cosh(xold) - x) / sinh(xold)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-
-        xold = xnew
-
-
-def arcsinh(x):
-    xold = x
-    while True:
-        xnew = xold - (sinh(xold) - x) / cosh(xold)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-
-        xold = xnew
-
-
-# ES FEHLT !: arctan
-
-def arctan(x):
-    xold = x
-    while True:
-        xnew = xold - (tan(xold) - x) / (1 / cos(xold) ** 2)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-        xold = xnew
-
-
-
-def arctanh(x):  # nur für die jokes
-    if x>=1 or x<=-1:
-        return ValueError
-    
-    xold = x
-    while True:
-        xnew = xold - (tanh(xold) - x) / (1 / cosh(xold) ** 2)
-
-        if abs(xnew - xold) < 10 ** -12:
-            return xnew
-        xold = xnew
-
-
-# Wollen wir das im Programm lassen? (bissn unnötig)
 def pow(a, n):
     nbin = bin(n)[2:]
     teiler = [a]
@@ -209,6 +105,86 @@ def root(a, k):
                 return xnew
 
             xold = xnew
+
+
+def sin(x):
+    return sum([(-1) ** i * (x % (2 * pi)) ** (2 * i + 1) / fact(2 * i + 1) for i in range(19)])
+
+
+def cos(x):
+    return sum([(-1) ** i * (x % (2 * pi)) ** (2 * i) / fact(2 * i) for i in range(19)])
+
+
+def tan(x):
+    return sin(x) / cos(x)
+
+
+def cosh(x):
+    return (exp(x) + exp(-x)) / 2
+
+
+def sinh(x):
+    return (exp(x) - exp(-x)) / 2
+
+
+def tanh(x):
+    return sinh(x) / cosh(x)
+
+
+def arccos(x):
+    if x < -1 or x > 1:
+        raise ValueError(f"arccos argument must be between -1 and 1")
+    
+    xold = x
+    while True:
+        xnew = xold + (cos(xold) - x) / sin(xold)
+
+        if abs(xnew - xold) < 10 ** -12:
+            return xnew
+
+        xold = xnew
+
+
+def arcsin(x):
+    if x < -1 or x > 1:
+        raise ValueError(f"arcsin argument must be between -1 and 1")
+    
+    xold = x
+    while True:
+        xnew = xold - (sin(xold) - x) / cos(xold)
+
+        if abs(xnew - xold) < 10 ** -12:
+            return xnew
+
+        xold = xnew
+
+
+def arctan(x):
+    xold = x
+    while True:
+        xnew = xold - (tan(xold) - x) / (1 / cos(xold) ** 2)
+
+        if abs(xnew - xold) < 10 ** -12:
+            return xnew
+        xold = xnew
+
+
+def arccosh(x):
+    if x <= 1:
+        raise ValueError(f"arccosh argument must be greater than 1")
+    return ln(x+sqrt(x**2-1))
+
+
+def arcsinh(x):
+    return ln(x+sqrt(x**2+1))
+
+
+def arctanh(x):
+    if x <= -1 or x >= 1:
+        raise ValueError(f"arctanh argument must be between -1 and 1")
+    
+    return 0.5*ln((1+x)/(1-x))
+
 
 #  ZAHLENTHEORIE
 
@@ -287,3 +263,7 @@ def partition(n):
                 part[i][j] += part[i - 1][j - 1]
 
     return sum(part[n][k] for k in range(1, n + 1))
+
+
+if __name__ == '__main__':
+    print(cosh(-5))
