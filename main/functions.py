@@ -1,4 +1,4 @@
-from analysis import _sekanten_verfahren
+
 """
 functions.py module:
 
@@ -34,14 +34,14 @@ def C(n, k):
 
 
 def exp(x):
-    return sum([x ** i / fact(i) for i in range(20+3*abs(x))])
+    return sum([x ** i / fact(i) for i in range(20 + 3 * abs(x))])
 
 
 def log(x, base="e"):  # Patent
-
+    
     if base != "e":
         return log(x) / log(base)
-
+    
     if x <= 0:
         raise ValueError("log argument must be positive")
     elif x > 1.01:
@@ -61,11 +61,11 @@ def pow(a, n):
     teiler = [a]
     b = a
     x = 1
-
+    
     for i in range(len(nbin) - 1):
         b = b ** 2
         teiler.append(b)
-
+    
     for i in range(len(nbin)):
         if int(nbin[::-1][i]):
             x *= teiler[i]
@@ -81,10 +81,10 @@ def sqrt(x):
         xold = 1.0
     while True:
         xnew = 1 / 2 * (xold + x / xold)
-
+        
         if abs(xnew - xold) < 10 ** -15:
             return xnew
-
+        
         xold = xnew
 
 
@@ -93,17 +93,17 @@ def root(a, k):
         raise ValueError
     elif a < 0 and int(k) == k and k % 2 == 0:
         raise ValueError
-
+    
     if a == 0:
         return 0
     else:
         xold = 1.0
         while True:
             xnew = ((k - 1) * xold ** k + a) / (k * xold ** (k - 1))
-
+            
             if abs(xnew - xold) < 10 ** -12:
                 return xnew
-
+            
             xold = xnew
 
 
@@ -131,26 +131,14 @@ def sinh(x):
 def tanh(x):
     return sinh(x) / cosh(x)
 
+
 def arcsin(x):
     if x <= -1 or x >= 1:
         raise ValueError(f"arcsin argument must be between -1 and 1")
-    
-    #arcsin(x) = arctan( x/sqrt(1-x^2) ) und arctan ist durch rationales polynom gut approximiert
-    x =  x/sqrt(1-x**2)
-    
-    #Approximation mit 0.005 Fehler
-    if x>1:
-        approx =  pi/2 - x/(x**2+0.28)
-    elif x>-1:
-        approx = x/(1+0.28*x**2)
-    else:
-        approx = -pi/2 - x/(x**2+0.28)
-        
-    #verbesserte Approximation durch Newton-Verfahren
-    for k in range(3):
-        approx -= (tan(approx)-x)*cos(approx)**2
-        
-    return approx
+
+    # arcsin(x) = arctan( x/sqrt(1-x^2) ) und arctan ist durch rationales polynom gut approximiert
+    return arctan(x / sqrt(1 - x ** 2))
+
 
 def arccos(x):
     if x <= -1 or x >= 1:
@@ -159,36 +147,35 @@ def arccos(x):
 
 
 def arctan(x):
-    #Approximation mit 0.005 Fehler
-    if x>1:
-        approx =  pi/2 - x/(x**2+0.28)
-    elif x>-1:
-        approx = x/(1+0.28*x**2)
+    # Approximation mit 0.005 Fehler
+    if x > 1:
+        approx = pi / 2 - x / (x ** 2 + 0.28)
+    elif x > -1:
+        approx = x / (1 + 0.28 * x ** 2)
     else:
-        approx = -pi/2 - x/(x**2+0.28)
-        
-    #verbesserte Approximation durch Newton-Verfahren
+        approx = -pi / 2 - x / (x ** 2 + 0.28)
+    
+    # verbesserte Approximation durch Newton-Verfahren
     for k in range(3):
-        approx -= (tan(approx)-x)*cos(approx)**2
+        approx -= (tan(approx) - x) * cos(approx) ** 2
     
     return approx
-
 
 
 def arccosh(x):
     if x <= 1:
         raise ValueError(f"arccosh argument must be greater than 1")
-    return ln(x+sqrt(x**2-1))
+    return ln(x + sqrt(x ** 2 - 1))
 
 
 def arcsinh(x):
-    return ln(x+sqrt(x**2+1))
+    return ln(x + sqrt(x ** 2 + 1))
 
 
 def arctanh(x):
     if x <= -1 or x >= 1:
         raise ValueError(f"arctanh argument must be between -1 and 1")
-    return 0.5*ln((1+x)/(1-x))
+    return 0.5 * ln((1 + x) / (1 - x))
 
 
 #  ZAHLENTHEORIE
@@ -210,7 +197,7 @@ def euclidean_algorithm(a, b):
 
 
 def kgV(a, b):
-    return a*b/euclidean_algorithm(a, b)
+    return a * b / euclidean_algorithm(a, b)
 
 
 ggT = euclidean_algorithm
@@ -221,17 +208,17 @@ PPCM = kgV
 def eratosthenes(n):
     x = [True] * (n + 3)
     prime_list = []
-
+    
     for i in range(2, n + 1):
-
+        
         if x[i]:
             prime_list.append(i)
             a = 2 * i
-
+            
             while a <= n:
                 x[a] = False
                 a += i
-
+    
     return prime_list
 
 
@@ -247,29 +234,29 @@ def isprime(n):
 def prim_factors(n):
     factors = []
     temp = n
-
+    
     for i in range(2, sqrt(temp) + 1):
-
+        
         while temp % i == 0:
             temp = temp / i
             factors.append(i)
-
+    
     return factors
 
 
 def partition(n):
     part = [[1 if i == j or j == 0 else 0 for j in range(i + 1)] for i in range(n + 1)]
-
+    
     for i in range(1, n + 1):
         for j in range(1, i):
             if i - j >= 0 and i - j >= j:
                 part[i][j] += part[i - j][j]
             if i - 1 > 0 and j - 1 > 0:
                 part[i][j] += part[i - 1][j - 1]
-
+    
     return sum(part[n][k] for k in range(1, n + 1))
 
 
 if __name__ == '__main__':
-    print(cos(arccos(0.99)))    
-    pass
+    print(arccos(0.9999))
+
