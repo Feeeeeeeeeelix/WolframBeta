@@ -177,20 +177,18 @@ def euler_collatz(f_str, t_0, y_0, end, steps=1000):
     return y  # Die Menge der Funktionswerte (die dazugehörigen x-Werte sind [x_0 + i * dt for i in range(0,steps)])
 
 
-def der(f, x, n=1, dx=10 ** (-5)):
-    # approximation der n-ten Ableitung in x von f.
+def der(f, x, n=1, dx=10 ** (-3)):
+    # approximation der n-ten Ableitung in x von f. Sehr instabil bei großem n, daher sollte dx nicht zu klein gewählt werden.
+    from functions import C
     if float(n) != int(n) or float(n) < 0:
         raise ValueError("nur positive integer erlaubt")
     if n == 0:
         return f(x)
     if n == 1:
         return (f(x + dx) - f(x - dx)) / (2 * dx)
-
-    elif n % 2 == 0:
-        return (der(f, x + dx, n - 1) - der(f, x - dx, n - 1)) / (2 * dx)
-
+    
     else:
-        return (der(f, x + dx, n - 2) - 2 * der(f, x, n - 2) + der(f, x - dx, n - 2)) / (dx * dx)
+        return 1/dx**n * sum([(-1)**(k+n)*C(n,k)*f(x+k*dx) for k in range(0,n+1)])
 
 
 def der2(f, n=1, dx=10 ** (-5)):
