@@ -3,7 +3,7 @@ from functions import sqrt
 from time import time
 
 
-def rint(x):
+def rint(x): #bessere Rundung für klarere Darstellung der Matrix Einträge
     if round(x, 4) == round(x):
         return round(x)
     else:
@@ -83,11 +83,12 @@ class Matrix:
             print("Der gegebene Index ist falsch, oder die gegebene Zeile nicht korrekt formatiert")
     
     def __str__(self):
+        #Die Matrix soll als Tabelle dargestellt werden und die Einträge sollen sinnvoll gerundet werden
         text = ""
         for row in self.row:
             for element in row:
                 if abs(element) <= 0.00001:
-                    text += "." + " " * 5
+                    text += "." + " " * 5    # ein "." steht für eine Null. Dies macht dünnbesetzte Matrizen lessbarer
                 else:
                     text += str(rint(element)) + " " + " " * (5 - len(str(rint(element))))
             text += "\n"
@@ -102,7 +103,7 @@ class Matrix:
         except:
             print("Die gegebenen Matrizen können nicht addiert werden")
     
-    def __rmul__(self, val):
+    def __rmul__(self, val): #skalare Vielfache
         return self.__class__([[val * self[i][j] for j in range(self.cols)] for i in range(self.rows)])
     
     def __neg__(self):
@@ -130,14 +131,14 @@ class Matrix:
             print("Die Matrizen sind nicht kompatibel")
     
     @classmethod
-    def Random(cls, m, n, low=0, high=10):
+    def Random(cls, m, n, low=0, high=10):   #Zufällige m,n Matrix mit Integer Werten zwischen low und high
         row = []
         for _ in range(m):
             row.append([randint(low, high) for _ in range(n)])
         return Matrix(row)
     
     @classmethod
-    def RandomSym(cls, m, low=0, high=10):
+    def RandomSym(cls, m, low=0, high=10): #Zufällige m,n SYMMETRISCHE Matrix mit Integer Werten zwischen low und high
         row = []
         for _ in range(m):
             row.append([randint(low, high) for _ in range(m)])
@@ -149,12 +150,12 @@ class Matrix:
         return Matrix(row)
     
     @classmethod
-    def Zero(cls, m, n):
+    def Zero(cls, m, n): #Null Matrix
         rows = [[0] * n for _ in range(m)]
         return Matrix(rows)
     
     @classmethod
-    def Id(cls, m):
+    def Id(cls, m): #Identiätsmatrix
         row = [[0] * m for _ in range(m)]
         index = 0
         
@@ -166,32 +167,31 @@ class Matrix:
     
     # Mathematische Funktionen
     
-    def T(self):
+    def T(self): #Transposition
         return self.__class__([[self[j][i] for j in range(self.rows)] for i in range(self.cols)])
     
-    def s(self, i, j, lam):
-        # zur i-ten Zeile das lam-Fache der j-ten Zeile hinzufügen
+    def s(self, i, j, lam):  # zur i-ten Zeile das lam-fache der j-ten Zeile hinzufügen
         self[i] += lam * self[j]
     
-    def m(self, i, lam):
+    def m(self, i, lam): #i-te Zeile mit lam multiplizieren
         self[i] = lam * self[i]
     
-    def v(self, i, j):
+    def v(self, i, j): #i-te und j-te Zeile vertauschen
         self[i], self[j] = self[j], self[i]
     
-    def sq(self):
+    def sq(self): #Quadrat
         return self * self
     
-    def __pow__(self, n):
+    def __pow__(self, n): #effizientere höhere Potenzen als Operator auf die Instanzen der Class
         return self if n == 1 else (self ** (n / 2)).sq() if n % 2 == 0 else self * (self ** (n - 1))
     
-    def normZ(self):
-        return max(sum(line) for line in self.row)  # Zeilensummen-Norm
+    def normZ(self):  # Zeilensummen-Norm
+        return max(sum(line) for line in self.row) 
     
-    def normS(self):
-        return max(sum(line) for line in self.T().row)  # Spaltensummen-Norm
+    def normS(self): # Spaltensummen-Norm
+        return max(sum(line) for line in self.T().row)
     
-    def lu(self):
+    def lu(self): #Input: Matrix mit regulären Hauptminoren. Output: Zerlegung self = L*U mit L normierte lower-triangular Matrix und U upper-triangulear Matrix
         if self.rows == self.cols:
             try:
                 n = self.rows
@@ -211,7 +211,7 @@ class Matrix:
         else:
             print("Die Matrix muss quadratisch sein!")
     
-    def lu_solve(self, b):
+    def lu_solve(self, b):#Input: Matrix A, vektor b. Output: Lösung x von Ax=b unter den Bedingungen der LU-Zerlegung
         def upper_triangle_solve(A, b):
             try:
                 x = Matrix.Zero(b.rows, 1)
@@ -245,7 +245,7 @@ class Matrix:
         except:
             print("LU Zerlegung nicht möglich")
     
-    def cholesky(self):
+    def cholesky(self):# Input: symmetrische positiv definite Matrix A. Output: Zerlegung A = L* L^T, also eine stabilee Version von LU-Zerlegung, mit halbem Aufwand.
         
         if self.rows == self.cols:
             if self == self.T():
@@ -268,7 +268,7 @@ class Matrix:
         else:
             print("Die Matrix muss quadratisch sein! Cholesky nicht anwendbar.")
     
-    def cholesky_solve(self, b):
+    def cholesky_solve(self, b):#Input: Matrix A und vektor b, A positiv definit und symmetrisch. Output: Lösung x von Ax=b. (doppelt so effizient wie LU, aber mehr bedingungen)
         def upper_triangle_solve(A, b):
             try:
                 x = Matrix.Zero(b.rows, 1)
@@ -302,15 +302,15 @@ class Matrix:
         except:
             print("LU Zerlegung nicht möglich")
     
-    def sub_matrix(self, ymin, ymax, xmin, xmax):
+    def sub_matrix(self, ymin, ymax, xmin, xmax): #berechnet eine Teilmatrix mit gegebenen x und y Werten.
         coeffs = []
         for y in range(ymin, ymax):
             coeffs += [self[y][xmin:xmax]]
         
         return Matrix(coeffs)
     
-    def gauss_explained(self, b_in):
-        def Mprint(self, b):
+    def gauss_explained(self, b_in): #Erklärt die Berechnung von x hinter dem Gauss-Algorithmus um Ax=b zu lösen, für reguläres A. 
+        def Mprint(self, b): # Schreibt die Erweiterte Matrix (A,b) schön auf
             text = ""
             for i in range(self.rows):
                 for element in self[i]:
@@ -338,7 +338,7 @@ class Matrix:
         
         n = self.rows
         V = 0
-        M = self.T().T()  # Damit der eigentliche Wert von self nicht verändert wird
+        M = self.T().T()  # Damit der eigentliche Wert von self nicht verändert wird (sonst wird der selbe SPeicherort verwendet und es kommt zu Fehlern)
         b = b_in.T().T()  # "
         
         L = Matrix.Zero(n, n)
@@ -401,9 +401,10 @@ class Matrix:
                 M.s(k, i, -M[k][i])
         
         pi = transpositions[::-1]
-        return [M, b, V, pi, Operationen]
+        return [M, b, V, pi, Operationen]  #gibt die Finale Matrix M an (sollte die Id-Matrix sein), die umgeformte rechte Seite b, welche nun die Lösung x ist. V gibt die Anzahl an Zeilenvertauschungen an. pi gibt die Transpositionen der Zeilenvertauschungen an
     
-    def gauss(self, b_in):
+    def gauss(self, b_in): #führt Gauss Algorithmus aus. Output: gibt die Finale Matrix M an (sollte die Id-Matrix sein), die umgeformte rechte Seite b, welche nun die Lösung x ist. V gibt die Anzahl an Zeilenvertauschungen an. pi gibt die Transpositionen der Zeilenvertauschungen an. Operationen gibt die Operationen an, welche verwendet wurden 
+    
         n = self.rows
         V = 0
         M = self.T().T()  # Damit der eigentliche Wert von self nicht verändert wird
@@ -453,7 +454,7 @@ class Matrix:
         pi = transpositions[::-1]
         return [M, b, V, pi, Operationen]
     
-    def gauss_solve(self, b):
+    def gauss_solve(self, b): #Berechnet die Lösung von Ax=b mittels Gauss.
         def permutate(b, T):
             for i in range(len(T)):
                 b[T[i][0]], b[T[i][1]] = b[T[i][1]], b[T[i][0]]
@@ -463,7 +464,7 @@ class Matrix:
         
         return x
     
-    def inverse(self):
+    def inverse(self):#gibt mittels den Operationen vom Gauss-Verfahren an, was die Inverse Matrix ist.
         try:
             def apply_operations(operations, n):
                 I = Matrix.Id(n)
@@ -481,7 +482,7 @@ class Matrix:
         except:
             print("Matrix nicht invertierbar.")
     
-    def det(self):
+    def det(self):#mittels den Operationen vom Gauss-Verfahren bestimmt diese Funktion die Determinante
         try:
             op = self.gauss(Matrix.Zero(self.rows, 1))[4]
             determinant = 1
@@ -494,8 +495,7 @@ class Matrix:
         except:
             return 0
     
-    # Matrix egal  A=QR
-    def QR(self):
+    def QR(self): #Jede Matrix (nicht unbedingt quadratisch) kann als A=QR mit Q orthogonale Matrix und R erweiterte trianguläre Matrix zerlegt werden.
         def sign(x):
             return 1 if x >= 0 else -1
         
@@ -522,7 +522,7 @@ class Matrix:
     
     # Überbestimmte Aufgabe lösen
     
-    def ausgleichs_problem(self, b):
+    def ausgleichs_problem(self, b): # gegeben ein überbestimmtes und unlösbares Problem Ax=b, findet diese Methode eine Lösung, die die Gleichungen am besten löst (es minimiert die quadrate der Fehler). Nützlich für Interpolation und Physik.
         def upper_triangle_solve(A, b):
             try:
                 x = Matrix.Zero(b.rows, 1)
@@ -538,11 +538,11 @@ class Matrix:
         v = Q.T() * b
         c = v.sub_matrix(0, 0, 0, self.cols - 1)
         R_hat = R.sub_matrix(0, R.rows - 1, 0, R.rows - 1)
-        return upper_triangle_solve(R_hat, c)
+        return upper_triangle_solve(R_hat, c) #Output: bestes x
     
-    # Reel Diagonalisierbar:
+
     
-    def power_method(self):
+    def power_method(self):     # Reel Diagonalisierbare MAtrix (große Einschränkung): Mit Potenzmethode wird größter Eigenwert bestimmt
         def norm(a):
             return sqrt(sum(a[i][0] ** 2 for i in range(a.rows)))
         
@@ -561,7 +561,7 @@ class Matrix:
         else:
             print("Potenz-Methode geht nicht, da A nicht reell diagonalisierbar ist.")
     
-    def hesseberg(self):
+    def hesseberg(self): # gibt für gegebene Matrix A die MAtrix H in der Zerlegung A=Q^T*H*Q mit Q orthogonal und H in Hessebergform.
         def sign(x):
             return 1 if x >= 0 else -1
         
@@ -584,7 +584,7 @@ class Matrix:
         
         return R
     
-    def jacobi(self):  # 32 n^2
+    def jacobi(self):  #gibt mittels 32*n^2 Schritten alle Eigenwerte, solange die Matrix symmetrisch ist
         if self.T() == self:
             
             def givens_quick_calculation(A, i, j):
@@ -652,7 +652,7 @@ class Matrix:
         else:
             print("Matrix ist nicht symmetrisch. Jacobi-Vefahren nicht anwendbar.")
     
-    def RQ_hesseberg(self):
+    def RQ_hesseberg(self): #berechnet Eigenwerte durch Hesseberg-Zerlegung und effizienten QR-Zerlegungen für Hessebergmatrizen, für eine schnelle QR-Methode.
         # A [=QR] in hessberg form |-> RQ
         def givensrotation(a, b):
             if b == 0:
@@ -702,7 +702,7 @@ class Matrix:
                 j += 1
         return R
     
-    def eigenvalues(self, iter=-1):
+    def eigenvalues(self, iter=-1):#berechnet Eigenwerte mit den früheren MEthoden, und entscheidet welche die beste ist.
         if iter == -1:
             iter = 40 * self.rows
         
@@ -716,11 +716,11 @@ class Matrix:
                     # print(M)
                     print(100 * i / iter, "%")
                 kappa = M[n - 1][n - 1]
-                M = (M - kappa * Matrix.Id(n)).RQ_hesseberg() + kappa * Matrix.Id(n)
+                M = (M - kappa * Matrix.Id(n)).RQ_hesseberg() + kappa * Matrix.Id(n) # ein shift im RQ-Schritt verbessert die Konvergenz
             
             return M
         
-        def block(B):
+        def block(B): # Die Matrix ist in Diagonalgestalt mit blöcken. Diese Blöcke werden nun erarbeitet
             block_matrizen = []
             n = B.rows
             
@@ -740,7 +740,7 @@ class Matrix:
             
             return block_matrizen
         
-        if self == self.T():
+        if self == self.T(): #falls symmetrisch, verwende Jacobi-Verfahren.
             return [[B, 0] for B in self.jacobi()]
         
         B = QR_verfahren(self)
@@ -748,13 +748,13 @@ class Matrix:
         blocks = block(B)
         eigenwerte = []
         for M in blocks:
-            if type(M) == int or type(M) == float:
+            if type(M) == int or type(M) == float: #falls es kein 2x2-Block ist, ist es ein reeller Eigenwert.
                 eigenwerte.append([M, 0.0])
             else:
                 C_1 = -M[0][0] - M[1][1]
                 C_2 = -M[1][0] * M[0][1] + M[0][0] * M[1][1]
                 
-                eigenwerte.append([-C_1 / 2, 1 / 2 * sqrt(abs(C_1 * C_1 - 4 * C_2))])
+                eigenwerte.append([-C_1 / 2, 1 / 2 * sqrt(abs(C_1 * C_1 - 4 * C_2))]) #berechnet komplexe Eigenwerte für jeden Block
                 eigenwerte.append([-C_1 / 2, -1 / 2 * sqrt(abs(C_1 * C_1 - 4 * C_2))])
         return eigenwerte
 
