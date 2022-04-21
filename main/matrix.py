@@ -798,14 +798,14 @@ class Matrix:
     
     def _latex(self):
 
-        text = "\\begin{matrix} \n"
+        text = "\\begin{pmatrix} \n"
         
         for row in self.row:
             for element in row:
                 text += " " +str(rint(element)) + " &"
             text = text[:-1]
             text += "\\\\" + '\n'
-        text += "\end{matrix}"
+        text += "\end{pmatrix}"
         
         return text
         
