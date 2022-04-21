@@ -110,9 +110,11 @@ def sqrt(x):
 
 
 def root(a, k):
-    if not is_int(k) or (a < 0 and not k % 2):
+    if a < 0 and not k % 2:
         raise ValueError
-    print("yes")
+    if not is_pos_int(k):
+        raise TypeError("k must be a positive integer")
+    
     if a == 0:
         return 0
     else:

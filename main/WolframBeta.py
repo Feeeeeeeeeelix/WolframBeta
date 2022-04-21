@@ -17,7 +17,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 2
+default_frame = 1
 min_window = True
 
 """TODO:
@@ -267,16 +267,19 @@ class AlgebraFrame(Frame):
 
 class EntryLine(Frame):
     # einzelne Zeile im AnalysisFrame
-    def __init__(self, container, super_):
+    def __init__(self, container, super_, id_):
         super().__init__(container, height=40, bd=1, relief="groove")
         self.focus_set()
+        self.super_ = super_
+        self.id = id_
+        self.color = None
         
         self.fr = Frame(self, height=30)
         self.fr.pack(side="top", expand=1, fill="both")
         self.fr.focus_set()
         
         self.bttn = Button(self.fr, takefocus=0, bd=0, bg="white", highlightthickness=0,
-                           image=super_.gray_ring, command=lambda: super_.toggle_visibility(self))
+                           image=super_.rings["gray"], command=lambda: super_.toggle_visibility(self))
         self.bttn.pack(side="left", fill="both")
         
         self.pfeil = Label(self.fr, takefocus=0, text=" > ", bg="white", fg="black", height=2)
@@ -287,7 +290,7 @@ class EntryLine(Frame):
         self.entry.focus_set()
         
         self.error_label = Label(self, takefocus=0, height=0, fg="red")
-        # self.error_label.pack(side="bottom", fill="x", expand=0)
+        # wird nur wenn nötig angezeigt
         
         self.entry.bind("<Return>", lambda _: super_.enter_pressed(self))
         self.entry.bind("<BackSpace>", lambda _: super_.destroy_line(self) if not self.entry.get() else 0)
@@ -298,6 +301,12 @@ class EntryLine(Frame):
     
     def hide_error(self):
         self.error_label.pack_forget()
+    
+    def activate_bttn(self):
+        self.bttn.config(image=self.super_.rings[self.color])
+        
+    def disable_bttn(self):
+        self.bttn.config(image=self.super_.rings["gray"])
 
 
 class FunctionWrapper(Function):
@@ -347,12 +356,13 @@ class AnalysisFrame(Frame):
         self.entry_lines_outer_frame.bind("<Enter>", self.configure_canvas)
         self.configure_canvas()
         
-        self.gray_ring = PhotoImage(file="../pictures/Rings/gray_ring.png").subsample(3, 3)
-        self.red_ring = PhotoImage(file="../pictures/Rings/red_ring.png").subsample(3, 3)
+        self.rings = {}
+        for color in ["gray", "red", "green", "blue", "cyan", "magenta", "yellow", "black"][:2]:
+            self.rings[color] = PhotoImage(file=f"../pictures/Rings/{color}_ring.png").subsample(3, 3)
 
         self.lines = []
         
-        self.line = EntryLine(self.scrolled_frame, self)
+        self.line = EntryLine(self.scrolled_frame, self, 0)
         self.line.pack(fill="x")
         self.line.focus_set()
         self.line.entry.focus_set()
@@ -406,13 +416,17 @@ class AnalysisFrame(Frame):
         self.subplot.grid(True)
         
         # Help Label
-        self.help_label = Message(self, text="", relief="raised")
+        with open("../help/analysis_deutsch.txt", "r") as help_:
+            ana_deutsch = help_.read()
+        self.help_label = Message(self, text=ana_deutsch, relief="raised")
         self.help_show = False
-
+        
         self.functions = {}  # alle gespeicherte funktionen
         self.dgl = {}
         self.funcnames_order = ["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"]
         self.all_colors = ["r", "g", "b", "c", "m", "y", "k"]
+        self.color_names = {'r': 'red', 'g': 'green', 'b': 'blue', 'c': 'cyan', 'm': 'magenta',
+                            'y': 'yellow', 'k': 'black'}
         self.stored_values = {}
     
     def configure_canvas(self, event=None):
@@ -421,37 +435,51 @@ class AnalysisFrame(Frame):
         self.scroll_canvas.itemconfig(self.canvas_window, width=width)
     
     def add_new_func(self):
+        # Über den Button "f(x) = " unter den EntryLines wird diese Funktion aufgerufen
         line = self.get_first_empty_line()
-        index = self.lines.index(line)
+        id = line.id
         name = self.generate_func_name()
-        color = self.all_colors[index % 7]
+        color = self.all_colors[id % 7]
         line.entry.insert(0, f"{name}(x) = ")
-        self.functions[index] = FunctionWrapper("", "x", name, color, False, index)
+        self.functions[id] = FunctionWrapper("", "x", name, color, False, id)
         line.entry.focus_set()
     
     def add_new_dgl(self):
+        # Über den Button "y' = " aufgerufen
         line = self.get_first_empty_line()
         line.entry.insert(0, "y' = ")
         line.entry.focus_set()
     
     def get_first_empty_line(self):
+        # suche erstmal eine leere zeile:
         for line in self.lines:
             if not line.entry.get():
                 return line
+            
+        # Wenn keine leere Ziele gefunden wird:
         return self.create_new_line()
         
     def create_new_line(self):
-        self.new_line = EntryLine(self.scrolled_frame, self)
+        id_ = self.generate_new_id()
+        self.new_line = EntryLine(self.scrolled_frame, self, id_)
         self.new_line.pack(fill="x")
         self.new_line.entry.focus_set()
         self.lines.append(self.new_line)
         return self.new_line
     
+    def generate_new_id(self):
+        n = 0
+        _all = [line.id for line in self.lines]
+        while n in _all:
+            n += 1
+        return n
+    
     def enter_pressed(self, obj):
         obj.hide_error()
         
+        id_ = obj.id
         index = self.lines.index(obj)
-        if not self.interprete_function(obj, index):
+        if not self.interprete_function(obj):
             # Wenn es einen Fehler im input gibt, wird nicht zur nächsten Zeile gegangen
             return None
         
@@ -460,10 +488,28 @@ class AnalysisFrame(Frame):
 
         elif obj.entry.get():
             self.create_new_line()
+            
+    def destroy_line(self, obj):
+        index = self.lines.index(obj)
+        if self.check_line(index + 1) or self.check_line(index - 1) and not self.lines[index - 1].entry.get():
+            self.lines[index].destroy()
+            if index in self.functions:
+                del self.functions[index]
+            self.lines.pop(index)
+            self.lines[-1].entry.focus_set()
 
-    def interprete_function(self, obj, n):
+    def check_line(self, index):
+        # Überprüft, ob es eine nächste Zeile gibt
+        try:
+            _ = self.lines[index]
+            return True
+        except IndexError:
+            return False
+        
+    def interprete_function(self, obj):
         entry = obj.entry
         string = entry.get()
+        n = obj.id
         
         string = check_and_clean(string)
         if type(string) == SyntaxError:
@@ -482,9 +528,11 @@ class AnalysisFrame(Frame):
                 self.functions[n] = function
                 entry.insert(0, f"{name}(x) = ")
                 self.graph()
-                obj.bttn.config(image=self.red_ring)
+                obj.color = self.color_names[color]
+                obj.activate_bttn()
                 return True
             except Exception as error:
+                # raise error
                 self.show_error(format_error(error), n)
                 return False
     
@@ -493,12 +541,13 @@ class AnalysisFrame(Frame):
         
             func = string[string.index("=") + 1:]
             funcname = string[:string.index("(x)=")]
-            print(f"got old func: {func}")
+            
             if not func:
                 self.show_error("Error: no input", n)
                 return False
             if funcname in [func.name if n != index else "" for index, func in self.functions.items()]:
                 self.show_error("Error: function name already taken", n)
+                return False
         
             if n in self.functions:
                 previous_function = self.functions[n]
@@ -508,6 +557,8 @@ class AnalysisFrame(Frame):
             else:
                 color = self.all_colors[n % 7]
                 isvisible = True
+                obj.color = color
+                obj.activate_bttn() if isvisible else obj.disable_bttn()
         
             try:
                 function = FunctionWrapper(func, "x", funcname, color, isvisible, n)
@@ -566,36 +617,23 @@ class AnalysisFrame(Frame):
         self.canvas.draw()
     
     def toggle_visibility(self, obj):
-        index = self.lines.index(obj)
-        if index not in self.functions:
+        id_ = obj.id
+        if id_ not in self.functions:
             return None
-        isvisible = self.functions[index].isvisible
-        self.functions[index].isvisible = not isvisible
+        isvisible = self.functions[id_].isvisible
+        self.functions[id_].isvisible = not isvisible
         if isvisible:
-            obj.bttn.config(image=self.gray_ring)
+            obj.disable_bttn()
         else:
-            obj.bttn.config(image=self.red_ring)
+            obj.activate_bttn()
         self.graph()
-    
-    def destroy_line(self, obj):
-        index = self.lines.index(obj)
-        if self.check_line(index + 1) or self.check_line(index - 1) and not self.lines[index - 1].entry.get():
-            self.lines[index].destroy()
-            self.lines.pop(index)
-            self.lines[-1].entry.focus_set()
-
-    def check_line(self, index):
-        # Überprüft, ob es eine nächste Zeile gibt
-        try:
-            _ = self.lines[index]
-            return True
-        except IndexError:
-            return False
 
     def show_error(self, error, n=None):
         if n is not None:
-            # Fehler in der n'ten EntryLine
-            self.lines[n].show_error(error)
+            # Fehler in der EntryLine mit id = n
+            for line in self.lines:
+                if line.id == n:
+                    line.show_error(error)
         else:
             # Fehler in dem computeentry
             self.compute_error_label.config(text=error)
