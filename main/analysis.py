@@ -1,4 +1,3 @@
-
 """
 analysis.py module:
 
@@ -29,6 +28,7 @@ def _sekanten_verfahren(f, x1, x2):
     else:
         x_old = x1
         x_old_old = x2
+        x_new = x_old_old
         while abs(x_old - x_old_old) > eps_stop:
             if f(x_old) != f(x_old_old):
                 # Schnittstelle von Gerade durch (x_old, f(x_old) und  (x_old_old, f(x_old_old)) mit x-Achse
@@ -48,37 +48,37 @@ def _sign(x):
 def nullstellen(f, a, b):
     number_of_test_values = 1000
     
-    Values = []
+    values = []
     x = a
     schrittweite = (b - a) / number_of_test_values
     
     # Values bestimmen auf allen Test-Punkten
     while x <= b:
-        Values.append([x, _sign(f(x))])
+        values.append([x, _sign(f(x))])
         x += schrittweite
-
-    Nulls = []
+    
+    nulls = []
     Vorzeichen_wechsel = []
     
     # Vorzeichen wechselnde Werte bestimmen
-    for i in range(len(Values) - 1):
+    for i in range(len(values) - 1):
         
-        if Values[i][1] == 0:
-            Nulls.append(Values[i][0])
+        if values[i][1] == 0:
+            nulls.append(values[i][0])
         
-        elif Values[i][1] * Values[i + 1][1] < 0:
-            Vorzeichen_wechsel.append([Values[i][0], Values[i + 1][0]])
+        elif values[i][1] * values[i + 1][1] < 0:
+            Vorzeichen_wechsel.append([values[i][0], values[i + 1][0]])
     
     # Sekanten verfahren für alle Vorzeichenwechsel verwenden
     for elements in Vorzeichen_wechsel:
-        Nulls.append(_sekanten_verfahren(f, elements[0], elements[1]))
+        nulls.append(_sekanten_verfahren(f, elements[0], elements[1]))
     
     # Überprüfen, ob kein Fehler entstanden ist
-    for element in Nulls:
+    for element in nulls:
         if f(element) > 10 ** -10:
-            Nulls.remove(element)
+            nulls.remove(element)
     
-    return Nulls
+    return nulls
 
 
 def maximum(f, a, b):
@@ -153,14 +153,12 @@ def simpson(f, a, b):
 
 def trapez_fehler(f, a, b):
     h = (b - a) / 5000
-    return abs(1 / 12 * (b - a) * h ** 2 * maximum(f.diff().diff(), a, b))
+    return abs(1 / 12 * (b - a) * h ** 2 * maximum(der(f, 2), a, b))
 
 
 def simpson_fehler(f, a, b):
     h = (b - a) / 5000
-    g = f.diff().diff().diff().diff()
-    print(g.str)
-    return abs(1 / 180 * (b - a) * h ** 4 * maximum(g, a, b))
+    return abs(1 / 180 * (b - a) * h ** 4 * maximum(der(f, 4), a, b))
 
 
 def euler_collatz(f_str, t_0, y_0, end, steps=1000):
@@ -177,22 +175,11 @@ def euler_collatz(f_str, t_0, y_0, end, steps=1000):
     return y  # Die Menge der Funktionswerte (die dazugehörigen x-Werte sind [x_0 + i * dt for i in range(0,steps)])
 
 
-def der(f, x, n=1, dx=10 ** (-3)):
-    # approximation der n-ten Ableitung in x von f. Sehr instabil bei großem n, daher sollte dx nicht zu klein gewählt werden.
-    from functions import C
-    if float(n) != int(n) or float(n) < 0:
-        raise ValueError("nur positive integer erlaubt")
-    if n == 0:
-        return f(x)
-    if n == 1:
-        return (f(x + dx) - f(x - dx)) / (2 * dx)
-    
-    else:
-        return 1/dx**n * sum([(-1)**(k+n)*C(n,k)*f(x+k*dx) for k in range(0,n+1)])
-
-
-def der2(f, n=1, dx=10 ** (-5)):
+def der(f, n=1, dx=10 ** (-3)):
     # approximation der n-ten Ableitung in x von f.
+    # Sehr instabil bei großem n, daher sollte dx nicht zu klein gewählt werden.
+    from functions import C
+    
     if float(n) != int(n) or float(n) < 0:
         raise ValueError("nur positive integer erlaubt")
     if n == 0:
@@ -200,11 +187,8 @@ def der2(f, n=1, dx=10 ** (-5)):
     if n == 1:
         return lambda x: (f(x + dx) - f(x - dx)) / (2 * dx)
     
-    elif n % 2 == 0:
-        return lambda x: (der2(f, n - 1)(x + dx) - der2(f, n - 1)(x - dx)) / (2 * dx)
-    
     else:
-        return lambda x: (der2(f, n - 2)(x + dx) - 2 * der2(f, n - 2)(x) + der2(f, n - 2)(x - dx)) / (dx * dx)
+        return lambda x: 1 / dx ** n * sum([(-1) ** (k + n) * C(n, k) * f(x + k * dx) for k in range(n + 1)])
 
 
 if __name__ == "__main__":
@@ -229,29 +213,13 @@ if __name__ == "__main__":
                       2)  # Löse y'(t) = y*t mit y(0) = 1 auf Intervall (0,2) --> exakte Lösung y(t) = e^{1/2*t^2}
     print(y)
     print("Zum Vergleich mit dem letzten Term: ", e ** (1 / 2 * 2 ** 2))"""
-
+    
     f = lambda x: sin(x ** 2)
-    g = lambda x: sin(x)
     df = lambda x: 2 * x * cos(x ** 2)
     ddf = lambda x: 2 * cos(x ** 2) - 4 * x ** 2 * sin(x ** 2)
-
-    print(der2(f, n=1)(1))
+    
+    print(der(f,  n=1)(1))
     print(df(1))
-
-    print(der2(f, n=2)(1))
+    
+    print(der(f, n=2)(1))
     print(ddf(1))
-    
-    print(der(g, 1, 4))
-    print("wtf")
-    
-    print()
-    print(der2(g, n=4)(1))
-    print()
-    print(sin(1))
-    print(cos(1))
-    
-    # print(riemann(sin, 0, 3.142592))
-    # print(trapez(sin, 0, 3.142592))
-    # print(simpson(sin, 0, 3.142592))
-    #
-    # print(euler_collatz("y^2+t^2", 2, 0, 3))
