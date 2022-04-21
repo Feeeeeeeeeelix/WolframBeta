@@ -278,7 +278,7 @@ def parse(f: str, simp=False):
         if len(f) == 2 and f[1] in ALPHABET+NUMBERS:
             return f"-{f[1]}"
         else:
-            return ["*", [-1, parse(f[1:], simp)]]
+            return ["*", [-1, parse(f0[1:], simp)]]
 
     # Ableitung
     if f[0:3] == "d/d" and f[4] == "@" and len(f) == 5:
@@ -678,7 +678,7 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "ln"
+    func = "sin(x)-sin(x)"
     
     try:
         s = Function(func)
