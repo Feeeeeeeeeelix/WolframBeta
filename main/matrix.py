@@ -224,30 +224,33 @@ class Matrix:
         else:
             print("Die Matrix muss quadratisch sein!")
     
+    def _upper_triangle_solve(A, b):
+        """Nicht im Interface nötig."""
+        try:
+            x = Matrix.Zero(b.rows, 1)
+            for i in range(b.rows - 1, -1, -1):
+                summe = sum(A[i][j] * x[j][0] for j in range(i + 1, b.rows))
+                x[i][0] = ((b[i][0] - summe) / A[i][i])
+            return x
+        
+        except:
+            print("A ist nicht regulär!")
+    
+    def _lower_triangle_solve(A, b):
+        """Nicht im Interface nötig"""
+        try:
+            x = Matrix.Zero(b.rows, 1)
+            
+            for i in range(0, b.rows):
+                summe = sum(A[i][j] * x[j][0] for j in range(0, i))
+                x[i][0] = ((b[i][0] - summe) / A[i][i])
+            return x
+        
+        except:
+            print("A ist nicht regulär!")
+    
     def lu_solve(self, b):
         """Input: Matrix A, vektor b. Output: Lösung x von Ax=b unter den Bedingungen der LU-Zerlegung"""
-        def upper_triangle_solve(A, b):
-            try:
-                x = Matrix.Zero(b.rows, 1)
-                for i in range(b.rows - 1, -1, -1):
-                    summe = sum(A[i][j] * x[j][0] for j in range(i + 1, b.rows))
-                    x[i][0] = ((b[i][0] - summe) / A[i][i])
-                return x
-            
-            except:
-                print("A ist nicht regulär!")
-        
-        def lower_triangle_solve(A, b):
-            try:
-                x = Matrix.Zero(b.rows, 1)
-                
-                for i in range(0, b.rows):
-                    summe = sum(A[i][j] * x[j][0] for j in range(0, i))
-                    x[i][0] = ((b[i][0] - summe) / A[i][i])
-                return x
-            
-            except:
-                print("A ist nicht regulär!")
         
         try:
             [L, U] = self.lu()
@@ -320,16 +323,16 @@ class Matrix:
         except:
             print("LU Zerlegung nicht möglich")
     
-    def sub_matrix(self, ymin, ymax, xmin, xmax):
-        """berechnet eine Teilmatrix mit gegebenen x und y Werten."""
+    def _sub_matrix(self, ymin, ymax, xmin, xmax):
+        """Nicht im Interface nötig. berechnet eine Teilmatrix mit gegebenen x und y Werten."""
         coeffs = []
         for y in range(ymin, ymax):
             coeffs += [self[y][xmin:xmax]]
         
         return Matrix(coeffs)
     
-    def gauss_explained(self, b_in):
-        """Erklärt die Berechnung von x hinter dem Gauss-Algorithmus um Ax=b zu lösen, für reguläres A. """
+    def _gauss_explained(self, b_in):
+        """Nicht im Interface nötig. Erklärt die Berechnung von x hinter dem Gauss-Algorithmus um Ax=b zu lösen, für reguläres A. """
         def Mprint(self, b): # Schreibt die Erweiterte Matrix (A,b) schön auf
             text = ""
             for i in range(self.rows):
@@ -423,8 +426,8 @@ class Matrix:
         pi = transpositions[::-1]
         return [M, b, V, pi, Operationen]  #gibt die Finale Matrix M an (sollte die Id-Matrix sein), die umgeformte rechte Seite b, welche nun die Lösung x ist. V gibt die Anzahl an Zeilenvertauschungen an. pi gibt die Transpositionen der Zeilenvertauschungen an
     
-    def gauss(self, b_in):
-        """führt Gauss Algorithmus aus. Output: gibt die Finale Matrix M an (sollte die Id-Matrix sein), die umgeformte
+    def _gauss(self, b_in):
+        """Nicht im Interface nötig. führt Gauss Algorithmus aus. Output: gibt die Finale Matrix M an (sollte die Id-Matrix sein), die umgeformte
         rechte Seite b, welche nun die Lösung x ist. V gibt die Anzahl an Zeilenvertauschungen an. pi gibt die
         Transpositionen der Zeilenvertauschungen an. Operationen gibt die Operationen an, welche verwendet wurden """
     
@@ -567,12 +570,12 @@ class Matrix:
         
         [Q, R] = self.QR()
         v = Q.T() * b
-        c = v.sub_matrix(0, 0, 0, self.cols - 1)
-        R_hat = R.sub_matrix(0, R.rows - 1, 0, R.rows - 1)
+        c = v._sub_matrix(0, 0, 0, self.cols - 1)
+        R_hat = R._sub_matrix(0, R.rows - 1, 0, R.rows - 1)
         return upper_triangle_solve(R_hat, c) #Output: bestes x
     
     def power_method(self):
-        """Reel Diagonalisierbare MAtrix (große Einschränkung): Mit Potenzmethode wird größter Eigenwert bestimmt."""
+        """Nur für reell diagonalisierbare MAtrix (große Einschränkung): Mit Potenzmethode wird der größter Eigenwert bestimmt."""
         def norm(a):
             return sqrt(sum(a[i][0] ** 2 for i in range(a.rows)))
         
@@ -591,8 +594,8 @@ class Matrix:
         else:
             print("Potenz-Methode geht nicht, da A nicht reell diagonalisierbar ist.")
     
-    def hesseberg(self):
-        """Gibt für gegebene Matrix A die MAtrix H in der Zerlegung A=Q^T*H*Q mit Q orthogonal und H in Hessebergform."""
+    def _hesseberg(self):
+        """Nicht im Interface nötig. Gibt für gegebene Matrix A die MAtrix H in der Zerlegung A=Q^T*H*Q mit Q orthogonal und H in Hessebergform."""
         def sign(x):
             return 1 if x >= 0 else -1
         
@@ -615,8 +618,8 @@ class Matrix:
         
         return R
     
-    def jacobi(self):
-        """Gibt mittels 32*n^2 Schritten alle Eigenwerte, solange die Matrix symmetrisch ist."""
+    def _jacobi(self):
+        """Nicht im Interface nötig. Gibt mittels 32*n^2 Schritten alle Eigenwerte, solange die Matrix symmetrisch ist."""
         if self.T() == self:
             
             def givens_quick_calculation(A, i, j):
@@ -684,8 +687,8 @@ class Matrix:
         else:
             print("Matrix ist nicht symmetrisch. Jacobi-Vefahren nicht anwendbar.")
     
-    def RQ_hesseberg(self):
-        """Berechnet Eigenwerte durch Hesseberg-Zerlegung und effizienten QR-Zerlegungen für Hessebergmatrizen, für
+    def _RQ_hesseberg(self):
+        """Nicht im Interface nötig. Berechnet RQ für Hessebergmatrizen, für
         eine schnelle QR-Methode."""
         # A [=QR] in hessberg form |-> RQ
         def givensrotation(a, b):
@@ -716,7 +719,7 @@ class Matrix:
             C += [c]
             S += [s]
             
-            A = R.sub_matrix(k, k + 2, k, n)
+            A = R._sub_matrix(k, k + 2, k, n)
             
             j = 0
             for l in range(k, n):
@@ -727,7 +730,7 @@ class Matrix:
         for k in range(n - 1):
             c, s = C[k], S[k]
             
-            A = R.sub_matrix(0, k + 2, k, k + 2)
+            A = R._sub_matrix(0, k + 2, k, k + 2)
             
             j = 0
             for l in range(k + 2):
@@ -743,7 +746,7 @@ class Matrix:
         
         def QR_verfahren(self):
             
-            M = self.hesseberg()
+            M = self._hesseberg()
             n = M.rows
             
             for i in range(iter):
@@ -751,7 +754,7 @@ class Matrix:
                     # print(M)
                     print(100 * i / iter, "%")
                 kappa = M[n - 1][n - 1]
-                M = (M - kappa * Matrix.Id(n)).RQ_hesseberg() + kappa * Matrix.Id(n) # ein shift im RQ-Schritt verbessert die Konvergenz
+                M = (M - kappa * Matrix.Id(n))._RQ_hesseberg() + kappa * Matrix.Id(n) # ein shift im RQ-Schritt verbessert die Konvergenz
             
             return M
         
@@ -776,7 +779,7 @@ class Matrix:
             return block_matrizen
         
         if self == self.T(): #falls symmetrisch, verwende Jacobi-Verfahren.
-            return [[B, 0] for B in self.jacobi()]
+            return [[B, 0] for B in self._jacobi()]
         
         B = QR_verfahren(self)
         
