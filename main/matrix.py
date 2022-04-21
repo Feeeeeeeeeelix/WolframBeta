@@ -131,14 +131,16 @@ class Matrix:
             print("Die Matrizen sind nicht kompatibel")
     
     @classmethod
-    def Random(cls, m, n, low=0, high=10):   #Zufällige m,n Matrix mit Integer Werten zwischen low und high
+    def Random(cls, m, n, low=0, high=10):
+        """Zufällige m,n Matrix mit Integer Werten zwischen low und high"""
         row = []
         for _ in range(m):
             row.append([randint(low, high) for _ in range(n)])
         return Matrix(row)
     
     @classmethod
-    def RandomSym(cls, m, low=0, high=10): #Zufällige m,n SYMMETRISCHE Matrix mit Integer Werten zwischen low und high
+    def RandomSym(cls, m, low=0, high=10):
+        """Zufällige m,n symetrische Matrix mit Integer Werten zwischen low und high"""
         row = []
         for _ in range(m):
             row.append([randint(low, high) for _ in range(m)])
@@ -150,12 +152,14 @@ class Matrix:
         return Matrix(row)
     
     @classmethod
-    def Zero(cls, m, n): #Null Matrix
+    def Zero(cls, m, n):
+        """Null Matrix"""
         rows = [[0] * n for _ in range(m)]
         return Matrix(rows)
     
     @classmethod
-    def Id(cls, m): #Identiätsmatrix
+    def Id(cls, m):
+        """Identiätsmatrix"""
         row = [[0] * m for _ in range(m)]
         index = 0
         
@@ -167,31 +171,40 @@ class Matrix:
     
     # Mathematische Funktionen
     
-    def T(self): #Transposition
+    def T(self):
+        """Transposition"""
         return self.__class__([[self[j][i] for j in range(self.rows)] for i in range(self.cols)])
     
-    def s(self, i, j, lam):  # zur i-ten Zeile das lam-fache der j-ten Zeile hinzufügen
+    def s(self, i, j, lam):
+        """zur i-ten Zeile das lam-fache der j-ten Zeile hinzufügen"""
         self[i] += lam * self[j]
     
-    def m(self, i, lam): #i-te Zeile mit lam multiplizieren
+    def m(self, i, lam):
+        """i-te Zeile mit lam multiplizieren"""
         self[i] = lam * self[i]
     
-    def v(self, i, j): #i-te und j-te Zeile vertauschen
+    def v(self, i, j):
+        """i-te und j-te Zeile vertauschen"""
         self[i], self[j] = self[j], self[i]
     
-    def sq(self): #Quadrat
+    def sq(self):
+        """Quadrat"""
         return self * self
     
     def __pow__(self, n): #effizientere höhere Potenzen als Operator auf die Instanzen der Class
         return self if n == 1 else (self ** (n / 2)).sq() if n % 2 == 0 else self * (self ** (n - 1))
     
-    def normZ(self):  # Zeilensummen-Norm
+    def normZ(self):
+        """Zeilensummen-Norm"""
         return max(sum(line) for line in self.row) 
     
-    def normS(self): # Spaltensummen-Norm
+    def normS(self):
+        """Spaltensummen-Norm"""
         return max(sum(line) for line in self.T().row)
     
-    def lu(self): #Input: Matrix mit regulären Hauptminoren. Output: Zerlegung self = L*U mit L normierte lower-triangular Matrix und U upper-triangulear Matrix
+    def lu(self):
+        """Input: Matrix mit regulären Hauptminoren. Output: Zerlegung self = L*U mit L normierte lower-triangular
+        Matrix und U upper-triangulear Matrix"""
         if self.rows == self.cols:
             try:
                 n = self.rows
@@ -211,7 +224,8 @@ class Matrix:
         else:
             print("Die Matrix muss quadratisch sein!")
     
-    def lu_solve(self, b):#Input: Matrix A, vektor b. Output: Lösung x von Ax=b unter den Bedingungen der LU-Zerlegung
+    def lu_solve(self, b):
+        """Input: Matrix A, vektor b. Output: Lösung x von Ax=b unter den Bedingungen der LU-Zerlegung"""
         def upper_triangle_solve(A, b):
             try:
                 x = Matrix.Zero(b.rows, 1)
@@ -245,7 +259,9 @@ class Matrix:
         except:
             print("LU Zerlegung nicht möglich")
     
-    def cholesky(self):# Input: symmetrische positiv definite Matrix A. Output: Zerlegung A = L* L^T, also eine stabilee Version von LU-Zerlegung, mit halbem Aufwand.
+    def cholesky(self):
+        """Input: symmetrische positiv definite Matrix A. Output: Zerlegung A = L* L^T, also eine stabilee Version
+        von LU-Zerlegung, mit halbem Aufwand."""
         
         if self.rows == self.cols:
             if self == self.T():
@@ -268,7 +284,9 @@ class Matrix:
         else:
             print("Die Matrix muss quadratisch sein! Cholesky nicht anwendbar.")
     
-    def cholesky_solve(self, b):#Input: Matrix A und vektor b, A positiv definit und symmetrisch. Output: Lösung x von Ax=b. (doppelt so effizient wie LU, aber mehr bedingungen)
+    def cholesky_solve(self, b):
+        """Input: Matrix A und vektor b, A positiv definit und symmetrisch. Output: Lösung x von Ax=b. (doppelt so
+        effizient wie LU, aber mehr bedingungen)"""
         def upper_triangle_solve(A, b):
             try:
                 x = Matrix.Zero(b.rows, 1)
@@ -302,14 +320,16 @@ class Matrix:
         except:
             print("LU Zerlegung nicht möglich")
     
-    def sub_matrix(self, ymin, ymax, xmin, xmax): #berechnet eine Teilmatrix mit gegebenen x und y Werten.
+    def sub_matrix(self, ymin, ymax, xmin, xmax):
+        """berechnet eine Teilmatrix mit gegebenen x und y Werten."""
         coeffs = []
         for y in range(ymin, ymax):
             coeffs += [self[y][xmin:xmax]]
         
         return Matrix(coeffs)
     
-    def gauss_explained(self, b_in): #Erklärt die Berechnung von x hinter dem Gauss-Algorithmus um Ax=b zu lösen, für reguläres A. 
+    def gauss_explained(self, b_in):
+        """Erklärt die Berechnung von x hinter dem Gauss-Algorithmus um Ax=b zu lösen, für reguläres A. """
         def Mprint(self, b): # Schreibt die Erweiterte Matrix (A,b) schön auf
             text = ""
             for i in range(self.rows):
@@ -403,7 +423,10 @@ class Matrix:
         pi = transpositions[::-1]
         return [M, b, V, pi, Operationen]  #gibt die Finale Matrix M an (sollte die Id-Matrix sein), die umgeformte rechte Seite b, welche nun die Lösung x ist. V gibt die Anzahl an Zeilenvertauschungen an. pi gibt die Transpositionen der Zeilenvertauschungen an
     
-    def gauss(self, b_in): #führt Gauss Algorithmus aus. Output: gibt die Finale Matrix M an (sollte die Id-Matrix sein), die umgeformte rechte Seite b, welche nun die Lösung x ist. V gibt die Anzahl an Zeilenvertauschungen an. pi gibt die Transpositionen der Zeilenvertauschungen an. Operationen gibt die Operationen an, welche verwendet wurden 
+    def gauss(self, b_in):
+        """führt Gauss Algorithmus aus. Output: gibt die Finale Matrix M an (sollte die Id-Matrix sein), die umgeformte
+        rechte Seite b, welche nun die Lösung x ist. V gibt die Anzahl an Zeilenvertauschungen an. pi gibt die
+        Transpositionen der Zeilenvertauschungen an. Operationen gibt die Operationen an, welche verwendet wurden """
     
         n = self.rows
         V = 0
@@ -454,7 +477,8 @@ class Matrix:
         pi = transpositions[::-1]
         return [M, b, V, pi, Operationen]
     
-    def gauss_solve(self, b): #Berechnet die Lösung von Ax=b mittels Gauss.
+    def gauss_solve(self, b):
+        """Berechnet die Lösung von Ax=b mittels Gauss."""
         def permutate(b, T):
             for i in range(len(T)):
                 b[T[i][0]], b[T[i][1]] = b[T[i][1]], b[T[i][0]]
@@ -464,7 +488,8 @@ class Matrix:
         
         return x
     
-    def inverse(self):#gibt mittels den Operationen vom Gauss-Verfahren an, was die Inverse Matrix ist.
+    def inverse(self):
+        """Gibt mittels den Operationen vom Gauss-Verfahren an, was die Inverse Matrix ist."""
         try:
             def apply_operations(operations, n):
                 I = Matrix.Id(n)
@@ -482,7 +507,8 @@ class Matrix:
         except:
             print("Matrix nicht invertierbar.")
     
-    def det(self):#mittels den Operationen vom Gauss-Verfahren bestimmt diese Funktion die Determinante
+    def det(self):
+        """Mittels den Operationen vom Gauss-Verfahren bestimmt diese Funktion die Determinante."""
         try:
             op = self.gauss(Matrix.Zero(self.rows, 1))[4]
             determinant = 1
@@ -495,7 +521,9 @@ class Matrix:
         except:
             return 0
     
-    def QR(self): #Jede Matrix (nicht unbedingt quadratisch) kann als A=QR mit Q orthogonale Matrix und R erweiterte trianguläre Matrix zerlegt werden.
+    def QR(self):
+        """Jede Matrix (nicht unbedingt quadratisch) kann als A=QR mit Q orthogonale Matrix und R erweiterte
+        trianguläre Matrix zerlegt werden."""
         def sign(x):
             return 1 if x >= 0 else -1
         
@@ -522,7 +550,10 @@ class Matrix:
     
     # Überbestimmte Aufgabe lösen
     
-    def ausgleichs_problem(self, b): # gegeben ein überbestimmtes und unlösbares Problem Ax=b, findet diese Methode eine Lösung, die die Gleichungen am besten löst (es minimiert die quadrate der Fehler). Nützlich für Interpolation und Physik.
+    def ausgleichs_problem(self, b):
+        """Gegeben ein überbestimmtes und unlösbares Problem Ax=b, findet diese Methode eine Lösung, die die
+        Gleichungen am besten löst (es minimiert die quadrate der Fehler). Nützlich für Interpolation und Physik."""
+        
         def upper_triangle_solve(A, b):
             try:
                 x = Matrix.Zero(b.rows, 1)
@@ -540,9 +571,8 @@ class Matrix:
         R_hat = R.sub_matrix(0, R.rows - 1, 0, R.rows - 1)
         return upper_triangle_solve(R_hat, c) #Output: bestes x
     
-
-    
-    def power_method(self):     # Reel Diagonalisierbare MAtrix (große Einschränkung): Mit Potenzmethode wird größter Eigenwert bestimmt
+    def power_method(self):
+        """Reel Diagonalisierbare MAtrix (große Einschränkung): Mit Potenzmethode wird größter Eigenwert bestimmt."""
         def norm(a):
             return sqrt(sum(a[i][0] ** 2 for i in range(a.rows)))
         
@@ -561,7 +591,8 @@ class Matrix:
         else:
             print("Potenz-Methode geht nicht, da A nicht reell diagonalisierbar ist.")
     
-    def hesseberg(self): # gibt für gegebene Matrix A die MAtrix H in der Zerlegung A=Q^T*H*Q mit Q orthogonal und H in Hessebergform.
+    def hesseberg(self):
+        """Gibt für gegebene Matrix A die MAtrix H in der Zerlegung A=Q^T*H*Q mit Q orthogonal und H in Hessebergform."""
         def sign(x):
             return 1 if x >= 0 else -1
         
@@ -584,7 +615,8 @@ class Matrix:
         
         return R
     
-    def jacobi(self):  #gibt mittels 32*n^2 Schritten alle Eigenwerte, solange die Matrix symmetrisch ist
+    def jacobi(self):
+        """Gibt mittels 32*n^2 Schritten alle Eigenwerte, solange die Matrix symmetrisch ist."""
         if self.T() == self:
             
             def givens_quick_calculation(A, i, j):
@@ -652,7 +684,9 @@ class Matrix:
         else:
             print("Matrix ist nicht symmetrisch. Jacobi-Vefahren nicht anwendbar.")
     
-    def RQ_hesseberg(self): #berechnet Eigenwerte durch Hesseberg-Zerlegung und effizienten QR-Zerlegungen für Hessebergmatrizen, für eine schnelle QR-Methode.
+    def RQ_hesseberg(self):
+        """Berechnet Eigenwerte durch Hesseberg-Zerlegung und effizienten QR-Zerlegungen für Hessebergmatrizen, für
+        eine schnelle QR-Methode."""
         # A [=QR] in hessberg form |-> RQ
         def givensrotation(a, b):
             if b == 0:
@@ -702,7 +736,8 @@ class Matrix:
                 j += 1
         return R
     
-    def eigenvalues(self, iter=-1):#berechnet Eigenwerte mit den früheren MEthoden, und entscheidet welche die beste ist.
+    def eigenvalues(self, iter=-1):
+        """Berechnet Eigenwerte mit den früheren MEthoden, und entscheidet welche die beste ist."""
         if iter == -1:
             iter = 40 * self.rows
         
@@ -760,9 +795,16 @@ class Matrix:
 
 
 if __name__ == "__main__":
-    A = Matrix.Random(20, 20, -10, 10)
-    print(A)
-    
-    t = time()
-    print(A.eigenvalues())
-    print(time() - t)
+    # A = Matrix.Random(20, 20, -10, 10)
+    # print(A)
+    #
+    # t = time()
+    # print(A.eigenvalues())
+    # print(time() - t)
+    docstring = ""
+    for method in dir(Matrix):
+        if method[0] != "_":
+            method = getattr(Matrix, method)
+            docstring += method.__name__ + "()\n"
+            docstring += method.__doc__ + "\n\n"
+    print(docstring)

@@ -1,4 +1,3 @@
-
 """
 functions.py module:
 
@@ -32,21 +31,22 @@ def fact(n):
 def C(n, k):
     return fact(n) / (fact(n - k) * fact(k))
 
-def exp(x): #Taylor Reihe (ohne x**i jedes mal neu zu berechnen)
+
+def exp(x):  # Taylor Reihe (ohne x**i jedes mal neu zu berechnen)
     sum = 0
     term = 1
-    for i in range(1,20+3*abs(x)):
+    for i in range(1, 20 + 3 * abs(x)):
         sum += term
-        term *= x/i
+        term *= x / i
     return sum
 
 
 def log(x, base="e"):  # Patent
-
+    
     # Da die Taylor Reihe nur sehr langsam konvergiert, verwenden wir die multiplikative Eigenschaft des Logarithmus um x in eine enge Umgebung von 1 zu verschieben, damit die Reihe sehr schnell konvergiert
     if base != "e":
         return log(x) / log(base)
-
+    
     if x <= 0:
         raise ValueError("log argument must be positive")
     elif x > 1.01:
@@ -112,45 +112,44 @@ def root(a, k):
             xold = xnew
 
 
-
 def sin(x):
-    # x wird in das gute Konvergenz-Bereich verschoben
+    """x wird in das gute Konvergenz-Bereich verschoben"""
     vorzeichen = 1
-    x = x % (2*pi)
-    if x > pi: #Verschiebung in [0,pi]
-        x = x-pi
+    x = x % (2 * pi)
+    if x > pi:  # Verschiebung in [0,pi]
+        x = x - pi
         vorzeichen = -1
     
-    if x > pi/2: #Verschiebung in [0,pi/2]
-        x = pi - x # sin(pi-x) = sin(x)
+    if x > pi / 2:  # Verschiebung in [0,pi/2]
+        x = pi - x  # sin(pi-x) = sin(x)
     
-
     sum = 0
     term = x
-    for i in range(1,10):
+    for i in range(1, 10):
         sum += term
-        term *= -x*x/(2*i*(2*i+1))
-    return sum*vorzeichen
+        term *= -x * x / (2 * i * (2 * i + 1))
+    return sum * vorzeichen
+
 
 def cos(x):
     # x wird in das gute Konvergenz-Bereich verschoben (Eigenschaften von cosinus)
     vorzeichen = 1
-    x = x % (2*pi)
-    if x > pi:  #Verschiebung in [0,pi]
-        x = 2*pi-x #Spiegelung in pi
-
-    if x > pi/2: #Verschiebung in [0,pi/2]
-        x = pi - x #Spiegelung in pi/2
-        vorzeichen = -1
+    x = x % (2 * pi)
+    if x > pi:  # Verschiebung in [0,pi]
+        x = 2 * pi - x  # Spiegelung in pi
     
-    #Taylor-Reihe mit gespeicherten Koeffizienten:
+    if x > pi / 2:  # Verschiebung in [0,pi/2]
+        x = pi - x  # Spiegelung in pi/2
+        vorzeichen = -1
+
+    # Taylor-Reihe mit gespeicherten Koeffizienten:
     sum = 1
-    term = -x**2/2
-    for i in range(1,10):
+    term = -x ** 2 / 2
+    for i in range(1, 10):
         sum += term
-        term *= -x*x/((2*i+1)*(2*i+2))
-        
-    return sum*vorzeichen
+        term *= -x * x / ((2 * i + 1) * (2 * i + 2))
+    
+    return sum * vorzeichen
 
 
 def tan(x):
@@ -162,7 +161,6 @@ def cosh(x):
 
 
 def sinh(x):
-    print(f"sinh({x})")
     return (exp(x) - exp(-x)) / 2
 
 
@@ -173,7 +171,7 @@ def tanh(x):
 def arcsin(x):
     if x <= -1 or x >= 1:
         raise ValueError(f"arcsin argument must be between -1 and 1")
-
+    
     # arcsin(x) = arctan( x/sqrt(1-x^2) ) und arctan ist durch rationales polynom gut approximiert
     return arctan(x / sqrt(1 - x ** 2))
 
@@ -296,5 +294,6 @@ def partition(n):
 
 
 if __name__ == '__main__':
-    print(arccos(0.9999))
+    print(sin(8))
+    print(sin.__doc__)
 
