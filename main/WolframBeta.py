@@ -199,6 +199,7 @@ class AlgebraFrame(Frame):
                 try:
                     output_latex = eval(write(output_tree))
                 except:
+                    print(f"couldnt eval expr: {write(output_tree)}")
                     output_latex = write_latex(output_tree, simp=True)
         except Exception as error:
             self.show_error(format_error(error))

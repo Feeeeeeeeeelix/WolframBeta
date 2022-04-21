@@ -678,7 +678,7 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "sin(x)-sin(x)"
+    func = "2C3"
     
     try:
         s = Function(func)

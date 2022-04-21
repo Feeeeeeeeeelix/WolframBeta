@@ -21,14 +21,29 @@ ln3 = 1.098612288668110
 
 #  ELEMENTARE FUNKTIONEN
 
+def is_pos_int(n):
+    if int(n) != float(n) or float(n) < 0:
+        return False
+    return True
+
+
+def is_int(n):
+    if int(n) != float(n):
+        return False
+    return True
+
 
 def fact(n):
-    if int(n) != float(n) or n < 0:
-        raise ValueError
+    if not is_pos_int(n):
+        raise ValueError(f"fact argument must be a positive integer")
     return n * fact(n - 1) if n > 1 else 1
 
 
 def C(n, k):
+    if not is_pos_int(n) or not is_pos_int(k):
+        raise ValueError(f"C arguments must be positive intergers")
+    if n < k:
+        raise ValueError(f"n must be greater than k")
     return fact(n) / (fact(n - k) * fact(k))
 
 
@@ -42,8 +57,9 @@ def exp(x):  # Taylor Reihe (ohne x**i jedes mal neu zu berechnen)
 
 
 def log(x, base="e"):  # Patent
+    # Da die Taylor Reihe nur sehr langsam konvergiert, verwenden wir die multiplikative Eigenschaft des
+    # Logarithmus um x in eine enge Umgebung von 1 zu verschieben, damit die Reihe sehr schnell konvergiert
     
-    # Da die Taylor Reihe nur sehr langsam konvergiert, verwenden wir die multiplikative Eigenschaft des Logarithmus um x in eine enge Umgebung von 1 zu verschieben, damit die Reihe sehr schnell konvergiert
     if base != "e":
         return log(x) / log(base)
     
@@ -79,7 +95,7 @@ def pow(a, n):
 
 def sqrt(x):
     if x < 0:
-        raise ValueError
+        raise ValueError(f"sqrt argument must be positive")
     if x == 0:
         return 0
     else:
@@ -94,15 +110,16 @@ def sqrt(x):
 
 
 def root(a, k):
-    if a < 0 and int(k) != k:
+    if not is_int(k) or (a < 0 and not k % 2):
         raise ValueError
-    elif a < 0 and int(k) == k and k % 2 == 0:
-        raise ValueError
-    
+    print("yes")
     if a == 0:
         return 0
     else:
-        xold = 1.0
+        if a > 0:
+            xold = 1.0
+        else:
+            xold = -1.0
         while True:
             xnew = ((k - 1) * xold ** k + a) / (k * xold ** (k - 1))
             
@@ -113,7 +130,7 @@ def root(a, k):
 
 
 def sin(x):
-    """x wird in das gute Konvergenz-Bereich verschoben"""
+    # x wird in das gute Konvergenz-Bereich verschoben
     vorzeichen = 1
     x = x % (2 * pi)
     if x > pi:  # Verschiebung in [0,pi]
@@ -153,6 +170,8 @@ def cos(x):
 
 
 def tan(x):
+    if not x % 2*pi:
+        raise ValueError
     return sin(x) / cos(x)
 
 
@@ -294,6 +313,5 @@ def partition(n):
 
 
 if __name__ == '__main__':
-    print(sin(8))
-    print(sin.__doc__)
+    print(root(-4,5))
 
