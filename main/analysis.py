@@ -185,16 +185,32 @@ def der(f, x, n=1, dx=10 ** (-5)):
         return f(x)
     if n == 1:
         return (f(x + dx) - f(x - dx)) / (2 * dx)
-    
+
     elif n % 2 == 0:
         return (der(f, x + dx, n - 1) - der(f, x - dx, n - 1)) / (2 * dx)
-    
+
     else:
         return (der(f, x + dx, n - 2) - 2 * der(f, x, n - 2) + der(f, x - dx, n - 2)) / (dx * dx)
 
 
+def der2(f, n=1, dx=10 ** (-5)):
+    # approximation der n-ten Ableitung in x von f.
+    if float(n) != int(n) or float(n) < 0:
+        raise ValueError("nur positive integer erlaubt")
+    if n == 0:
+        return f
+    if n == 1:
+        return lambda x: (f(x + dx) - f(x - dx)) / (2 * dx)
+    
+    elif n % 2 == 0:
+        return lambda x: (der2(f, n - 1)(x + dx) - der2(f, n - 1)(x - dx)) / (2 * dx)
+    
+    else:
+        return lambda x: (der2(f, n - 2)(x + dx) - 2 * der2(f, n - 2)(x) + der2(f, n - 2)(x - dx)) / (dx * dx)
+
+
 if __name__ == "__main__":
-    from functions import sin
+    from functions import sin, cos
     
     """print("Beispiele:\n")
     
@@ -216,16 +232,28 @@ if __name__ == "__main__":
     print(y)
     print("Zum Vergleich mit dem letzten Term: ", e ** (1 / 2 * 2 ** 2))"""
 
-    """f = lambda x: sin(x ** 2)
+    f = lambda x: sin(x ** 2)
+    g = lambda x: sin(x)
     df = lambda x: 2 * x * cos(x ** 2)
     ddf = lambda x: 2 * cos(x ** 2) - 4 * x ** 2 * sin(x ** 2)
 
-    print(der(f, x=1, n=1))
+    print(der2(f, n=1)(1))
     print(df(1))
 
-    print(der(f, x=1, n=2))
-    print(ddf(1))"""
+    print(der2(f, n=2)(1))
+    print(ddf(1))
     
-    print(riemann(sin, 0, 3.142592))
-    print(trapez(sin, 0, 3.142592))
-    print(simpson(sin, 0, 3.142592))
+    print(der(g, 1, 4))
+    print("wtf")
+    
+    print()
+    print(der2(g, n=4)(1))
+    print()
+    print(sin(1))
+    print(cos(1))
+    
+    # print(riemann(sin, 0, 3.142592))
+    # print(trapez(sin, 0, 3.142592))
+    # print(simpson(sin, 0, 3.142592))
+    #
+    # print(euler_collatz("y^2+t^2", 2, 0, 3))

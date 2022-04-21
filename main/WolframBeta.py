@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage, StringVar, Radiobutton, Message, Scrollbar, Canvas, Text
+from tkinter import *
 
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
@@ -7,7 +7,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from FunctionClass import *
 from functions import *
 from analysis import min, minimum, max, maximum, nullstellen, der
-from matrix import Matrix
+
 
 lblue = "#1e3799"
 dblue = "#001B81"
@@ -17,7 +17,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 1
+default_frame = 2
 min_window = True
 
 """TODO:
@@ -736,6 +736,7 @@ class MatrixWrapper:
 class MatrixFrame(Frame):
     def __init__(self, container):
         super().__init__(container)
+        from matrix import Matrix
         
         self.matrices = []
         self.current_matrix = None
@@ -765,6 +766,23 @@ class MatrixFrame(Frame):
         
         self.edit_frame = Frame(self.matrix_frame, bd=1, relief="raised")
         self.edit_frame.grid(row=1, column=1, sticky="news")
+        
+        self.dimensions_frame = Frame(self.matrix_frame)
+        self.dimensions_frame.grid(row=0, column=1)
+
+        Label(self.dimensions_frame, text="rows: ").pack(side="left")
+        self.rows_variable = StringVar(value="3")
+        self.rows_box = Spinbox(self.dimensions_frame, from_=1, to=15, width=3, textvariable=self.rows_variable,
+                                justify="center")
+        self.rows_box.pack(side="left", padx=10)
+
+        Button(self.dimensions_frame, text="ok", command=self.submit_dimensions, padx=0, pady=0).pack(side="right",
+                                                                                                      padx=10)
+        self.columns_variable = StringVar(value="3")
+        self.columns_box = Spinbox(self.dimensions_frame, from_=1, to=15, width=3, textvariable=self.columns_variable,
+                                   justify="center")
+        self.columns_box.pack(side="right", padx=0)
+        Label(self.dimensions_frame, text="columns: ").pack(side="right", padx=10)
         
         self.vorschlag_frame = Frame(self.matrix_frame)
         self.vorschlag_frame.grid(row=2, column=1)
@@ -796,13 +814,28 @@ class MatrixFrame(Frame):
         
         self.show_matrix()
     
+    def submit_dimensions(self, *event):
+        n, m = self.rows_variable.get(), self.columns_variable.get()
+        try:
+            n, m = int(n), int(m)
+            if n < 1 or n > 15 or m < 1 or m > 15:
+                raise ValueError
+            self.show_error()
+        except ValueError:
+            self.show_error("Dimensions must be integers between 1 and 15")
+        else:
+            print(f"neu:{n = }, {m = }")
+            self.refresh_dimensions(n, m)
+            
+    def refresh_dimensions(self, n, m):
+        pass
+    
     def delete_matrix(self):
         self.matrices.remove(self.current_matrix)
         self.refresh_auswahl()
         self.current_matrix.hide()
-        # m = self.current_matrix
-        # del m
         self.show_matrix()
+        print(f"after remove: {self.matrices = }")
 
     def submit_matrix(self):
         self.current_matrix.save_values()
@@ -823,7 +856,7 @@ class MatrixFrame(Frame):
             Button(self.matrix_auswahl, text=matrix.name, command=lambda m=matrix: self.show_matrix(m), width=2, height=2).pack(side="left")
         Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2).pack(side="left")
         
-    def show_error(self, error):
+    def show_error(self, error=""):
         self.error_label.config(text=error)
         
     def show_matrix(self, matrix=None):
