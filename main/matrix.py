@@ -805,6 +805,6 @@ if __name__ == "__main__":
     for method in dir(Matrix):
         if method[0] != "_":
             method = getattr(Matrix, method)
-            docstring += method.__name__ + "()\n"
+            docstring += "    " + method.__name__ + "()\n"
             docstring += method.__doc__ + "\n\n"
     print(docstring)

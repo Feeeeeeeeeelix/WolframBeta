@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage, StringVar, Radiobutton, Message, Scrollbar, Canvas
+from tkinter import Tk, Frame, Label, Entry, Button, PhotoImage, StringVar, Radiobutton, Message, Scrollbar, Canvas, Text
 
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
@@ -29,57 +29,6 @@ language überall änderbar
 Farbe überall änderbar
 angepasste größe der latex outputs
 """
-
-algebra_help = ["""Hilfe für AlgebraFrame:
-
-Elementare Funktionen:
-* alle trigonometrischen Funktionen (sin, sinh,
-arcsin, arcsinh, cos, cosh, arccos, arccosh,
-tan, tanh, arctan, arctanh)
-* exp(x) oder e^x
-* pow(a, b) oder a^b
-* sqrt(x)
-* root(x, n)
-* ln(x)
-* log(x, n)
-* C(a, b) oder aCb
-* fact(n) oder n!
-
-Funktionen:
-* d/dx(f(x))
-* Int(a, b, f(x), x)
-
-Zahlentheorie:
-* KgV(a, b) oder PDCM(a, b)
-* ggT(a, b) oder PGCD(a, b)
-* isprime(n)
-* eratosthenes(n)
-* prim_factors(n)
-* partition(n)
-"""]
-analysis_help = ["""Hilfe für AnalysisFrame:
-EntryLines:
-Gebe einen Funktionsterm ein, es wird
-automatisch ein Funktionsname generiert
-und die Funktion auf dem Graph angezeigt.
-Du kannst die Anzeige mit hilfe des
-Knopfes ein/ausschalten, und die funktion
-ändern.
-Außerdem kannst du Differentialgleichungen
-approximativ lösen lassen. Die gesuchte
-Funktion wird auf dem Graph angezeigt
-
-Compute Input:
-gebe ein, was du berechnen willst:
-* min(f) / max(f)
-* f(x) = 0
-* f'(x) / df(x)/dx
-* f^n(a) / d^nf(a)/dx^n
-* int(a, b, f(x))
-
-"""]
-matrix_help = [""]
-code_help = [""]
 
 
 def toggle_lang(language):
@@ -195,7 +144,9 @@ class AlgebraFrame(Frame):
         self.answers = "", ""
         
         # Help label
-        self.help_label = Message(self, text=algebra_help[lang], relief="raised")
+        with open("../help/algebra_deutsch.txt", "r") as help:
+            algebra_deutsch = help.read()
+        self.help_label = Message(self, text=algebra_deutsch, relief="raised")
         self.help_show = False
 
         self.elements = get_all_children(self)
@@ -454,7 +405,7 @@ class AnalysisFrame(Frame):
         self.subplot.grid(True)
         
         # Help Label
-        self.help_label = Message(self, text=analysis_help[lang], relief="raised")
+        self.help_label = Message(self, text="", relief="raised")
         self.help_show = False
 
         self.functions = {}  # alle gespeicherte funktionen
@@ -838,7 +789,9 @@ class MatrixFrame(Frame):
         self.output_frame.place(relx=0.1, rely=0.55, relwidth=0.8, relheight=0.45)
 
         # Help Label
-        self.help_label = Message(self, text=algebra_help[lang], relief="raised")
+        self.help_label = Text(self)
+        # self.help_label.insert("end", matrix_help[lang])
+        self.help_label.config(state="disabled")
         self.help_show = False
         
         self.show_matrix()

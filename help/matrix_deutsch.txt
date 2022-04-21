@@ -1,0 +1,96 @@
+Matrix Funktionen:
+
+    Id()
+Identiätsmatrix
+
+    QR()
+Jede Matrix (nicht unbedingt quadratisch) kann als A=QR mit Q orthogonale Matrix und R erweiterte
+        trianguläre Matrix zerlegt werden.
+
+    RQ_hesseberg()
+Berechnet Eigenwerte durch Hesseberg-Zerlegung und effizienten QR-Zerlegungen für Hessebergmatrizen, für
+        eine schnelle QR-Methode.
+
+    Random()
+Zufällige m,n Matrix mit Integer Werten zwischen low und high
+
+    RandomSym()
+Zufällige m,n symetrische Matrix mit Integer Werten zwischen low und high
+
+    T()
+Transposition
+
+    Zero()
+Null Matrix
+
+    ausgleichs_problem()
+Gegeben ein überbestimmtes und unlösbares Problem Ax=b, findet diese Methode eine Lösung, die die
+        Gleichungen am besten löst (es minimiert die quadrate der Fehler). Nützlich für Interpolation und Physik.
+
+    cholesky()
+Input: symmetrische positiv definite Matrix A. Output: Zerlegung A = L* L^T, also eine stabilee Version
+        von LU-Zerlegung, mit halbem Aufwand.
+
+    cholesky_solve()
+Input: Matrix A und vektor b, A positiv definit und symmetrisch. Output: Lösung x von Ax=b. (doppelt so
+        effizient wie LU, aber mehr bedingungen)
+
+    det()
+Mittels den Operationen vom Gauss-Verfahren bestimmt diese Funktion die Determinante.
+
+    eigenvalues()
+Berechnet Eigenwerte mit den früheren MEthoden, und entscheidet welche die beste ist.
+
+    gauss()
+führt Gauss Algorithmus aus. Output: gibt die Finale Matrix M an (sollte die Id-Matrix sein), die umgeformte
+        rechte Seite b, welche nun die Lösung x ist. V gibt die Anzahl an Zeilenvertauschungen an. pi gibt die
+        Transpositionen der Zeilenvertauschungen an. Operationen gibt die Operationen an, welche verwendet wurden 
+
+    gauss_explained()
+Erklärt die Berechnung von x hinter dem Gauss-Algorithmus um Ax=b zu lösen, für reguläres A. 
+
+    gauss_solve()
+Berechnet die Lösung von Ax=b mittels Gauss.
+
+    hesseberg()
+Gibt für gegebene Matrix A die MAtrix H in der Zerlegung A=Q^T*H*Q mit Q orthogonal und H in Hessebergform.
+
+    inverse()
+Gibt mittels den Operationen vom Gauss-Verfahren an, was die Inverse Matrix ist.
+
+    jacobi()
+Gibt mittels 32*n^2 Schritten alle Eigenwerte, solange die Matrix symmetrisch ist.
+
+    lu()
+Input: Matrix mit regulären Hauptminoren. Output: Zerlegung self = L*U mit L normierte lower-triangular
+        Matrix und U upper-triangulear Matrix
+
+    lu_solve()
+Input: Matrix A, vektor b. Output: Lösung x von Ax=b unter den Bedingungen der LU-Zerlegung
+
+    m()
+i-te Zeile mit lam multiplizieren
+
+    normS()
+Spaltensummen-Norm
+
+    normZ()
+Zeilensummen-Norm
+
+    power_method()
+Reel Diagonalisierbare MAtrix (große Einschränkung): Mit Potenzmethode wird größter Eigenwert bestimmt.
+
+    s()
+zur i-ten Zeile das lam-fache der j-ten Zeile hinzufügen
+
+    sq()
+Quadrat
+
+    sub_matrix()
+berechnet eine Teilmatrix mit gegebenen x und y Werten.
+
+    v()
+i-te und j-te Zeile vertauschen
+
+
+

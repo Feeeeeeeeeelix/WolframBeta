@@ -1,0 +1,19 @@
+Hilfe für AnalysisFrame:
+EntryLines:
+Gebe einen Funktionsterm ein, es wird
+automatisch ein Funktionsname generiert
+und die Funktion auf dem Graph angezeigt.
+Du kannst die Anzeige mit hilfe des
+Knopfes ein/ausschalten, und die funktion
+ändern.
+Außerdem kannst du Differentialgleichungen
+approximativ lösen lassen. Die gesuchte
+Funktion wird auf dem Graph angezeigt
+
+Compute Input:
+gebe ein, was du berechnen willst:
+* min(f) / max(f)
+* f(x) = 0
+* f'(x) / df(x)/dx
+* f^n(a) / d^nf(a)/dx^n
+* int(a, b, f(x))
