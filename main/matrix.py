@@ -795,19 +795,29 @@ class Matrix:
                 eigenwerte.append([-C_1 / 2, 1 / 2 * sqrt(abs(C_1 * C_1 - 4 * C_2))]) #berechnet komplexe Eigenwerte für jeden Block
                 eigenwerte.append([-C_1 / 2, -1 / 2 * sqrt(abs(C_1 * C_1 - 4 * C_2))])
         return eigenwerte
+    
+    def _latex(self):
 
+        text = "\\begin{matrix} \n"
+        
+        for row in self.row:
+            for element in row:
+                text += " " +str(rint(element)) + " &"
+            text = text[:-1]
+            text += "\\\\" + '\n'
+        text += "\end{matrix}"
+        
+        return text
+        
 
 if __name__ == "__main__":
-    # A = Matrix.Random(20, 20, -10, 10)
-    # print(A)
-    #
-    # t = time()
-    # print(A.eigenvalues())
-    # print(time() - t)
-    docstring = ""
-    for method in dir(Matrix):
-        if method[0] != "_":
-            method = getattr(Matrix, method)
-            docstring += "    " + method.__name__ + "()\n"
-            docstring += method.__doc__ + "\n\n"
-    print(docstring)
+    A = Matrix([[2,3,4,5],[6,6,6,5],[4,2.0,6.9999,5]])
+    print(A._latex())
+    
+    #docstring = ""
+    #for method in dir(Matrix):
+    #    if method[0] != "_":
+    #        method = getattr(Matrix, method)
+    #        docstring += "    " + method.__name__ + "()\n"
+    #        docstring += method.__doc__ + "\n\n"
+    #print(docstring)
