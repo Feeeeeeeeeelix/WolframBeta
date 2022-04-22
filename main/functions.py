@@ -288,7 +288,7 @@ def isprime(n):
     return True
 
 
-def prim_factors(n):
+def primfactors(n):
     factors = []
     temp = n
     

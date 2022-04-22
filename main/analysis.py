@@ -175,7 +175,7 @@ def euler_collatz(f_str, t_0, y_0, end, steps=1000):
     return y  # Die Menge der Funktionswerte (die dazugehörigen x-Werte sind [x_0 + i * dt for i in range(0,steps)])
 
 
-def der(f, n=1, dx=10 ** (-3)):
+def der(f, var="x", n=1, dx=10 ** (-3)):
     # approximation der n-ten Ableitung in x von f.
     # Sehr instabil bei großem n, daher sollte dx nicht zu klein gewählt werden.
     from functions import C
@@ -185,10 +185,10 @@ def der(f, n=1, dx=10 ** (-3)):
     if n == 0:
         return f
     if n == 1:
-        return lambda x: (f(x + dx) - f(x - dx)) / (2 * dx)
+        return lambda x=var: (f(x + dx) - f(x - dx)) / (2 * dx)
     
     else:
-        return lambda x: 1 / dx ** n * sum([(-1) ** (k + n) * C(n, k) * f(x + k * dx) for k in range(n + 1)])
+        return lambda x=var: 1 / dx ** n * sum([(-1) ** (k + n) * C(n, k) * f(x + k * dx) for k in range(n + 1)])
 
 
 if __name__ == "__main__":
@@ -214,12 +214,18 @@ if __name__ == "__main__":
     print(y)
     print("Zum Vergleich mit dem letzten Term: ", e ** (1 / 2 * 2 ** 2))"""
     
-    f = lambda x: sin(x ** 2)
-    df = lambda x: 2 * x * cos(x ** 2)
-    ddf = lambda x: 2 * cos(x ** 2) - 4 * x ** 2 * sin(x ** 2)
+    f = lambda t: sin(t ** 2)
+    df = lambda t: 2 * t * cos(t ** 2)
+    ddf = lambda t: 2 * cos(t ** 2) - 4 * t ** 2 * sin(t ** 2)
     
-    print(der(f,  n=1)(1))
+    print(der(f, var="t", n=0)(1))
+    print(f(1))
+    
+    print(der(f,var="t",  n=1)(1))
     print(df(1))
     
-    print(der(f, n=2)(1))
+    print(der(f,var="t", n=2)(1))
     print(ddf(1))
+    
+    print(der(lambda x:sin(x))(1))
+    print(cos(1))

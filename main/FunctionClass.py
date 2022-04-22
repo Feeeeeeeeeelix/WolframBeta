@@ -1,8 +1,4 @@
-from analysis import trapez, riemann, simpson
-from functions import *
-
-"""
-FunctionClass module:
+"""FunctionClass.py module:
 - parse mathematical expression into a syntax tree
 - write expressions as LaTeX code
 - differentiate expressions
@@ -10,10 +6,12 @@ FunctionClass module:
 
 """
 
+from analysis import trapez, riemann, simpson, der
+from functions import *
+
 """TODO:
-- definitonsmenge checken neu
 - latex 2*x -> 2x
-möglicherweise fehler in dem erkennen von operationsreihenfolge bei division und multiplication in einem ausdruck
+- möglicherweise fehler in dem erkennen von operationsreihenfolge bei division und multiplication in einem ausdruck
 
 
 """
@@ -28,7 +26,7 @@ möglicherweise fehler in dem erkennen von operationsreihenfolge bei division un
 
 FUNCTIONS = ['C', 'PGCD', 'PPCM', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctan', 'arctanh', 'cos', 'cosh', 'sin', 'sinh',
              'eratosthenes', 'exp', 'fact', 'ggT', 'isprime', 'kgV', 'log', 'ln', 'partition', 'pow', 'root',
-             'sqrt', 'tan', 'tanh', 'Int', 'min', 'max', 'prim_factors', 'nullstellen']
+             'sqrt', 'tan', 'tanh', 'Int', 'min', 'max', 'primfactors', 'nullstellen']
 FUNCTIONS.extend(["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"])
 
 SIMPLE_FUNCTIONS = ['cos', 'cosh', 'arccos', 'arccosh', 'sin', 'sinh', 'arcsin', 'arcsinh', 'tan', 'tanh', 'arctan', 'arctanh',
@@ -212,6 +210,32 @@ def parse(f: str, simp=False):
         # unnötige klammern
         return parse(innerargs[0], simp)
     
+    # Ableitung
+    if f[0:3] == "d/d" and f[4] == "@" and len(f) == 5:
+        # bsp: d/dx(e^x)
+        var = f[3]
+        assert type(var) == str
+        if simp:
+            PRINT += f"\nparse: diff: {f = }"
+            return diff(parse(innerargs[0], simp), var)
+        else:
+            PRINT += f"\nparse: not diff: {f = }"
+            return ["diff", parse(innerargs[0]), var]
+        
+    # höhere Ableitung
+    if len(f) == 10 and f[:2] == "d^" and f[3:5] == "/d" and f[6] == "^" and f[8:10] == "@@":
+        # höhere Ableitung: f = "d^n/dx^n(f)(x_0) (n'te ableitung von f(x) nach x bei x_0)
+        
+        if (n := f[2]) != f[7] or not isfloat(f[2]) or not isfloat(f[7]):
+            raise ValueError("invalid n while taking the n'th derivative")
+        if not isfloat(x_0 := innerargs[1]):
+            raise TypeError("n'th derivative must be evaluated at a float value")
+        
+        if simp:
+            return der(lambda x: eval(innerargs[0]), var=f[5], n=int(n))(flint(x_0))
+        else:
+            return ["diff", parse(innerargs[0]), f[5], n, x_0]
+    
     # implizierte Multiplikationen
     i = 0
     while i < len(f) - 1:
@@ -251,9 +275,9 @@ def parse(f: str, simp=False):
             
             summands = find_repeated_args(consts + funcs, "+")
             if not summands:
-                summands = [0]
+                summands = ["0"]
         PRINT += f"\n{summands=}"
-        return ["+", [parse(s, simp) for s in summands]] if len(summands) > 1 else summands[0]
+        return ["+", [parse(s, simp) for s in summands]] if len(summands) > 1 else parse(summands[0], simp)
     
     if "*" in f:
         factors = _insert_args(f.split("*"), innerargs)
@@ -265,8 +289,8 @@ def parse(f: str, simp=False):
             consts = [str(prod(consts))] if consts else []
             
             factors = find_repeated_args(consts + funcs, "*")
-        
-        return ["*", [parse(f, simp) for f in factors]] if len(factors) > 1 else factors[0] if 0 not in factors else 0
+        PRINT += f"\nsimp:{factors =}"
+        return ["*", [parse(f, simp) for f in factors]] if len(factors) > 1 else parse(factors[0], simp) if 0 not in factors else 0
     
     if f[0] == "-":
         # keine substraktion
@@ -274,18 +298,6 @@ def parse(f: str, simp=False):
             return f"-{f[1]}"
         else:
             return ["*", [-1, parse(f0[1:], simp)]]
-
-    # Ableitung
-    if f[0:3] == "d/d" and f[4] == "@" and len(f) == 5:
-        # bsp: d/dx(e^x)
-        var = f[3]
-        assert type(var) == str
-        if simp:
-            PRINT += f"\nparse: diff: {f = }"
-            return diff(parse(innerargs[0], simp), var)
-        else:
-            PRINT += f"\nparse: not diff: {f = }"
-            return ["diff", parse(innerargs[0]), var]
     
     if "/" in f:
         div = _insert_args(f.split("/", 1), innerargs)
@@ -466,7 +478,11 @@ def write_latex(f: list, simp=False):
                 return base
             elif str(power) == "0":
                 return 1
-        return "{" + str(base) + "}^{" + str(power) + "}"
+        if isfloat(base) or str(base) in ALPHABET:
+            # man braucht keine Klammern
+            return "{" + str(base) + "}^{" + str(power) + "}"
+        else:
+            return "{(" + str(base) + ")}^{" + str(power) + "}"
     
     if f[0] in FUNCTIONS:
         # args = [str(write(arg)) for arg in f[1:]]
@@ -490,7 +506,10 @@ def write_latex(f: list, simp=False):
             return f"{f[0]}({args})"
     
     if f[0] == "diff":
-        return rf"\frac{'{d}{d'}{f[2]}{'}'}({write_latex(f[1], simp)})"
+        if len(f) == 3:
+            return rf"\frac{'{d}{d'}{f[2]}{'}'}({write_latex(f[1], simp)})"
+        else:
+            return rf"\frac{'{'}d^{f[3]}{'}{'}d{f[2]}^{f[3]}{'}'}({write_latex(f[1], simp)})\vert_{'{'}x={f[4]}{'}'}"
 
 
 def diff(f: list, VAR: str) -> list or int:
@@ -653,14 +672,14 @@ class Function:
             PRINT += f"\n\n{self.tree = }"
             
             PRINT += "\n\nWRITING TREE.."
-            self.str = str(write(self.tree))
-            PRINT += f"\n\n{self.str = }"
+            self.str_out = str(write(self.tree))
+            PRINT += f"\n\n{self.str_out = }"
             
             PRINT += "\n\nWRITING LATEX.."
-            self.latex = str(write_latex(self.tree, simp=True))
-            PRINT += f"\n\nself.latex = " + self.latex
+            self.latex_out = str(write_latex(self.tree, simp=True))
+            PRINT += f"\n\nself.latex = " + self.latex_out
             
-            self.lam = lambda x: eval(self.str.replace("^", "**"))
+            self.lam = lambda x: eval(self.str_out.replace("^", "**"))
     
     def diff(self, var="x"):
         global PRINT
@@ -670,14 +689,43 @@ class Function:
     
     def __call__(self, x):
         return self.lam(x)
+    
+    def __add__(self, other):
+        if isinstance(other, Function):
+            return Function(self.str_out + "+" + other.str_out)
+        else:
+            return Function(self.str_out + "+" + str(other))
+    
+    def __sub__(self, other):
+        if isinstance(other, Function):
+            return Function(self.str_out + "-" + other.str_out)
+        else:
+            return Function(self.str_out + "-" + str(other))
+    
+    def __mul__(self, other):
+        if isinstance(other, Function):
+            return Function(self.str_out + "*" + other.str_out)
+        else:
+            return Function(self.str_out + "*" + str(other))
+        
+    def __rmul__(self, other):
+        return self*other
+    
+    def __pow__(self, power):
+        return Function(["^", [self.tree, str(power)]])
+    
+    def __str__(self):
+        return self.str_out
 
 
 if __name__ == "__main__":
-    func = "2C3"
+    func = "d^1/dx^1(sin(x))(1)"
+    # f2 = "cosx"
     
     try:
         s = Function(func)
-        print(s.latex_out)
+        # d = Function(f2)
+        print(s.str_out)
         # input = "d/dx(x^34)"
         # input_latex = write_latex_ws(parse_ws(func))
         # output_latex = parse(func, ableiten=True)

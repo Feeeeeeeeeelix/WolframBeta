@@ -94,7 +94,7 @@ def get_all_children(top_frame):
     return all_children
 
 
-class AlgebraFrame(Frame):
+class RechnerFrame(Frame):
     def __init__(self, container):
         super().__init__(container)
         
@@ -145,9 +145,9 @@ class AlgebraFrame(Frame):
         self.answers = "", ""
         
         # Help label
-        with open("../help/algebra_deutsch.txt", "r") as help:
-            algebra_deutsch = help.read()
-        self.help_label = Message(self, text=algebra_deutsch, relief="raised")
+        with open("../help/rechner_de.txt", "r") as help:
+            rechner_de = help.read()
+        self.help_label = Message(self, text=rechner_de, relief="raised")
         self.help_show = False
 
         self.elements = get_all_children(self)
@@ -662,15 +662,16 @@ class AnalysisFrame(Frame):
                 
                 input_latex = write_latex(parse(string))
                 output_tree = parse(string, simp=True)
-                # print(input_latex, output_tree)
+                print(input_latex, output_tree)
                 try:
                     for func in self.functions.values():
                         locals()[func.name] = func
                     for func in SIMPLE_FUNCTIONS:
                         locals()[func] = globals()[func]
                     # print(locals())
-                    
-                    output_latex = eval(write(output_tree))
+                    w = write(output_tree)
+                    print(f"write: {w}")
+                    output_latex = eval(w)
                 except Exception as e:
                     print(f"couldnt eval {write(output_tree)}, {e}")
                     output_latex = write_latex(output_tree, simp=True)
@@ -1109,7 +1110,7 @@ class MainScreen(Tk):
         # self.selection_frame.place(x=0, rely=0.305, relwidth=1, relheight=0.695)
         
         self.selection = 0
-        self.buttons = self.selection_buttons(self.left_frame, "Algebra", "Analysis", "Matrix", "Code")
+        self.buttons = self.selection_buttons(self.left_frame, "Rechner", "Analysis", "Matrix", "Code")
         
         # Bottom frame
         self.bottom_frame = Label(self)
@@ -1125,7 +1126,7 @@ class MainScreen(Tk):
         
         self.elements = get_all_children(self)
         
-        self.algebra_frame = self.analysis_frame = self.matrix_frame = self.code_frame = None
+        self.rechner_frame = self.analysis_frame = self.matrix_frame = self.code_frame = None
         self.current_frame = Frame(self)
         self.toggle_main_frame(default_frame)
         
@@ -1140,13 +1141,13 @@ class MainScreen(Tk):
             self.after(40, lambda:self.move_logo(self.logo_state))
     
     def toggle_main_frame(self, n):
-        frame = (self.algebra_frame, self.analysis_frame, self.matrix_frame, self.code_frame)[n]
+        frame = (self.rechner_frame, self.analysis_frame, self.matrix_frame, self.code_frame)[n]
         
         if frame is None:
             # initiate frame objects
             if n == 0:
-                self.algebra_frame = AlgebraFrame(self)
-                self.elements.extend(get_all_children(self.algebra_frame))
+                self.rechner_frame = RechnerFrame(self)
+                self.elements.extend(get_all_children(self.rechner_frame))
             elif n == 1:
                 self.analysis_frame = AnalysisFrame(self)
                 self.elements.extend(get_all_children(self.analysis_frame))
@@ -1156,7 +1157,7 @@ class MainScreen(Tk):
             elif n == 3:
                 self.code_frame = CodeFrame(self)
         
-        frame = (self.algebra_frame, self.analysis_frame, self.matrix_frame, self.code_frame)[n]
+        frame = (self.rechner_frame, self.analysis_frame, self.matrix_frame, self.code_frame)[n]
         self.current_frame.place_forget()
         self.current_frame = frame
         self.current_frame.show_help(False)
@@ -1221,7 +1222,7 @@ class MainScreen(Tk):
     
     def exit_screen(self, event=None):
         self.destroy()
-        # print(f"{self.algebra_frame.memory = }")
+        # print(f"{self.rechner_frame.memory = }")
 
 
 if __name__ == "__main__":
