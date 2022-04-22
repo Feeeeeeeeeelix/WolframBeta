@@ -15,12 +15,7 @@ FunctionClass module:
 - latex 2*x -> 2x
 möglicherweise fehler in dem erkennen von operationsreihenfolge bei division und multiplication in einem ausdruck
 
-- Vereinfachen
-- 1/x*x -> 1
-- sin(x) - sin(x) -> 0            }
-- sin(x) + 2sin(x) -> 3*sin(x)    } kompliziert!
-- sin²(x) * sin³(x) -> sin⁵(x)    }
-lol
+
 """
 
 """was gewollt nicht erkannt wird:

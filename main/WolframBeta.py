@@ -7,6 +7,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from FunctionClass import *
 from functions import *
 from analysis import min, minimum, max, maximum, nullstellen, der
+from matrix import Matrix
 
 
 lblue = "#1e3799"
@@ -17,7 +18,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 1
+default_frame = 2
 min_window = True
 
 """TODO:
@@ -698,76 +699,64 @@ class AnalysisFrame(Frame):
         pass
 
 
-class EntryTable(Frame):
-    def __init__(self, container, rows, columns):
-        super().__init__(container)
-        
-        self.n, self.m = rows, columns
-        
-        self.entries = []
-        self.values = []
-        for m in range(self.m):
-            self.columnconfigure(m, weight=1)
-            column = []
-            for n in range(self.n):
-                self.rowconfigure(n, weight=1)
-                entry = Entry(container, width=3)
-                entry.grid(row=n, column=m)
-                column.append(entry)
-            self.entries.append(column)
-            
-    def get_values(self):
-        self.values = [[entry.get() for entry in column] for column in self.entries]
-        return self.values
-    
-    def insert_values(self, values):
-        if len(self.entries) != len(values):
-            raise TypeError("not gleiche column anzahl beim einfügen")
-        for m in range(len(self.entries)):
-            for n in range(m):
-                entry = self.entries[m][n]
-                value = values[m][n]
-                entry.delete(0, "end")
-                entry.insert(0, value)
-
-
 class MatrixWrapper:
-    def __init__(self, super_frame, name, rows, columns):
+    def __init__(self, super_frame, name, rows, columns, id_):
         
         self.name = name
+        self.id = id_
         self.values_frame = Frame(super_frame.edit_frame)
         self.name_entry = super_frame.name_entry
+        self.rows_var, self.cols_var = super_frame.rows_variable, super_frame.columns_variable
+        self.rows = rows
+        self.columns = columns
         
         self.values = []
         self.entries = self.entry_gitter(self.values_frame, rows, columns)
     
     @staticmethod
     def entry_gitter(container, rows, columns):
+        """Gibt eine Tabelle mit Entries aus, die im 'container' plaziert werden"""
         entries = []
         for n in range(rows):
             container.rowconfigure(n, weight=1)
             row = []
             for m in range(columns):
                 container.columnconfigure(m, weight=1)
-                entry = Entry(container, width=3)
+                entry = Entry(container, width=3, justify="center")
                 entry.grid(row=n, column=m)
                 row.append(entry)
             entries.append(row)
         return entries
     
     def save_values(self):
-        self.values = [[entry.get() if entry.get() else 0 for entry in row] for row in self.entries]
+        """Die aktuellen Werte der EntryTabelle werden als float gespeichert. '' wird als 0 interpretiert"""
+        self.values = [[float(entry.get()) if entry.get() else 0 for entry in row] for row in self.entries]
+    
+    def insert_values(self, matrix):
+        """Die Werte der gegebenen 'matrix' werden in die Tabelle eingefügt"""
+        self.save_values()
+        if matrix.rows != self.rows or matrix.cols != self.columns:
+            raise TypeError
+        else:
+            for n in range(len(self.values)):
+                for m in range(len(self.values[0])):
+                    self.entries[n][m].delete(0, "end")
+                    self.entries[n][m].insert(0, matrix[n][m])
     
     def get_values(self):
         self.save_values()
         return self.values
     
     def show(self):
+        """Die Tabelle mit den Werten werden im MatrixFrame angezeigt. Der name und die dimensionen acuh"""
         self.values_frame.pack(fill="both", expand=True)
         self.name_entry.delete(0, "end")
         self.name_entry.insert(0, self.name)
-        
+        self.rows_var.set(self.rows)
+        self.cols_var.set(self.columns)
+    
     def hide(self):
+        """Die Tabelle wird vom MatrixFrame versteckt. Die Tabelle gibt es immer noch und die Werte bleiben noch drin"""
         self.values_frame.pack_forget()
         self.name_entry.delete(0, "end")
 
@@ -775,15 +764,16 @@ class MatrixWrapper:
 class MatrixFrame(Frame):
     def __init__(self, container):
         super().__init__(container)
-        from matrix import Matrix
         
         self.matrices = []
+        self.matrices_name = {}
         self.current_matrix = None
         
         # Auswahl Frame
         self.matrix_auswahl = Frame(self, bd=1, relief="raised")
-        self.matrix_auswahl.place(relx=0.1, rely=0.0, relwidth=0.3, relheight=0.33)
-        Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2).pack(side="left")
+        self.matrix_auswahl.place(relx=0.1, rely=0.0, relwidth=0.3, relheight=0.2)
+        Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2).pack(side="left",
+                                                                                                  anchor="n")
         
         # Edit Frame
         self.matrix_frame = Frame(self, bd=1, relief="raised")
@@ -796,6 +786,7 @@ class MatrixFrame(Frame):
         self.matrix_frame.columnconfigure(1, weight=5)
         self.matrix_frame.columnconfigure(2, weight=1)
         
+        # Name Frame
         self.name_frame = Frame(self.matrix_frame)
         self.name_frame.grid(row=1, column=0, sticky="e")
         
@@ -803,57 +794,72 @@ class MatrixFrame(Frame):
         self.name_entry.pack(side="left")
         Label(self.name_frame, text=" = ").pack(side="right")
         
+        # Edit Frame (EntryTable)
         self.edit_frame = Frame(self.matrix_frame, bd=1, relief="raised")
         self.edit_frame.grid(row=1, column=1, sticky="news")
         
+        # Dimensions Frame
         self.dimensions_frame = Frame(self.matrix_frame)
         self.dimensions_frame.grid(row=0, column=1)
-
+        
         Label(self.dimensions_frame, text="rows: ").pack(side="left")
         self.rows_variable = StringVar(value="3")
         self.rows_box = Spinbox(self.dimensions_frame, from_=1, to=15, width=3, textvariable=self.rows_variable,
                                 justify="center")
         self.rows_box.pack(side="left", padx=10)
-
-        Button(self.dimensions_frame, text="ok", command=self.submit_dimensions, padx=0, pady=0).pack(side="right",
-                                                                                                      padx=10)
+        
+        Button(self.dimensions_frame, text="ok", command=self.refresh_dimensions, padx=0, pady=0).pack(side="right",
+                                                                                                       padx=10)
         self.columns_variable = StringVar(value="3")
         self.columns_box = Spinbox(self.dimensions_frame, from_=1, to=15, width=3, textvariable=self.columns_variable,
                                    justify="center")
         self.columns_box.pack(side="right", padx=0)
         Label(self.dimensions_frame, text="columns: ").pack(side="right", padx=10)
         
+        # Vorschlag Frame (4 Buttons)
         self.vorschlag_frame = Frame(self.matrix_frame)
         self.vorschlag_frame.grid(row=2, column=1)
         
-        Button(self.vorschlag_frame, text="ID", command=None).pack(side="left")
-        Button(self.vorschlag_frame, text="Zero", command=None).pack(side="left")
-        Button(self.vorschlag_frame, text="Random", command=None).pack(side="left")
-        Button(self.vorschlag_frame, text="RandomSym", command=None).pack(side="left")
+        Button(self.vorschlag_frame, text="ID", command=self.new_identity_matrix).pack(side="left")
+        Button(self.vorschlag_frame, text="Zero", command=self.new_zero_matrix).pack(side="left")
+        Button(self.vorschlag_frame, text="Random", command=self.new_random_matrix).pack(side="left")
+        Button(self.vorschlag_frame, text="RandomSym", command=self.new_randomsym_matrix).pack(side="left")
         
-        Button(self.matrix_frame, text="Delete Matrix", command=self.delete_matrix).grid(row=0, column=2)
+        # Delet and Save Button
+        Button(self.matrix_frame, text=" X ", command=self.delete_matrix).grid(row=0, column=2)
         Button(self.matrix_frame, text="Save", command=self.submit_matrix).grid(row=2, column=2)
         
+        # Error Label
         self.error_label = Label(self, fg="red")
         self.error_label.place(relx=0.45, rely=0.5, relheight=0.05, relwidth=0.45)
         
         # Entry Frame
-        self.entry_frame = Frame(self, bd=1, relief="raised")
+        self.entry_frame = Frame(self, bd=1, relief="raised", bg="white")
         self.entry_frame.place(relx=0.1, rely=0.4, relwidth=0.3, relheight=0.1)
         
+        self.input_entry = Entry(self.entry_frame, bd=0, highlightthickness=0)
+        self.input_entry.pack(side="left", fill="both", expand=True, padx=20)
+        self.input_entry.bind("<Return>", self.interprete_input)
+        Button(self.entry_frame, text="K", command=self.interprete_input, bd=0).pack(side="left", padx=10)
+        
         # Output Frame
-        self.output_frame = Frame(self, bd=1, relief="raised")
+        self.output_frame = Label(self, bd=1, relief="raised")
         self.output_frame.place(relx=0.1, rely=0.55, relwidth=0.8, relheight=0.45)
-
+        
         # Help Label
+        with open("../help/matrix_deutsch.txt", "r") as help_:
+            matrix_deutsch = help_.read()
         self.help_label = Text(self)
-        # self.help_label.insert("end", matrix_help[lang])
+        self.help_label.insert("end", matrix_deutsch)
         self.help_label.config(state="disabled")
         self.help_show = False
+        self.ignore = False
         
         self.show_matrix()
     
-    def submit_dimensions(self, *event):
+    def check_dimensions(self):
+        """Es wird geschaut ob die gegebenen Werte n und m integer zwischen 1 und 15 sind, wenn dann werden sie
+        zurückgegeben"""
         n, m = self.rows_variable.get(), self.columns_variable.get()
         try:
             n, m = int(n), int(m)
@@ -862,61 +868,158 @@ class MatrixFrame(Frame):
             self.show_error()
         except ValueError:
             self.show_error("Dimensions must be integers between 1 and 15")
+            return None
+        return n, m
+    
+    def refresh_dimensions(self, *event):
+        """Vom 'ok' Button neben den dimensions wird hier eine neue matrix mit den gegebenen dimensionen erstellt"""
+        if dim := self.check_dimensions():
+            n, m = dim
         else:
-            print(f"neu:{n = }, {m = }")
-            self.refresh_dimensions(n, m)
-            
-    def refresh_dimensions(self, n, m):
-        pass
+            return None
+        
+        # check if there are values in der current matrix shown
+        if self.check_if_values():
+            if self.ignore:
+                
+                self.current_matrix.hide()
+                id_ = self.current_matrix.id
+                # Es wird die selbe ID genommen, da nur die dimensionen geändert werden
+                self.current_matrix = MatrixWrapper(self, self.name_entry.get(), n, m, id_)
+                self.current_matrix.show()
+            else:
+                raise Warning("there are still values in the grid, they will be deleted")
+        else:
+            self.create_new_matrix()
     
     def delete_matrix(self):
-        self.matrices.remove(self.current_matrix)
-        self.refresh_auswahl()
-        self.current_matrix.hide()
-        self.show_matrix()
-        print(f"after remove: {self.matrices = }")
-
+        """ vom 'X' Button wird die aktuelle Matrix gelöscht"""
+        if not self.matrices:
+            # Es gibt keine gespeicherte matrizen, es wird eine neue leere erstellt
+            self.current_matrix.hide()
+            self.create_new_matrix()
+        else:
+            if self.current_matrix in self.matrices:
+                self.matrices.remove(self.current_matrix)
+                del self.matrices_name[self.current_matrix.name]
+            self.refresh_auswahl()
+            self.show_matrix()
+    
     def submit_matrix(self):
+        """Vom 'save' Button werden die werte und der name der aktuellen Matrix gespeichert und Fehler überprüft.
+        Dann werden die Werte in einer neuen Matric() Instanz gespeichert, die später genutzt werden kann"""
+        self.show_error()
         self.current_matrix.save_values()
         name = self.name_entry.get()
+        id_ = self.current_matrix.id
+        
         if not name:
             self.show_error("No name")
-        elif name in [m.name for m in self.matrices]:
+        elif name in [m.name if id_ != m.id else "" for m in self.matrices]:
             self.show_error("Name is already taken")
         elif self.current_matrix not in self.matrices:
-            self.current_matrix.name = name
             self.matrices.append(self.current_matrix)
-            self.refresh_auswahl()
-            
+        
+        self.current_matrix.name = name
+        self.refresh_auswahl()
+        self.matrices_name[name] = Matrix(self.current_matrix.get_values())
+    
     def refresh_auswahl(self):
+        """Die Anzeige links, die alle gespeicherten Matrizen anzeigt, wird aktualisiert"""
         for auswahl in self.matrix_auswahl.winfo_children():
             auswahl.destroy()
         for matrix in self.matrices:
-            Button(self.matrix_auswahl, text=matrix.name, command=lambda m=matrix: self.show_matrix(m), width=2, height=2).pack(side="left")
-        Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2).pack(side="left")
+            Button(self.matrix_auswahl, text=matrix.name, command=lambda m=matrix: self.show_matrix(m), width=2,
+                   height=2).pack(side="left", anchor="n")
+        Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2).pack(side="left",
+                                                                                                  anchor="n")
+    
+    def create_new_matrix(self):
+        """Eine neue Matrix wird mit den aktuellen dimensionen erstellt und angezeigt"""
+        self.show_error()  # clear the error label
         
-    def show_error(self, error=""):
-        self.error_label.config(text=error)
-        
-    def show_matrix(self, matrix=None):
-        if not matrix:
-            if self.current_matrix:
-                self.current_matrix.hide()
-            self.current_matrix = MatrixWrapper(self, "", 3, 3)
+        if dim := self.check_dimensions():
+            n, m = dim
+            
+            if cm := self.current_matrix:
+                cm.hide()
+            id_ = self.generate_new_id()
+            self.current_matrix = MatrixWrapper(self, "", n, m, id_)
             self.current_matrix.show()
+    
+    def show_matrix(self, matrix=None):
+        """Es wird die gegebene Matrix angezeigt (zb vom AnzeigeButton links) oder eine neue erstellt."""
+        self.show_error()  # clear the error label
+        
+        if not matrix:
+            self.create_new_matrix()
         else:
             self.current_matrix.hide()
             self.current_matrix = matrix
             self.current_matrix.show()
-
-    def show_help(self, force=None):
-        self.help_show = not self.help_show if force is None else force
     
+    def new_identity_matrix(self):
+        """Eine Neue ID Matrix wird erstellt und eingefügt"""
+        self.create_new_matrix()
+        n, m = self.check_dimensions()
+        if n == m:
+            id_matrix = Matrix.Id(n)
+            self.current_matrix.insert_values(id_matrix)
+        else:
+            self.show_error("dimensions are not symetric")
+    
+    def new_zero_matrix(self):
+        self.create_new_matrix()
+        n, m = self.check_dimensions()
+        zero_matrix = Matrix.Zero(n, m)
+        self.current_matrix.insert_values(zero_matrix)
+    
+    def new_random_matrix(self):
+        self.create_new_matrix()
+        n, m = self.check_dimensions()
+        rnd_matrix = Matrix.Random(n, m)
+        self.current_matrix.insert_values(rnd_matrix)
+    
+    def new_randomsym_matrix(self):
+        self.create_new_matrix()
+        n, m = self.check_dimensions()
+        if n == m:
+            rnds_matrix = Matrix.RandomSym(n)
+            self.current_matrix.insert_values(rnds_matrix)
+        else:
+            self.show_error("dimensions are not symetric")
+    
+    def generate_new_id(self):
+        """Jede Matrix hat eine ID um sie zu unterscheiden. Hier wird eine neue generiert."""
+        n = 0
+        all_ids = [m.id for m in self.matrices]
+        while n in all_ids:
+            n += 1
+        return n
+    
+    def check_if_values(self):
+        """Hier wird überprüft ob es einträge in der aktuellen matrix gibt."""
+        return any([any(col) for col in self.current_matrix.get_values()])
+    
+    def show_error(self, error=""):
+        """Der error wird unter dem matrix_edit_frame angezeigt"""
+        self.error_label.config(text=error)
+    
+    def interprete_input(self, _=None):
+        string = self.input_entry.get()
+        if string in self.matrices_name:
+            self.output_frame.config(text=str(self.matrices_name[string]))
+    
+    def show_help(self, force=None):
+        """Der Hilfe für den MatrixFrame wird oben links angezeigt.
+        Die Sichtbarkeit wird automatisch gewechselt, es sei denn, es wird ein bestimmter Zustand erzwungen"""
+        self.help_show = not self.help_show if force is None else force
+        
         if self.help_show:
             self.help_label.place(x=10, y=0)
         else:
             self.help_label.place_forget()
-        
+
 
 class CodeFrame(Frame):
     def __init__(self, container):
