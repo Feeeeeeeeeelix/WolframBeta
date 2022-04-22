@@ -1,6 +1,32 @@
+ .button {
+      color: white;
+      background-color: #001B81;
+      
+      border: solid 2px;
+      border-color: LIGHTGREY;
+      padding: 30px 41px 30px 20px;
+      margin: 0px 0px;
+      
+            
+      text-align: center ;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+            
+      font-size: 22px;
+      
+
+      position:absolute;
+      width: 50px;
+      left: 1px;
+      position:fixed;
+      
+      }
+
+
 #logo{
     position:absolute;
-    left:80px;
+    left:120px;
     top:0;
     width:400px;
 }
@@ -16,25 +42,26 @@
 }
 
 a{
-margin-left: 70px;
+margin-left: 110px;
 width: 1150px;
 }
 
 p {
  font-size: 1.25em;
- margin-left: 90px;
- width: 1150px;
+ margin-left: 130px;
+ width: 1050px;
 }
 
 h4 {
  font-size: 1.4em;
- margin-left:70px;
+ margin-left:110px;
  width: 1150px;
 }
 
 h3 {
  color:white;
- margin:40px 150px 20px 65px;
+ margin:40px 190px 20px 65px;
+ margin-left: 120px;
  padding:10px 80px 10px 30px;
  border:solid 2px black;
  width:290px;
@@ -45,7 +72,7 @@ h3 {
 
 ul,ol {
 font-size: 1.25em;
-margin-left: 80px;
+margin-left: 120px;
 width: 1150px;
 }
 
@@ -54,5 +81,5 @@ width: 1150px;
 
 body {
     background-image:url('Hintergrund.png');
-    background-repeat: repeat-y
+    background-repeat: repeat-y;
 }
