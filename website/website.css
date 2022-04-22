@@ -22,13 +22,28 @@
       position:fixed;
       
       }
+#de{
+    position:absolute;
+    left:10px;
+    top:550px;
+    width:90px;
+    position:fixed;
+}
+
+#fr{
+    position:absolute;
+    left:10px;
+    top:660px;
+    width:90px;
+    position:fixed;
+}
 
 
 #logo{
     position:absolute;
     left:120px;
     top:0;
-    width:400px;
+    width:550px;
 }
 
 #ana3{
@@ -42,19 +57,19 @@
 }
 
 a{
-margin-left: 110px;
+margin-left: 130px;
 width: 1150px;
 }
 
 p {
- font-size: 1.25em;
- margin-left: 130px;
+ font-size: 1.35em;
+ margin-left: 150px;
  width: 1050px;
 }
 
 h4 {
  font-size: 1.4em;
- margin-left:110px;
+ margin-left:130px;
  width: 1150px;
 }
 
@@ -62,7 +77,7 @@ h3 {
  color:white;
  margin:40px 190px 20px 65px;
  margin-left: 120px;
- padding:10px 80px 10px 30px;
+ padding:10px 90px 10px 30px;
  border:solid 2px black;
  width:290px;
  background-color: #001B81;
@@ -71,8 +86,8 @@ h3 {
 }
 
 ul,ol {
-font-size: 1.25em;
-margin-left: 120px;
+font-size: 1.35em;
+margin-left: 150px;
 width: 1150px;
 }
 
