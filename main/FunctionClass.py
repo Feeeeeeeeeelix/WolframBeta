@@ -27,10 +27,11 @@ from functions import *
 FUNCTIONS = ['C', 'PGCD', 'PPCM', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctan', 'arctanh', 'cos', 'cosh', 'sin', 'sinh',
              'eratosthenes', 'exp', 'fact', 'ggT', 'isprime', 'kgV', 'log', 'ln', 'partition', 'pow', 'root',
              'sqrt', 'tan', 'tanh', 'Int', 'min', 'max', 'primfactors', 'nullstellen']
-FUNCTIONS.extend(["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"])
-
 SIMPLE_FUNCTIONS = ['cos', 'cosh', 'arccos', 'arccosh', 'sin', 'sinh', 'arcsin', 'arcsinh', 'tan', 'tanh', 'arctan', 'arctanh',
                     'exp', 'log', 'ln', 'sqrt']
+
+DEFINED_FUNCTIONS = {}
+
 ALPHABET = "qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNMπ"
 NUMBERS = "0123456789"
 
@@ -96,7 +97,7 @@ def _extract_args(f):
         i += 1
     
     for arg in args:
-        f = f.replace(f"({arg})", "@")
+        f = f.replace(f"({arg})", "@", 1)
     
     return f, args
 
@@ -201,7 +202,11 @@ def parse(f: str, simp=False):
         # 2C3 -> C(2,3)
         return parse(f"C({f[:f.index('C')]},{f[f.index('C') + 1:]})", simp)
     if f in ALPHABET and len(f) == 1:
-        return f
+        if f in DEFINED_FUNCTIONS and simp:
+            # Funktionsname einer im AnalysisFrame von WolframBeta definierten Funktion wird durch ihren term ersetzt
+            return parse(DEFINED_FUNCTIONS[f], simp)
+        else:
+            return f
     
     f0 = f
     f, innerargs = _extract_args(f)  # klammern und ihr inneres ersetzen
@@ -294,7 +299,7 @@ def parse(f: str, simp=False):
     
     if f[0] == "-":
         # keine substraktion
-        if len(f) == 2 and f[1] in ALPHABET+NUMBERS:
+        if len(f) == 2 and f[1] in ALPHABET+NUMBERS and f[1] not in DEFINED_FUNCTIONS:
             return f"-{f[1]}"
         else:
             return ["*", [-1, parse(f0[1:], simp)]]
@@ -724,35 +729,11 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "d^1/dx^1(sin(x))(1)"
-    func="1+4554!"
-    # f2 = "cosx"
+    func = "sin(x)-(cos(x) + ln(x))"
     
     try:
         s = Function(func)
-        # d = Function(f2)
-        print(s.str_out)
-        print(fact(54))
-        # input = "d/dx(x^34)"
-        # input_latex = write_latex_ws(parse_ws(func))
-        # output_latex = parse(func, ableiten=True)
-        # try:
-        #     output_latex = eval(write(output_latex))
-        # except:
-        #     output_latex = write_latex(output_latex)
-        # print(input_latex," = ", output_latex)
         
-        # a = parse_ws(func)
-        # d = write_latex_ws(a)
-        # b = parse(func, ableiten=True)
-        # c = write(b)
-        # print(a)
-        # print(d)
-        # print()
-        # print(b)
-        # print(c)
-        # # print(eval(c))
-    
     except Exception as e:
         print(PRINT)
         raise e

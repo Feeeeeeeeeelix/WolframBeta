@@ -9,6 +9,8 @@ analysis.py module:
 
 """
 
+DEFAULT_RANGE = [-5, 5]
+
 
 def _sekanten_verfahren(f, x1, x2):
     eps_stop = 10 ** -15
@@ -45,7 +47,15 @@ def _sign(x):
     return 1 if x > 0 else 0 if x == 0 else -1
 
 
-def nullstellen(f, a, b):
+def nullstellen(func, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
+    print(f"nullstellen: {func = }, {type(func) = }")
+    
+    if type(func) == str:
+        # funktionsterme werden in eine funktion umgewandelt
+        f = lambda x: eval(func)
+    else:
+        f = func
+        
     number_of_test_values = 1000
     
     values = []
@@ -54,7 +64,11 @@ def nullstellen(f, a, b):
     
     # Values bestimmen auf allen Test-Punkten
     while x <= b:
-        values.append([x, _sign(f(x))])
+        try:
+            values.append([x, _sign(f(x))])
+        except ValueError:
+            # Wenn f nicht in x definiert ist
+            pass
         x += schrittweite
     
     nulls = []
@@ -81,7 +95,7 @@ def nullstellen(f, a, b):
     return nulls
 
 
-def maximum(f, a, b):
+def maximum(f, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
     n = 3000
     x = a
     max_fx = f(x)
@@ -93,7 +107,7 @@ def maximum(f, a, b):
     return max_fx
 
 
-def minimum(f, a, b):
+def minimum(f, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
     n = 3000
     x = a
     min_fx = f(x)
@@ -192,9 +206,9 @@ def der(f, var="x", n=1, dx=10 ** (-3)):
 
 
 if __name__ == "__main__":
-    from functions import sin, cos
+    from functions import sin, cos, ln
     
-    """print("Beispiele:\n")
+    """print("Beispiele:")
     
     y = euler_collatz("y", 0, 1, 3)  # Löse y' = y mit y(0) = 1   --> y(t) = e^t einzige Lösung
     print(y)
@@ -214,7 +228,7 @@ if __name__ == "__main__":
     print(y)
     print("Zum Vergleich mit dem letzten Term: ", e ** (1 / 2 * 2 ** 2))"""
     
-    f = lambda t: sin(t ** 2)
+    """ f = lambda t: sin(t ** 2)
     df = lambda t: 2 * t * cos(t ** 2)
     ddf = lambda t: 2 * cos(t ** 2) - 4 * t ** 2 * sin(t ** 2)
     
@@ -228,4 +242,6 @@ if __name__ == "__main__":
     print(ddf(1))
     
     print(der(lambda x:sin(x))(1))
-    print(cos(1))
+    print(cos(1))"""
+    
+    print(nullstellen("sin(x)-cos(x)+ln(x)"))

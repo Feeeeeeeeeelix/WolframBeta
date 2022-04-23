@@ -6,7 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from FunctionClass import *
 from functions import *
-from analysis import min, minimum, max, maximum, nullstellen, der
+from analysis import min, minimum, max, maximum, nullstellen, der, DEFAULT_RANGE
 from matrix import Matrix
 
 lblue = "#1e3799"
@@ -721,6 +721,8 @@ class AnalysisFrame(Frame):
             self.x_max_entry.insert(0, x_max)
             
         self.default_range = [x_min, x_max]
+        # für analysis.py wird die default range für min, max, und nullstellen geändert
+        DEFAULT_RANGE = [x_min, x_max]
         self.graph(new=True)
         
     def toggle_visibility(self, obj):
@@ -764,14 +766,52 @@ class AnalysisFrame(Frame):
             self.show_error(format_error(string))
             return None
         
+        for function in self.functions.values():
+            DEFINED_FUNCTIONS[function.name] = str(function.str_out)
+        
         try:
             if "=" in string:
-                pass
+                """Gleichheit überprüfen"""
+    
+                n = string.find("=")
+    
+                lp_raw = string[:n]
+                rp_raw = string[n + 1:]
+    
+                if "=" in rp_raw:
+                    self.show_error("Invalid input: '=='; rather write '='")
+                    return None
+    
+                lp, rp = parse(lp_raw, False), parse(rp_raw, False)
+                print("ok")
+                lp_simp, rp_simp = write(parse(lp_raw, True)), write(parse(rp_raw, True))
+                print("ok2")
+    
+                if isfloat(lp_simp):
+                    lp_simp = round(flint(lp_simp), 10)
+                if isfloat(rp_simp):
+                    rp_simp = round(flint(rp_simp), 10)
+                    
+                eq = write(parse(f"{lp_simp}-({rp_simp})", True))
+                print(eq)
+                if not isfloat(eq):
+                    # gleichung lösen:
+                    loesungen = nullstellen(lambda x: eval(eq))
+                    output_latex = r"x \in \{" + str([flint(round(ans, 5)) for ans in loesungen])[1:-1] + r"\}"
+    
+                else:
+                    # gleichheit überprüfen
+                    output_latex = eval(f"{lp_simp} == {rp_simp}")
+    
+                input_latex = f"{write_latex(lp)} = {write_latex(rp)}"
+                self.show_answer(rf"{input_latex}:\/\/ {output_latex}")
+            
             else:
                 
                 input_latex = write_latex(parse(string))
                 output_tree = parse(string, simp=True)
                 print(input_latex, output_tree)
+                
                 try:
                     for func in self.functions.values():
                         locals()[func.name] = func
@@ -781,20 +821,23 @@ class AnalysisFrame(Frame):
                     w = write(output_tree)
                     print(f"write: {w}")
                     output_latex = eval(w)
+                    
                 except Exception as e:
                     print(f"couldnt eval {write(output_tree)}, {e}")
                     output_latex = write_latex(output_tree, simp=True)
+                    
+                output = f"{input_latex} = {output_latex}"
+                self.show_answer(output)
+                
         except Exception as error:
             self.show_error(format_error(error))
             return None
         
-        self.show_answer(input_latex, output_latex)
-    
-    def show_answer(self, input_latex, output_latex):
+    def show_answer(self, string=""):
         """Der output aus der 'compute_entry' wird hier auf einer matplotlib Figure angezeigt."""
         self.show_error("")
-        text = rf"${input_latex} = {output_latex}$"
-        text = text if text != "$ = $" else ""
+        text = rf"${string}$"
+        text = text if text != "$$" else ""
         self.io_figure.clear()
         self.io_figure.text(0.5, 0.5, text, size=int(1000 / (len(text) + 50)), va="center", ha="center")
         self.io_canvas.draw()
@@ -821,7 +864,7 @@ class AnalysisFrame(Frame):
         self.create_new_line()
         self.graph()
         self.compute_entry.delete(0, "end")
-        self.show_answer("", "")
+        self.show_answer()
         self.show_help(False)
 
 
