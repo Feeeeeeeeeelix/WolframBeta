@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
+  <meta charset="utf-8">
+  <title>Wolframbeta</title>
+</head>
+
+
+ 
+<body>
+
+<a href=Algebra_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
+<a href=Algebra_fr.html><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
+<img  id="logo" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/logo.png" alt=""/>
+<img  id="ana3" src="ana3.png" style="top:50px;" alt=""/>
+<br/><br/><br/><br/>
+
+
+<a href="website.html" class="button" style="top:0px;">Home</a>
+<a href="Algebra_fr.html" class="button" style="top:90px;">Algèbre</a>
+<a href="https://de.w3docs.com/" class="button" style="top:180px;">Analyse</a>
+<a href="Matrix_fr.html" class="button" style="top:270px;">Matrice</a>
+<a href="https://de.w3docs.com/" class="button" style="top:360px;">Console</a>
+
+<h3> Qu'est-ce possible dans l'ècran "Matrice"?</h3>
+
+<p> En au à droite on peut donner les entrés de matrices de taille variable. Ces Matrices sont alors storées en haut à gauche. Grace à une multitude d'algorithme et de fonction, le calcul matricielle est fortement simplifié. </p>
+<h4>Voici les fonctions:</h4>
+
+
+
+<h3>Operateurs:</h4>
+
+<table>
+<tr>  <th>Expressions</th>   <th>Fonctions</th> </tr>
+
+<tr> <td>+, -, *, ^n</td>   <td>Operateurs élementaires</td> </tr>
+
+<tr> <td>^-1 oder inverse</td>   <td>La matrice inverse</td> </tr>
+
+<tr> <td>^T</td>   <td>La matrice transposée</td> </tr>
+
+<tr> <td>det</td>   <td>Le determinant</td> </tr>
+
+<tr> <td>Eigenvalues</td>   <td>Permet de calculer les valeurs propres complexes <br>Pour les matrices symmétriques, on utilise la méthode de Jacobi.<br> Sinon, nous utilisons une transformations en forme hesseberg, pour éffectuer la méthode QR avec éfficacité,<br> en utilisant des rotations de givens.</td> </tr>
+
+
+</table>
+
+
+
+
+<h3>Factorisation:</h4>
+
+<table>
+<tr>  <th>Expressions</th>   <th>Fonctions</th> </tr>
+
+<tr> <td>LU</td>   <td>Calcule, si possible, la décomposition LU: A = LU.<br> L est une matrice inférierue triangulaire normée,<br> U une matrice supérieure triangulaire.</td> </tr>
+
+<tr> <td>QR</td>   <td>Calcule, pour toute matrice la décomposition QR: A = QR<br> Q est une matrice othogonale et R une matrice triangulaire de dimension n x m.</td> </tr>
+
+<tr> <td>Cholesky</td>   <td>Pour des matrices A symmétriques et positive définite, on décompose en cholesky: A = L*L^T<br> L est une matrice inférieure.</td> </tr>
+
+</table>
+
+
+<h3>Résolution de système d'équations linéaires</h4>
+
+<table>
+<tr>  <th>Expressions</th>   <th>Fonctions</th></tr>
+
+<tr> <td>LU</td>   <td> Trouve la solution à LUx=b,<br> en calculant y tel que Ly=b, puis x avec Ux=y.</td> </tr>
+
+<tr> <td>Cholesky</td>   <td>Comme pour la déomposition LU.</td> </tr>
+
+<tr> <td>Gauss</td>   <td>Avec des opérations sur les lignes de A, on transforme A en Id.<br> Ces operations sont appliqué sur b pour résoudre Ax=b</td> </tr>
+
+<tr> <td>Ausgleichsproblem</td>   <td>Régression linéaire: Quand Ax=b à trops de constraint,<br> il se trouve qu'il n'y a pas de solution.<br> Or il existe un x tel que Ax-b a une norme minimale.<br> Cette fonction calcule cet x, ce qui est utile en interpolation en physique et autre.</td> </tr>
+
+
+</table>
+
+
+<br />
+
+<hr />
+
+<h4> Les  developpeurs: &nbsp;&nbsp; Felix Dehon et Eric Trébuchon, de la TSMP </h4>
+
+<a href="https://github.com/Feeeeeeeeeelix/WolframBeta">Allez voire notre projet sur Github!</a>
+</body>
+</html>
