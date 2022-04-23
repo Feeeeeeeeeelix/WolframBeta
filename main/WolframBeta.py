@@ -17,7 +17,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 0
+default_frame = 1
 min_window = True
 
 """TODO:
@@ -214,14 +214,23 @@ class RechnerFrame(Frame):
                     return None
                 
                 lp, rp = parse(lp_raw, False), parse(rp_raw, False)
+                lp_simp, rp_simp = write(parse(lp_raw, True)), write(parse(rp_raw, True))
+                
+                if isfloat(lp_simp):
+                    lp_simp = round(flint(lp_simp), 10)
+                if isfloat(rp_simp):
+                    rp_simp = round(flint(rp_simp), 10)
+                    
+                if not isfloat(eq := write(parse(f"{lp_simp}-{rp_simp}", True))):
+                    # gleichung lösen:
+                    loesungen = nullstellen(lambda x: eval(eq), -10, 10)
+                    output_latex = r"x \in \{" + str([flint(round(ans, 5)) for ans in loesungen])[1:-1] + r"\}"
+                    
+                else:
+                    # gleichheit überprüfen
+                    output_latex = eval(f"{lp_simp} == {rp_simp}")
                 
                 input_latex = f"{write_latex(lp)} = {write_latex(rp)}"
-                lp_simp, rp_simp = write(parse(lp_raw, True)), write(parse(rp_raw, True))
-                lp_simp = round(flint(lp_simp), 10) if isfloat(lp_simp) else lp_simp
-                rp_simp = round(flint(rp_simp), 10) if isfloat(rp_simp) else rp_simp
-                print(lp_simp, rp_simp, f"{lp_simp} == {rp_simp}")
-                output_latex = eval(f"{lp_simp} == {rp_simp}")
-                
                 return rf"{input_latex}:\/\/ {output_latex}"
             
             else:
@@ -242,7 +251,6 @@ class RechnerFrame(Frame):
                 return f"{input_latex} = {output_latex}"
         
         except Exception as error:
-            print(f"error rechner: {error}")
             self.show_error(format_error(error))
             return None
     
@@ -370,7 +378,7 @@ class FunctionWrapper(Function):
     name, Farbe, sichtbarkeit im Graph, und ID"""
     
     def __init__(self, string, variable="x", name=None, color=None, isvisible=True, entry_index=None):
-        print(f"neue funktion: {string}, {name = }")
+        # print(f"neue funktion: {string}, {name = }")
         super().__init__(string, variable)
         self.name = name
         self.color = color
@@ -473,6 +481,22 @@ class AnalysisFrame(Frame):
         # self.subplot.set_facecolor("red")
         # self.figure.set_facecolor("blue")
         self.subplot.grid(True)
+        
+        # x-range auswahl:
+        self.default_range = [-5, 5]
+        self.range_frame = Frame(self)
+        self.range_frame.place(relx=0.65, rely=0.95, relheight=0.05, relwidth=0.25)
+        Label(self.range_frame, text="x-range: [").pack(side="left")
+        self.x_min_entry = Entry(self.range_frame, width=4)
+        self.x_min_entry.pack(side="left")
+        self.x_min_entry.insert(0, self.default_range[0])
+        Label(self.range_frame, text=", ").pack(side="left")
+        self.x_max_entry = Entry(self.range_frame, width=4)
+        self.x_max_entry.pack(side="left")
+        self.x_max_entry.insert(0, self.default_range[1])
+        Label(self.range_frame, text="]").pack(side="left")
+        self.refresh_icon = PhotoImage(file="../pictures/refresh.png").subsample(30, 30)
+        Button(self.range_frame, image=self.refresh_icon, command=self.refresh_max_range).pack(side="left", padx=20)
         
         # clear button
         self.clear_button = Button(self, text="X", command=self.clear_frame)
@@ -659,16 +683,17 @@ class AnalysisFrame(Frame):
         
         return self.funcnames_order[n]
     
-    def graph(self):
+    def graph(self, new=None):
         """Von allen gespeicherten Funktionen werden alle sichtbaren geplottet. Dabei werden alle Werte gespeichert, da
         sie sonst bei jedem neuen graph() aufruf neu berechnet werden müssen"""
-        # Default range:
-        I_max = rrange(-5, 5, 0.01)
+        
+        x_min, x_max = self.default_range
+        I_max = rrange(x_min, x_max, (x_max-x_min)/100)
         
         self.subplot.clear()
         for function in self.functions.values():
             if function.isvisible:
-                if function.str_out in self.stored_values:
+                if function.str_out in self.stored_values and not new:
                     # Die funktion wurde schon mal angezeigt und deren (x,y) werte wurden schon gespeichert
                     I, J = self.stored_values[function.str_out]
                 else:
@@ -691,6 +716,27 @@ class AnalysisFrame(Frame):
         self.subplot.grid(True)
         self.canvas.draw()
     
+    def refresh_max_range(self):
+        x_min, x_max = self.x_min_entry.get(), self.x_max_entry.get()
+        if not isfloat(x_min):
+            # illegale eingabe
+            x_min = -5
+            self.x_min_entry.delete(0, "end")
+            self.x_min_entry.insert(0, x_min)
+        if not isfloat(x_max):
+            x_max = 5
+            self.x_max_entry.delete(0, "end")
+            self.x_max_entry.insert(0, x_max)
+        if (x_min := flint(x_min)) > (x_max := flint(x_max)):
+            x_min, x_max = x_max, x_min
+            self.x_min_entry.delete(0, "end")
+            self.x_min_entry.insert(0, x_min)
+            self.x_max_entry.delete(0, "end")
+            self.x_max_entry.insert(0, x_max)
+            
+        self.default_range = [x_min, x_max]
+        self.graph(new=True)
+        
     def toggle_visibility(self, obj):
         """Wenn man auf den Farbkreis den EntryLine 'obj' drückt, wird deren sichtbarkeit getoggelt"""
         id_ = obj.id

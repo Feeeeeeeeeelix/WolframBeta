@@ -411,7 +411,10 @@ def write(f: list) -> str or int:
         if f[0] == "Int":
             return str(integrate(*f[1:]))
         args = ", ".join([str(write(arg)) for arg in f[1:]])
-        return flint(eval(f"{f[0]}({args})"))
+        try:
+            return flint(eval(f"{f[0]}({args})"))
+        except:
+            return f"{f[0]}({args})"
     
     if f[0] == "diff":
         return f"d/d{f[2]}({write(f[1])})"
