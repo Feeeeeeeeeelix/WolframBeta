@@ -42,7 +42,7 @@
 #logo{
     position:absolute;
     left:120px;
-    top:0;
+    top:0px;
     width:550px;
 }
 
@@ -92,15 +92,13 @@ width: 1150px;
 }
 
 table {
-font-size:1.35em;
-margin-left:150px;
+ font-size:1.35em;
  color:black;
- margin:40px 190px 20px 65px;
- margin-left: 120px;
+ margin:40px 120px 20px 165px;
  padding:30px 120px 30px 60px;
  box-shadow: 6px 8px 15px 10px grey;
  border-radius: 5px 20px 5px 15px;
- width: 80%;
+ width: 70%;
  border-collapse: collapse;
 
 }
@@ -117,11 +115,17 @@ th{
   border: 3px solid black;
 }
 
-tr:nth-child(even) {background-color: #f2f2f2;};
-   
 
 
 body {
     background-image:url('Hintergrund.png');
     background-repeat: repeat-y;
+    height = 700px;
 }
+
+hr{
+ margin-left:110px;
+}
+
+
+tr:nth-child(even) {background-color: #f2f2f2;};
