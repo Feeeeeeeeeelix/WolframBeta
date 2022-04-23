@@ -201,16 +201,13 @@ class RechnerFrame(Frame):
             if "=" in user_input:
                 """Gleichheit überprüfen"""
                 
-                if "==" in user_input:
-                    # Man soll "==" oder "=" schreiben können
-                    user_input = user_input.replace("==", "=")
                 n = user_input.find("=")
                 
                 lp_raw = user_input[:n]
                 rp_raw = user_input[n + 1:]
                 
                 if "=" in rp_raw:
-                    self.show_error(f"Invalid input")
+                    self.show_error("Invalid input: '=='; rather write '='")
                     return None
                 
                 lp, rp = parse(lp_raw, False), parse(rp_raw, False)
@@ -387,17 +384,6 @@ class FunctionWrapper(Function):
 
 
 class AnalysisFrame(Frame):
-    """TODO:
-    compute-eingabe
-    Alle Farben als Ring
-    Ring besser
-    Funktionskatalog
-    Differerentialgleichung
-    graph axis
-    (design)
-    
-    """
-    
     def __init__(self, container):
         super().__init__(container)
         

@@ -210,7 +210,7 @@ def parse(f: str, simp=False):
         # unnötige klammern
         return parse(innerargs[0], simp)
     
-    # Ableitung
+    # Ableitung:
     if f[0:3] == "d/d" and f[4] == "@" and len(f) == 5:
         # bsp: d/dx(e^x)
         var = f[3]
@@ -222,7 +222,7 @@ def parse(f: str, simp=False):
             PRINT += f"\nparse: not diff: {f = }"
             return ["diff", parse(innerargs[0]), var]
         
-    # höhere Ableitung
+    # höhere Ableitung:
     if len(f) == 10 and f[:2] == "d^" and f[3:5] == "/d" and f[6] == "^" and f[8:10] == "@@":
         # höhere Ableitung: f = "d^n/dx^n(f)(x_0) (n'te ableitung von f(x) nach x bei x_0)
         
@@ -236,7 +236,7 @@ def parse(f: str, simp=False):
         else:
             return ["diff", parse(innerargs[0]), f[5], n, x_0]
     
-    # implizierte Multiplikationen
+    # implizierte Multiplikationen:
     i = 0
     while i < len(f) - 1:
         # 2@ / 2x / @@ / @x / ax(keine funktion) --> implizierte multiplikation
@@ -338,8 +338,10 @@ def parse(f: str, simp=False):
     if f.endswith("!"):
         if f == "@!":
             return parse(f"fact({innerargs[0]})", simp)
-        else:
+        elif (isfloat(f[:-1]) or f[:-1] in ALPHABET) and f[:-1]:
             return parse(f"fact({f[:-1]})", simp)
+        else:
+            raise SyntaxError("usage of '!' not clear")
     
     raise SyntaxError(f"The parser doesn't know how to parse: {f}")
 
@@ -723,13 +725,14 @@ class Function:
 
 if __name__ == "__main__":
     func = "d^1/dx^1(sin(x))(1)"
-    func="sin(0)"
+    func="1+4554!"
     # f2 = "cosx"
     
     try:
         s = Function(func)
         # d = Function(f2)
         print(s.str_out)
+        print(fact(54))
         # input = "d/dx(x^34)"
         # input_latex = write_latex_ws(parse_ws(func))
         # output_latex = parse(func, ableiten=True)

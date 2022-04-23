@@ -36,6 +36,8 @@ def is_int(n):
 def fact(n):
     if not is_pos_int(n):
         raise ValueError(f"fact argument must be a positive integer")
+    if n > 997:
+        raise ValueError(f"fact argument too big ({n})")
     return n * fact(n - 1) if n > 1 else 1
 
 
@@ -315,5 +317,5 @@ def partition(n):
 
 
 if __name__ == '__main__':
-    print(root(-4,5))
+    print(fact(998))
 
