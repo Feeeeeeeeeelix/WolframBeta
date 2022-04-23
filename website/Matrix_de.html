@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
+  <meta charset="utf-8">
+  <title>Wolframbeta</title>
+</head>
+
+
+ 
+<body>
+
+
+<a href=Matrix_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
+<a href="Matrix_fr.html"><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
+<img  id="logo" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/logo.png" alt=""/>
+<img  id="ana3" src="ana3.png" style="top:50px;" alt=""/>
+<br/><br/><br/><br/>
+
+<a href="website_de.html" class="button" style="top:0px;">Home</a>
+<a href="Algebra_de.html" class="button" style="top:90px;">Rechner</a>
+<a href="https://de.w3docs.com/" class="button" style="top:180px;">Analysis</a>
+<a href="Matrix_de.html" class="button" style="top:270px;">Matrizen</a>
+<a href="https://de.w3docs.com/" class="button" style="top:360px;">Console</a>
+
+<h3> Was kann man im Matrix-Screen machen?</h3>
+
+<p> Oben Rechts kann man Matrizen von variabler Größe eingeben (oder zufällig generieren lassen) und einspeichern. Durch viele Algorithmen und Funktionen können Sie die meisten Rechnungen mit MAtrizen leicht und effizient berechnen lassen. </p>
+<h4>Hier eine Liste der Funktionen:</h4>
+
+
+
+<h3>Operatoren:</h4>
+
+<table>
+<tr>  <th>Ausdruck</th>   <th>Funktion</th> </tr>
+
+<tr> <td>+, -, *, ^n</td>   <td>Elementare Operatoren für Matrizen</td> </tr>
+
+<tr> <td>^-1 oder inverse</td>   <td>Berechnet die Inverse von A</td> </tr>
+
+<tr> <td>^T</td>   <td>Transponierte</td> </tr>
+
+<tr> <td>det</td>   <td>Determinante</td> </tr>
+
+<tr> <td>Eigenvalues</td>   <td>Berechnet alle komplexen Eigenwerte.<br>Dabei wird im symmetrischen Fall das Jacobi-Verfahren verwendet.<br>Sonst wird A in Hessebergform transformiert um effiziente Givens-Rotationen im QR-Verfahren zu machen. <br> Damit erhalten wir eine Block-Diagonal-Matrix, dessen 2x2 Blöcke die komplesen Eigenenwerte bestimmt.</td> </tr>
+
+
+</table>
+
+
+
+
+<h3>Zerlegungen:</h4>
+
+<table>
+<tr>  <th>Ausdruck</th>   <th>Funktion</th> </tr>
+
+<tr> <td>LU</td>   <td>Berechnet, falls existent, die LU-Zerlegung: A = LU.<br> L ist eine normalisierte untere Dreiecksmatrix und U eine obere Dreiecksmatrix.</td> </tr>
+
+<tr> <td>QR</td>   <td>Berechnet für beliebige Matrizen A = QR<br> Q ist eine orthogonale Matrix und R eine verallgemeinerte obere Dreiecksmatrix.</td> </tr>
+
+<tr> <td>Cholesky</td>   <td>Berechnet für symmetrische und positiv definite Matrizen A = L*L^T<br> L ist eine untere Dreiecksmatrix.</td> </tr>
+
+</table>
+
+
+<h3>Lineare Gleichunssystem lösen:</h4>
+
+<table>
+<tr>  <th>Ausdruck</th>   <th>Funktion</th></tr>
+
+<tr> <td>LU</td>   <td> Löst LUx=b durch lösen von Ly=b und dann Ux=y.</td> </tr>
+
+<tr> <td>Cholesky</td>   <td>Analog zu LU</td> </tr>
+
+<tr> <td>Gauss</td>   <td>Durch elementare Zeilenumformungen wird A zur Id-Matrix umgeformt.<br> Diese Operationen werden auf b anwgewendet um Ax=b zu lösen</td> </tr>
+
+<tr> <td>Ausgleichsproblem</td>   <td>Falls Ax=b überbestimmt ist, gibt es keine Lösung.<br> Man kann aber ein x finden, welches die Norm von Ax-b minimiert.<br> Dies kann für Interpolation in Physik nützlich sein.</td> </tr>
+
+
+</table>
+
+
+
+<br />
+
+<hr />
+
+<h4> Die Entwickler: &nbsp;&nbsp; Felix Dehon und Eric Trébuchon, aus der TSMP </h4>
+
+<a href="https://github.com/Feeeeeeeeeelix/WolframBeta">Hier gehts zu unserem Github-Projekt!</a>
+</body>
+</html>
