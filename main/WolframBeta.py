@@ -17,7 +17,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 2
+default_frame = 0
 min_window = True
 
 """TODO:
@@ -183,10 +183,10 @@ class RechnerFrame(Frame):
             """in self.memory werden die inputs und ergebnisse gespeichert. Jetzt wird das gespeicherte angezeigt"""
             self.show_answer(self.memory[self.input])
         else:
-            answers = self.interprete(self.input)
-            if not answers: return None
-            self.show_answer(answers)
-            self.memory[self.input] = [*answers]
+            answer = self.interprete(self.input)
+            if not answer: return None
+            self.show_answer(answer)
+            self.memory[self.input] = answer
     
     def interprete(self, user_input):
         
@@ -200,33 +200,51 @@ class RechnerFrame(Frame):
         try:
             if "=" in user_input:
                 """Gleichheit überprüfen"""
+                
+                if "==" in user_input:
+                    # Man soll "==" oder "=" schreiben können
+                    user_input = user_input.replace("==", "=")
                 n = user_input.find("=")
-                lp = parse(user_input[:n])
-                rp = user_input[n + 1:]
-                if "=" in rp[1:]:
+                
+                lp_raw = user_input[:n]
+                rp_raw = user_input[n + 1:]
+                
+                if "=" in rp_raw:
                     self.show_error(f"Invalid input")
                     return None
-                input_latex = f"{write_latex(lp)} == {write_latex(parse(rp))}"
-                print(input_latex)
-                output_latex = eval("write(lp) == write(parse(rp))")
+                
+                lp, rp = parse(lp_raw, False), parse(rp_raw, False)
+                
+                input_latex = f"{write_latex(lp)} = {write_latex(rp)}"
+                lp_simp, rp_simp = write(parse(lp_raw, True)), write(parse(rp_raw, True))
+                lp_simp = round(flint(lp_simp), 10) if isfloat(lp_simp) else lp_simp
+                rp_simp = round(flint(rp_simp), 10) if isfloat(rp_simp) else rp_simp
+                print(lp_simp, rp_simp, f"{lp_simp} == {rp_simp}")
+                output_latex = eval(f"{lp_simp} == {rp_simp}")
+                
+                return rf"{input_latex}:\/\/ {output_latex}"
             
             else:
                 """Sonstige Berechnungen"""
-                input_latex = write_latex(parse(user_input))
+                input_latex = write_latex(parse(user_input, False), False)
                 output_tree = parse(user_input, simp=True)
+                
+                write_ = write(output_tree)
                 try:
                     """Falls das ausgegebene zb 'sin(8)' ist, wird das berechnet"""
-                    output_latex = eval(write(output_tree))
-                except:
+                    output_latex = flint(eval(str(write_)))
+                except Exception:
                     """Wenn eine variable im ergebnis ist, kann es nicht berechnet werden. Dann wird nur versucht
                     das eingegebene zu vereinfachen."""
-                    print(f"couldnt eval expr: {write(output_tree)}")
+                    print(f"couldnt eval expr: {write_}")
                     output_latex = write_latex(output_tree, simp=True)
+                    
+                return f"{input_latex} = {output_latex}"
+        
         except Exception as error:
+            print(f"error rechner: {error}")
             self.show_error(format_error(error))
             return None
-        
-        return input_latex, output_latex
     
     def show_answer(self, answers=None):
         """Die Antwort wird auf der matplotlib Figure angezeigt, damit der output in LaTeX schreibweise schön
@@ -234,19 +252,18 @@ class RechnerFrame(Frame):
         
         if answers is None:
             # Figure wird nur wegen colormodechange refresht (keine answers gegeben)
-            userinput_latex, output_latex = self.answers
+            answers = self.answers
         else:
-            userinput_latex, output_latex = answers
             self.answers = answers
         
         self.show_error()
         self.io_figure.clear()
         self.io_figure.set_facecolor(["white", "#505050"][app.color_mode])
         
-        text = r"${}  =  {}$".format(userinput_latex, output_latex)
+        text = rf"${answers}$"
         length = len(text)
         size = int(2000 / (length + 60) + 5)
-        if text != "$  =  $":
+        if text != "$$":
             self.io_figure.text(0.5, 0.5, text, fontsize=size,
                                 color=["black", "white"][app.color_mode], va="center", ha="center")
         self.io_canvas.draw()
@@ -296,7 +313,7 @@ class RechnerFrame(Frame):
         self.rang = -1
         self.input_entry.delete(0, "end")
         self.show_error()
-        self.show_answer(("", ""))
+        self.show_answer("")
         self.hide_einstellungen()
         self.show_help(False)
 
@@ -921,7 +938,7 @@ class MatrixFrame(Frame):
         self.input_entry.pack(side="left", fill="both", expand=True, padx=20)
         self.input_entry.bind("<Return>", self.interprete_input)
         self.return_icon = PhotoImage(file="../pictures/enter.png").subsample(24, 24)
-        Button(self.entry_frame, image=self.return_icon, command=self.interprete_input, bd=0).pack(side="left", padx=10)
+        Button(self.entry_frame, image=self.return_icon, command=self.interprete_input, bg="white").pack(side="left", padx=10)
         
         # Output Frame
         self.output_frame = Label(self, bd=1, relief="raised")

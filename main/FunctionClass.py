@@ -411,7 +411,7 @@ def write(f: list) -> str or int:
         if f[0] == "Int":
             return str(integrate(*f[1:]))
         args = ", ".join([str(write(arg)) for arg in f[1:]])
-        return f"{f[0]}({args})"
+        return flint(eval(f"{f[0]}({args})"))
     
     if f[0] == "diff":
         return f"d/d{f[2]}({write(f[1])})"
@@ -646,9 +646,9 @@ class Function:
             self.tree = parse(self.str, simp=False)
             PRINT += f"\n\n{self.tree = }"
             
-            PRINT += "\n\nWRITING TREE.."
-            self.str_in = str(write(self.tree))
-            PRINT += f"\n\n{self.str_in = }"
+            # PRINT += "\n\nWRITING TREE.."
+            # self.str_in = str(write(self.tree))
+            # PRINT += f"\n\n{self.str_in = }"
             
             PRINT += "\n\nWRITING LATEX.."
             self.latex_in = str(write_latex(self.tree, simp=False))
@@ -720,6 +720,7 @@ class Function:
 
 if __name__ == "__main__":
     func = "d^1/dx^1(sin(x))(1)"
+    func="sin(0)"
     # f2 = "cosx"
     
     try:
