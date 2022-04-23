@@ -48,7 +48,6 @@ def _sign(x):
 
 
 def nullstellen(func, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
-    print(f"nullstellen: {func = }, {type(func) = }")
     
     if type(func) == str:
         # funktionsterme werden in eine funktion umgewandelt
@@ -64,6 +63,7 @@ def nullstellen(func, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
     
     # Values bestimmen auf allen Test-Punkten
     while x <= b:
+        x = round(x, 12)
         try:
             values.append([x, _sign(f(x))])
         except ValueError:
@@ -95,7 +95,13 @@ def nullstellen(func, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
     return nulls
 
 
-def maximum(f, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
+def maximum(func, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
+    if type(func) == str:
+        # funktionsterme werden in eine funktion umgewandelt
+        f = lambda x: eval(func)
+    else:
+        f = func
+        
     n = 3000
     x = a
     max_fx = f(x)
@@ -107,7 +113,13 @@ def maximum(f, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
     return max_fx
 
 
-def minimum(f, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
+def minimum(func, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
+    if type(func) == str:
+        # funktionsterme werden in eine funktion umgewandelt
+        f = lambda x: eval(func)
+    else:
+        f = func
+        
     n = 3000
     x = a
     min_fx = f(x)
@@ -206,7 +218,7 @@ def der(f, var="x", n=1, dx=10 ** (-3)):
 
 
 if __name__ == "__main__":
-    from functions import sin, cos, ln
+    from functions import sin, cos, ln, sqrt
     
     """print("Beispiele:")
     
@@ -244,4 +256,4 @@ if __name__ == "__main__":
     print(der(lambda x:sin(x))(1))
     print(cos(1))"""
     
-    print(nullstellen("sin(x)-cos(x)+ln(x)"))
+    print(nullstellen(lambda x: sqrt(x)))

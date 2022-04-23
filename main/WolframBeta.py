@@ -783,18 +783,14 @@ class AnalysisFrame(Frame):
                     return None
     
                 lp, rp = parse(lp_raw, False), parse(rp_raw, False)
-                print("ok")
                 lp_simp, rp_simp = write(parse(lp_raw, True)), write(parse(rp_raw, True))
-                print("ok2")
     
                 if isfloat(lp_simp):
                     lp_simp = round(flint(lp_simp), 10)
                 if isfloat(rp_simp):
                     rp_simp = round(flint(rp_simp), 10)
-                    
-                eq = write(parse(f"{lp_simp}-({rp_simp})", True))
-                print(eq)
-                if not isfloat(eq):
+                
+                if not isfloat(eq := write(parse(f"{lp_simp}-({rp_simp})", True))):
                     # gleichung lösen:
                     loesungen = nullstellen(lambda x: eval(eq))
                     output_latex = r"x \in \{" + str([flint(round(ans, 5)) for ans in loesungen])[1:-1] + r"\}"
