@@ -22,8 +22,6 @@ default_frame = 2
 min_window = True
 
 """TODO:
-AnalysisFrame
-MatrixFrame
 CodeFrame
 ein paar kürzungen (kein 2x^3 = 2*3*x^2)
 language überall änderbar
