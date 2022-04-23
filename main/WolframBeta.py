@@ -145,6 +145,10 @@ class RechnerFrame(Frame):
         self.io_canvas.get_tk_widget().pack(expand=1, fill="both")
         self.answers = "", ""
         
+        # clear button
+        self.clear_button = Button(self, text="X", command=self.clear_frame)
+        self.clear_button.place(relx=0.95, y=10)
+        
         # Help label
         with open("../help/rechner_de.txt", "r") as help:
             rechner_de = help.read()
@@ -221,14 +225,14 @@ class RechnerFrame(Frame):
         """Die Antwort wird auf der matplotlib Figure angezeigt, damit der output in LaTeX schreibweise schön
         gerendert werden kann. Text, das mit '$' umgeben ist, wird als LaTeX code erkannt"""
         
-        if not answers:
+        if answers is None:
             # Figure wird nur wegen colormodechange refresht (keine answers gegeben)
             userinput_latex, output_latex = self.answers
         else:
             userinput_latex, output_latex = answers
             self.answers = answers
             
-        self.show_error("")
+        self.show_error()
         self.io_figure.clear()
         self.io_figure.set_facecolor(["white", "#505050"][app.color_mode])
         
@@ -240,7 +244,7 @@ class RechnerFrame(Frame):
                                 color=["black", "white"][app.color_mode], va="center", ha="center")
         self.io_canvas.draw()
     
-    def show_error(self, error):
+    def show_error(self, error=""):
         self.error_label.config(text=error)
         if error: print(f"Error: {error}")
     
@@ -261,7 +265,7 @@ class RechnerFrame(Frame):
         
     def show_last(self, dir):
         """Im entry wird bei Pfeil hoch/runter das letzte/nächste eingegebene angezeigt"""
-        if not self.listed_memory: pass
+        if not self.listed_memory: return None
         self.rang += dir*1 if (not self.rang == dir*len(self.listed_memory)) and (not self.rang == -dir) else 0
         self.input_entry.delete(0, "end")
         self.input_entry.insert(0, self.listed_memory[self.rang])
@@ -277,7 +281,18 @@ class RechnerFrame(Frame):
             self.help_label.place(x=10, y=0)
         else:
             self.help_label.place_forget()
-
+    
+    def clear_frame(self):
+        """Vom 'clear' button oben rechts wird alles vom RechnerFrame gelöscht"""
+        self.listed_memory = []
+        self.memory = {}
+        self.rang = -1
+        self.input_entry.delete(0, "end")
+        self.show_error()
+        self.show_answer(("", ""))
+        self.hide_einstellungen()
+        self.show_help(False)
+        
 
 class EntryLine(Frame):
     """Einzelne Zeile in AnalysisFrame mit button und entry"""
@@ -434,6 +449,10 @@ class AnalysisFrame(Frame):
         # self.figure.set_facecolor("blue")
         self.subplot.grid(True)
         
+        # clear button
+        self.clear_button = Button(self, text="X", command=self.clear_frame)
+        self.clear_button.place(relx=0.95, y=10)
+
         # Help Label
         with open("../help/analysis_deutsch.txt", "r") as help_:
             ana_deutsch = help_.read()
@@ -585,8 +604,9 @@ class AnalysisFrame(Frame):
             else:
                 color = self.all_colors[n % 7]
                 isvisible = True
-                obj.color = color
-                obj.activate_bttn() if isvisible else obj.disable_bttn()
+                
+            obj.color = self.color_names[color]
+            obj.activate_bttn() if isvisible else obj.disable_bttn()
         
             try:
                 function = FunctionWrapper(func, "x", funcname, color, isvisible, n)
@@ -638,14 +658,12 @@ class AnalysisFrame(Frame):
                                 raise e
                     self.stored_values[function.str_out] = [I, J]
                 self.subplot.plot(I, J, color=function.color, label=f"y = {function.name}(x)")
-                
+                self.subplot.legend(loc="upper left")
         # self.subplot.spines["left"].set_position("center")
         # self.subplot.spines["bottom"].set_position("center")
         # self.subplot.spines["top"].set_color(None)
         # self.subplot.spines["right"].set_color(None)
         self.subplot.grid(True)
-        
-        self.subplot.legend(loc="upper left")
         self.canvas.draw()
     
     def toggle_visibility(self, obj):
@@ -676,7 +694,7 @@ class AnalysisFrame(Frame):
     
     def interprete_input(self, _=None):
         """
-        * min(f) / max(f)
+        min(f) / max(f)
         * f(x) = 0 / nullstelle(f)
         * f'(x) / df(x)/dx
         * f^n(a) / d^nf(a)/dx^n
@@ -719,6 +737,7 @@ class AnalysisFrame(Frame):
         """Der output aus der 'compute_entry' wird hier auf einer matplotlib Figure angezeigt."""
         self.show_error("")
         text = rf"${input_latex} = {output_latex}$"
+        text = text if text != "$ = $" else ""
         self.io_figure.clear()
         self.io_figure.text(0.5, 0.5, text, size=int(1000/(len(text)+50)), va="center", ha="center")
         self.io_canvas.draw()
@@ -734,6 +753,19 @@ class AnalysisFrame(Frame):
     
     def switch_color(self):
         pass
+
+    def clear_frame(self):
+        """Vom 'clear' button oben rechts wird alles vom AnalysisFrame gelöscht"""
+        self.functions = {}
+        self.stored_values = {}
+        for line in self.lines:
+            line.destroy()
+        self.lines = []
+        self.create_new_line()
+        self.graph()
+        self.compute_entry.delete(0, "end")
+        self.show_answer("", "")
+        self.show_help(False)
 
 
 class MatrixWrapper:
@@ -882,7 +914,11 @@ class MatrixFrame(Frame):
         # Output Frame
         self.output_frame = Label(self, bd=1, relief="raised")
         self.output_frame.place(relx=0.1, rely=0.55, relwidth=0.8, relheight=0.45)
-        
+
+        # clear button
+        self.clear_button = Button(self, text="X", command=self.clear_frame)
+        self.clear_button.place(relx=0.95, y=10)
+     
         # Help Label
         with open("../help/matrix_deutsch.txt", "r") as help_:
             matrix_deutsch = help_.read()
@@ -1056,6 +1092,16 @@ class MatrixFrame(Frame):
             self.help_label.place(x=10, y=0)
         else:
             self.help_label.place_forget()
+    
+    def clear_frame(self):
+        """Vom 'clear' button oben rechts wird alles vom AnalysisFrame gelöscht"""
+        self.matrices = []
+        self.matrices_name = {}
+        self.refresh_auswahl()
+        self.show_matrix()
+        self.input_entry.delete(0, "end")
+        self.output_frame.config(text="")
+        self.show_help(False)
 
 
 class CodeFrame(Frame):
