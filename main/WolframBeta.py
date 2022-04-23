@@ -9,7 +9,6 @@ from functions import *
 from analysis import min, minimum, max, maximum, nullstellen, der
 from matrix import Matrix
 
-
 lblue = "#1e3799"
 dblue = "#001B81"
 lgray = "#d9d9d9"
@@ -55,7 +54,7 @@ def format_error(error):
     else:
         # nur costum error text gegeben
         return error
-    
+
 
 def rrange(a, b, n=1.0):
     """range(), aber auch mit float abständen."""
@@ -91,7 +90,7 @@ def get_all_children(top_frame):
     
     for item in all_children:
         all_children.extend(item.winfo_children())
-        
+    
     return all_children
 
 
@@ -123,10 +122,18 @@ class RechnerFrame(Frame):
         Button(self.einstellungs_frame, text="X", bd=0, command=self.hide_einstellungen).grid(row=0, column=1)
         self.method = StringVar(value="riemann")
         self.method.trace("w", lambda *_: self.refresh_integration(self.method.get()))
-        Radiobutton(self.einstellungs_frame, text="Riemann", variable=self.method, value="riemann").grid(row=1, column=0, sticky="W", padx=10)
-        Radiobutton(self.einstellungs_frame, text="Trapez", variable=self.method, value="trapez").grid(row=2, column=0, sticky="W", padx=10)
-        Radiobutton(self.einstellungs_frame, text="Simpson", variable=self.method, value="simpson").grid(row=3, column=0, sticky="W", padx=10)
-
+        Radiobutton(self.einstellungs_frame, text="Riemann", variable=self.method, value="riemann").grid(row=1,
+                                                                                                         column=0,
+                                                                                                         sticky="W",
+                                                                                                         padx=10)
+        Radiobutton(self.einstellungs_frame, text="Trapez", variable=self.method, value="trapez").grid(row=2, column=0,
+                                                                                                       sticky="W",
+                                                                                                       padx=10)
+        Radiobutton(self.einstellungs_frame, text="Simpson", variable=self.method, value="simpson").grid(row=3,
+                                                                                                         column=0,
+                                                                                                         sticky="W",
+                                                                                                         padx=10)
+        
         # Error Label für die Fehler im user input
         self.error_label = Label(self.io_frame, fg="red")
         self.error_label.place(relx=0.1, rely=0.2, relwidth=0.8, relheight=0.075)
@@ -154,9 +161,9 @@ class RechnerFrame(Frame):
             rechner_de = help.read()
         self.help_label = Message(self, text=rechner_de, relief="raised")
         self.help_show = False
-
+        
         self.elements = get_all_children(self)
-
+        
         self.input_entry.bind("<Return>", self.commit_input)
     
     def commit_input(self, event=None):
@@ -180,7 +187,7 @@ class RechnerFrame(Frame):
             if not answers: return None
             self.show_answer(answers)
             self.memory[self.input] = [*answers]
-        
+    
     def interprete(self, user_input):
         
         user_input = check_and_clean(user_input)
@@ -231,7 +238,7 @@ class RechnerFrame(Frame):
         else:
             userinput_latex, output_latex = answers
             self.answers = answers
-            
+        
         self.show_error()
         self.io_figure.clear()
         self.io_figure.set_facecolor(["white", "#505050"][app.color_mode])
@@ -262,14 +269,14 @@ class RechnerFrame(Frame):
         """Bei änderung der integrationsmethode (Riemann/Trapez/Simpson) wird der input erneut berechnet"""
         set_default_integration_method(method)
         self.show_answer(self.interprete(self.input_entry.get()))
-        
+    
     def show_last(self, dir):
         """Im entry wird bei Pfeil hoch/runter das letzte/nächste eingegebene angezeigt"""
         if not self.listed_memory: return None
-        self.rang += dir*1 if (not self.rang == dir*len(self.listed_memory)) and (not self.rang == -dir) else 0
+        self.rang += dir * 1 if (not self.rang == dir * len(self.listed_memory)) and (not self.rang == -dir) else 0
         self.input_entry.delete(0, "end")
         self.input_entry.insert(0, self.listed_memory[self.rang])
-        
+    
     def switch_color(self):
         """refresht den canvas"""
         self.show_answer()
@@ -292,7 +299,7 @@ class RechnerFrame(Frame):
         self.show_answer(("", ""))
         self.hide_einstellungen()
         self.show_help(False)
-        
+
 
 class EntryLine(Frame):
     """Einzelne Zeile in AnalysisFrame mit button und entry"""
@@ -324,7 +331,7 @@ class EntryLine(Frame):
         
         self.entry.bind("<Return>", lambda _: super_.enter_pressed(self))
         self.entry.bind("<BackSpace>", lambda _: super_.destroy_line(self) if not self.entry.get() else 0)
-        
+    
     def show_error(self, error_message):
         self.error_label.config(text=error_message)
         self.error_label.pack(side="bottom", fill="x", expand=0)
@@ -335,7 +342,7 @@ class EntryLine(Frame):
     def activate_bttn(self):
         """Der Button wird aktiviert indem die jeweilige Farbe (nicht mehr grau) angezeigt wird."""
         self.bttn.config(image=self.super_.rings[self.color])
-        
+    
     def disable_bttn(self):
         """Der button wird grau."""
         self.bttn.config(image=self.super_.rings["gray"])
@@ -344,6 +351,7 @@ class EntryLine(Frame):
 class FunctionWrapper(Function):
     """Wrapper für eine Funktion in AnalysisFrame. Hat zusätzlich zur class Function wichtige Attribute wie
     name, Farbe, sichtbarkeit im Graph, und ID"""
+    
     def __init__(self, string, variable="x", name=None, color=None, isvisible=True, entry_index=None):
         print(f"neue funktion: {string}, {name = }")
         super().__init__(string, variable)
@@ -354,7 +362,6 @@ class FunctionWrapper(Function):
 
 
 class AnalysisFrame(Frame):
-    
     """TODO:
     compute-eingabe
     Alle Farben als Ring
@@ -365,6 +372,7 @@ class AnalysisFrame(Frame):
     (design)
     
     """
+    
     def __init__(self, container):
         super().__init__(container)
         
@@ -391,9 +399,9 @@ class AnalysisFrame(Frame):
         self.configure_canvas()
         
         self.rings = {}
-        for color in ["gray", "red", "green", "blue", "cyan", "magenta", "yellow", "black"][:2]:
+        for color in ["gray", "red", "green", "blue", "cyan", "magenta", "yellow", "black"]:
             self.rings[color] = PhotoImage(file=f"../pictures/Rings/{color}_ring.png").subsample(3, 3)
-
+        
         self.lines = []
         
         self.line = EntryLine(self.scrolled_frame, self, 0)
@@ -432,7 +440,7 @@ class AnalysisFrame(Frame):
         # latex output frame
         self.output_frame = Label(self, bd=1, relief="solid")
         self.output_frame.place(relx=0.1, rely=0.7, relwidth=0.35, relheight=0.25)
-
+        
         self.io_figure = Figure()
         self.io_canvas = FigureCanvasTkAgg(self.io_figure, master=self.output_frame)
         self.io_canvas.get_tk_widget().pack(expand=1, fill="both")
@@ -452,7 +460,7 @@ class AnalysisFrame(Frame):
         # clear button
         self.clear_button = Button(self, text="X", command=self.clear_frame)
         self.clear_button.place(relx=0.95, y=10)
-
+        
         # Help Label
         with open("../help/analysis_deutsch.txt", "r") as help_:
             ana_deutsch = help_.read()
@@ -495,10 +503,10 @@ class AnalysisFrame(Frame):
         for line in self.lines:
             if not line.entry.get():
                 return line
-            
+        
         # Wenn keine leere Ziele gefunden wird:
         return self.create_new_line()
-        
+    
     def create_new_line(self):
         """Eine neue EntryLine wird erstellt und returned"""
         id_ = self.generate_new_id()
@@ -529,10 +537,10 @@ class AnalysisFrame(Frame):
         
         if self.check_line(index + 1):
             self.lines[index + 1].entry.focus_set()
-
+        
         elif obj.entry.get():
             self.create_new_line()
-            
+    
     def destroy_line(self, obj):
         """wenn man in einer leeren Zeile nochmal 'Delete' drückt (also die zeile löschen will), wird geschaut, ob es
         vor oder nach dieser Zeile noch eine leere Zeile gibt."""
@@ -543,7 +551,7 @@ class AnalysisFrame(Frame):
                 del self.functions[index]
             self.lines.pop(index)
             self.lines[-1].entry.focus_set()
-
+    
     def check_line(self, index):
         """Überprüft, ob es diese Zeile gibt"""
         try:
@@ -551,7 +559,7 @@ class AnalysisFrame(Frame):
             return True
         except IndexError:
             return False
-        
+    
     def interprete_function(self, obj):
         """Der input einer EntryLine wird interpretiert."""
         entry = obj.entry
@@ -562,13 +570,13 @@ class AnalysisFrame(Frame):
         if type(string) == SyntaxError:
             self.show_error(format_error(string), n)
             return None
-    
+        
         if "=" not in string:
             # Funktionsterm gegeben, das geplottet werden soll
             
             name = self.generate_func_name()
             color = self.all_colors[n % 7]
-        
+            
             # Funktion draus machen:
             try:
                 function = FunctionWrapper(string, "x", name, color, True, n)
@@ -582,10 +590,10 @@ class AnalysisFrame(Frame):
                 # raise error
                 self.show_error(format_error(error), n)
                 return False
-    
+        
         elif "(x)=" in string[:string.index("=") + 1]:
             # eigener funktionsname gegeben oder ältere Funktion geändert
-        
+            
             func = string[string.index("=") + 1:]
             funcname = string[:string.index("(x)=")]
             
@@ -595,7 +603,7 @@ class AnalysisFrame(Frame):
             if funcname in [func.name if n != index else "" for index, func in self.functions.items()]:
                 self.show_error("Error: function name already taken", n)
                 return False
-        
+            
             if n in self.functions:
                 previous_function = self.functions[n]
                 # es ist nur eine Änderung einer alten schon eingegebenen Funktion
@@ -604,10 +612,10 @@ class AnalysisFrame(Frame):
             else:
                 color = self.all_colors[n % 7]
                 isvisible = True
-                
+            
             obj.color = self.color_names[color]
             obj.activate_bttn() if isvisible else obj.disable_bttn()
-        
+            
             try:
                 function = FunctionWrapper(func, "x", funcname, color, isvisible, n)
                 self.functions[n] = function
@@ -616,10 +624,10 @@ class AnalysisFrame(Frame):
             except Exception as error:
                 self.show_error(format_error(error), n)
                 return False
-            
+        
         elif string.startswith("y'="):
             pass
-    
+        
         return True
     
     def generate_func_name(self):
@@ -631,7 +639,7 @@ class AnalysisFrame(Frame):
             if n == n_max - 1:
                 # Wenn die namen aufgebraucht sind, geht es mit f_1, g_1, ... , f_2, g_2 ... weiter
                 self.funcnames_order.append(f"{self.funcnames_order[(n + 1) % 11]}_{(n + 1) // 11}")
-                
+        
         return self.funcnames_order[n]
     
     def graph(self):
@@ -678,7 +686,7 @@ class AnalysisFrame(Frame):
         else:
             obj.activate_bttn()
         self.graph()
-
+    
     def show_error(self, error, n=None):
         """Der error wird entweder unter der EntryLine mit id=n angezeigt, oder unter dem entry fpr allgemeine
         Rechnungen"""
@@ -706,7 +714,7 @@ class AnalysisFrame(Frame):
         if type(string) == SyntaxError:
             self.show_error(format_error(string))
             return None
-
+        
         try:
             if "=" in string:
                 pass
@@ -732,16 +740,16 @@ class AnalysisFrame(Frame):
             return None
         
         self.show_answer(input_latex, output_latex)
-        
+    
     def show_answer(self, input_latex, output_latex):
         """Der output aus der 'compute_entry' wird hier auf einer matplotlib Figure angezeigt."""
         self.show_error("")
         text = rf"${input_latex} = {output_latex}$"
         text = text if text != "$ = $" else ""
         self.io_figure.clear()
-        self.io_figure.text(0.5, 0.5, text, size=int(1000/(len(text)+50)), va="center", ha="center")
+        self.io_figure.text(0.5, 0.5, text, size=int(1000 / (len(text) + 50)), va="center", ha="center")
         self.io_canvas.draw()
-        
+    
     def show_help(self, force=None):
         """Die Hilfe für den AnalysisFrame wird angezeigt/versteckt."""
         self.help_show = not self.help_show if force is None else force
@@ -753,7 +761,7 @@ class AnalysisFrame(Frame):
     
     def switch_color(self):
         pass
-
+    
     def clear_frame(self):
         """Vom 'clear' button oben rechts wird alles vom AnalysisFrame gelöscht"""
         self.functions = {}
@@ -876,9 +884,10 @@ class MatrixFrame(Frame):
         self.rows_box = Spinbox(self.dimensions_frame, from_=1, to=15, width=3, textvariable=self.rows_variable,
                                 justify="center")
         self.rows_box.pack(side="left", padx=10)
-        
-        Button(self.dimensions_frame, text="ok", command=self.refresh_dimensions, padx=0, pady=0).pack(side="right",
-                                                                                                       padx=10)
+        self.refresh_logo = PhotoImage(file="../pictures/refresh.png").subsample(30, 30)
+        Button(self.dimensions_frame, image=self.refresh_logo, command=self.refresh_dimensions, padx=20, pady=20, bd=0).pack(
+            side="right",
+            padx=10)
         self.columns_variable = StringVar(value="3")
         self.columns_box = Spinbox(self.dimensions_frame, from_=1, to=15, width=3, textvariable=self.columns_variable,
                                    justify="center")
@@ -895,8 +904,10 @@ class MatrixFrame(Frame):
         Button(self.vorschlag_frame, text="RandomSym", command=self.new_randomsym_matrix).pack(side="left")
         
         # Delet and Save Button
-        Button(self.matrix_frame, text=" X ", command=self.delete_matrix).grid(row=0, column=2)
-        Button(self.matrix_frame, text="Save", command=self.submit_matrix).grid(row=2, column=2)
+        self.trash_icon = PhotoImage(file="../pictures/trash.png").subsample(20, 20)
+        self.save_icon = PhotoImage(file="../pictures/check.png").subsample(20, 20)
+        Button(self.matrix_frame, image=self.trash_icon, command=self.delete_matrix).grid(row=0, column=2)
+        Button(self.matrix_frame, image=self.save_icon, command=self.submit_matrix).grid(row=2, column=2)
         
         # Error Label
         self.error_label = Label(self, fg="red")
@@ -909,16 +920,17 @@ class MatrixFrame(Frame):
         self.input_entry = Entry(self.entry_frame, bd=0, highlightthickness=0)
         self.input_entry.pack(side="left", fill="both", expand=True, padx=20)
         self.input_entry.bind("<Return>", self.interprete_input)
-        Button(self.entry_frame, text="K", command=self.interprete_input, bd=0).pack(side="left", padx=10)
+        self.return_icon = PhotoImage(file="../pictures/enter.png").subsample(24, 24)
+        Button(self.entry_frame, image=self.return_icon, command=self.interprete_input, bd=0).pack(side="left", padx=10)
         
         # Output Frame
         self.output_frame = Label(self, bd=1, relief="raised")
         self.output_frame.place(relx=0.1, rely=0.55, relwidth=0.8, relheight=0.45)
-
+        
         # clear button
         self.clear_button = Button(self, text="X", command=self.clear_frame)
         self.clear_button.place(relx=0.95, y=10)
-     
+        
         # Help Label
         with open("../help/matrix_deutsch.txt", "r") as help_:
             matrix_deutsch = help_.read()
@@ -1213,7 +1225,7 @@ class MainScreen(Tk):
         self.toggle_main_frame(default_frame)
         
         self.bind("<KP_Enter>", self.exit_screen)
-        
+    
     def move_logo(self, state):
         """Das logo wird animiert. Dazu müss alle 40ms ein neues frame des gifs angezeigt werden.
         Das muss manuell gemacht werden da tkinter das Anzeigen einer Animation nicht anders unterstützt."""
@@ -1223,7 +1235,7 @@ class MainScreen(Tk):
         self.logo_index += 1
         self.logo_index %= 20
         if self.logo_state:
-            self.after(40, lambda:self.move_logo(self.logo_state))
+            self.after(40, lambda: self.move_logo(self.logo_state))
     
     def toggle_main_frame(self, n):
         """ Von den blauen Buttons wird der jeweilige Frame angezeigt."""
