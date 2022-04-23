@@ -122,9 +122,9 @@ class Polynomial:
                     elif flint(co) == -1:
                         res.append("-" + po)
                     else:
-                        res.append(str(flint(co)) + po)
+                        res.append(str(flint(round(co, 4))) + po)
                 else:
-                    res.append(str(flint(co)))
+                    res.append(str(flint(round(co, 4))))
         if res:
             res.reverse()
             return ' + '.join(res).replace("+ -", "- ")
@@ -188,11 +188,13 @@ def neville(list_of_pairs):
     return p[0][n - 1]
 
 
-p = Polynomial("x^2 + 3x -2")
-q = Polynomial("x^2 + 4")
-r = Polynomial("x^2 - 1x - 1")
-
-print(q.nullstellen())  # Komplexe Zahlen 0 +- 2i
-print(r.nullstellen())  # die Goldenen Schnitte
-
-print((q * r).nullstellen())  # beides kombiniert
+if __name__ == '__main__':
+    
+    p = Polynomial("x^2 + 3x -2")
+    q = Polynomial("x^2 + 4")
+    r = Polynomial("x^2 - 1x - 1")
+    
+    print(q.nullstellen())  # Komplexe Zahlen 0 +- 2i
+    print(r.nullstellen())  # die Goldenen Schnitte
+    
+    print((q * r).nullstellen())  # beides kombiniert

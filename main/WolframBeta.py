@@ -8,6 +8,7 @@ from FunctionClass import *
 from functions import *
 from analysis import min, minimum, max, maximum, nullstellen, der, DEFAULT_RANGE
 from matrix import Matrix
+from polynomials import neville
 
 lblue = "#1e3799"
 dblue = "#001B81"
@@ -374,13 +375,14 @@ class FunctionWrapper(Function):
     """Wrapper für eine Funktion in AnalysisFrame. Hat zusätzlich zur class Function wichtige Attribute wie
     name, Farbe, sichtbarkeit im Graph, und ID"""
     
-    def __init__(self, string, variable="x", name=None, color=None, isvisible=True, entry_index=None):
+    def __init__(self, string, variable="x", name=None, color=None, isvisible=True, id_=None, nev_pts=None):
         # print(f"neue funktion: {string}, {name = }")
         super().__init__(string, variable)
         self.name = name
         self.color = color
         self.isvisible = isvisible
-        self.index = entry_index
+        self.index = id_
+        self.nev_pts = nev_pts
 
 
 class AnalysisFrame(Frame):
@@ -496,6 +498,7 @@ class AnalysisFrame(Frame):
         
         self.functions = {}  # alle gespeicherte funktionen
         self.dgl = {}
+        self.nev_pts = [] # Wenn ein neville schema eingegeben wurde, sind hier die punkte gespeichert
         self.funcnames_order = ["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"]
         self.all_colors = ["r", "g", "b", "c", "m", "y", "k"]
         self.color_names = {'r': 'red', 'g': 'green', 'b': 'blue', 'c': 'cyan', 'm': 'magenta',
@@ -509,14 +512,24 @@ class AnalysisFrame(Frame):
         self.scroll_canvas.configure(scrollregion=self.scroll_canvas.bbox(self.canvas_window))
         self.scroll_canvas.itemconfig(self.canvas_window, width=width)
     
-    def add_new_func(self):
-        """Über den Button 'f(x) = ' unter den EntryLines wird diese Funktion aufgerufen"""
+    def add_new_func(self, func=None):
+        """Über den Button 'f(x) = ' unter den EntryLines wird diese Funktion aufgerufen, oder diese funktion wird dafür
+         missbraucht, um ein polynom vom neville-schema einzufügen."""
         line = self.get_first_empty_line()
         id = line.id
         name = self.generate_func_name()
-        color = self.all_colors[id % 7]
-        line.entry.insert(0, f"{name}(x) = ")
-        self.functions[id] = FunctionWrapper("", "x", name, color, False, id)
+        if func is None:
+            color = self.all_colors[id % 7]
+            self.functions[id] = FunctionWrapper("", "x", name, color, False, id)
+            line.entry.insert(0, f"{name}(x) = ")
+        else:
+            # Ein vom neville-schema generierter polynom wird eingefügt
+            string, nev_pts = func
+            self.functions[id] = FunctionWrapper(string, "x", name, "k", True, id, nev_pts)
+            line.color = self.color_names["k"]
+            line.activate_bttn()
+            line.entry.insert(0, f"{name}(x) = {write(string)}")
+            self.create_new_line()
         line.entry.focus_set()
     
     def add_new_dgl(self):
@@ -674,9 +687,24 @@ class AnalysisFrame(Frame):
         sie sonst bei jedem neuen graph() aufruf neu berechnet werden müssen"""
         
         x_min, x_max = self.default_range
+        self.subplot.clear()
+        
+        for function in self.functions.values():
+            if function.nev_pts is not None and function.isvisible:
+                """Die punkte, die dem neville schema gegeben wurde, werden hier geplottet."""
+                for tuple_ in function.nev_pts:
+                    """Wenn die Punkte außerhalb von der default x-range liegen, wird die x-range erweitert"""
+                    if tuple_[0] < x_min:
+                        x_min = tuple_[0]
+                        self.set_range(x_min, x_max)
+                    elif tuple_[0] > x_max:
+                        x_max = tuple_[0]
+                        self.set_range(x_min, x_max)
+                    self.subplot.scatter(*tuple_)
+                
+        """mit der eventuell erweiterteten x-range wird die range erstellt"""
         I_max = rrange(x_min, x_max, (x_max-x_min)/100)
         
-        self.subplot.clear()
         for function in self.functions.values():
             if function.isvisible:
                 if function.str_out in self.stored_values and not new:
@@ -684,6 +712,7 @@ class AnalysisFrame(Frame):
                     I, J = self.stored_values[function.str_out]
                 else:
                     I, J = [], []
+                    print(function.str_out)
                     for x in I_max:
                         try:
                             J.append(function(x))
@@ -715,15 +744,19 @@ class AnalysisFrame(Frame):
             self.x_max_entry.insert(0, x_max)
         if (x_min := flint(x_min)) > (x_max := flint(x_max)):
             x_min, x_max = x_max, x_min
-            self.x_min_entry.delete(0, "end")
-            self.x_min_entry.insert(0, x_min)
-            self.x_max_entry.delete(0, "end")
-            self.x_max_entry.insert(0, x_max)
+            self.set_range(x_min, x_max)
             
         self.default_range = [x_min, x_max]
         # für analysis.py wird die default range für min, max, und nullstellen geändert
         DEFAULT_RANGE = [x_min, x_max]
         self.graph(new=True)
+    
+    def set_range(self, x_min, x_max):
+        """Fügt die werte in die dazugehörigen entries unter dem graph"""
+        self.x_min_entry.delete(0, "end")
+        self.x_min_entry.insert(0, x_min)
+        self.x_max_entry.delete(0, "end")
+        self.x_max_entry.insert(0, x_max)
         
     def toggle_visibility(self, obj):
         """Wenn man auf den Farbkreis den EntryLine 'obj' drückt, wird deren sichtbarkeit getoggelt"""
@@ -758,9 +791,10 @@ class AnalysisFrame(Frame):
         * f'(x) / df(x)/dx
         * f^n(a) / d^nf(a)/dx^n
         * int(a, b, f(x))
+        neville()
         """
         string = self.compute_entry.get()
-        
+        self.show_error("")
         string = check_and_clean(string)
         if type(string) == SyntaxError:
             self.show_error(format_error(string))
@@ -801,9 +835,23 @@ class AnalysisFrame(Frame):
     
                 input_latex = f"{write_latex(lp)} = {write_latex(rp)}"
                 self.show_answer(rf"{input_latex}:\/\/ {output_latex}")
+                
+            elif string.startswith("neville(") and string.endswith(")"):
+                # Neville Schema
+                if string[8] == "(" and string[-2] == ")" or string[8] == "[" and string[-2] == "]":
+                    list_ = eval(string[8:-1])
+                    if list_ in self.nev_pts:
+                        return None
+                    pol = parse(str(neville(list_)), True), list_
+                    print(f"{list_ = }, {pol = }")
+                    self.add_new_func(pol)
+                    self.nev_pts.append(list_)
+                    self.graph(True)
+                else:
+                    raise SyntaxError("must pass list of tuples for neville schema")
             
             else:
-                
+                # Sonstige Eingaben
                 input_latex = write_latex(parse(string))
                 output_tree = parse(string, simp=True)
                 print(input_latex, output_tree)
