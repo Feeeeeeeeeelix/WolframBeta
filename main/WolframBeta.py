@@ -1107,7 +1107,7 @@ class MainScreen(Tk):
         self.cm_button.grid(row=0, column=1)
         
         # Logo
-        logo_file = "../pictures/alpha_anim.gif"
+        logo_file = "../pictures/logo_animation.gif"
         self.logo_frames = [PhotoImage(file=logo_file, format=f"gif -index {n}").subsample(5, 5) for n in range(20)]
         self.logo_index = 0
         self.logo_state = False
