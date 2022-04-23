@@ -39,7 +39,8 @@ def toggle_lang(language):
 
 
 def format_error(error):
-    # formatiert ein error code
+    """Formatiert ein error code."""
+    
     if isinstance(error, Exception):
         # Costum or automatic exceptions
         if error.args:
@@ -59,7 +60,7 @@ def format_error(error):
     
 
 def rrange(a, b, n=1.0):
-    # range(), aber auch mit float abständen
+    """range(), aber auch mit float abständen."""
     l, x = [], a
     while x < b:
         l.append(x)
@@ -68,6 +69,7 @@ def rrange(a, b, n=1.0):
 
 
 def check_and_clean(string):
+    """Der gegeben string wird für den parser lesbar gemacht und es werden illegale Charaktere gesucht."""
     if not string:
         return None
     string = string.replace(" ", "").replace("**", "^")
@@ -86,6 +88,7 @@ def check_and_clean(string):
 
 
 def get_all_children(top_frame):
+    """Vom top_frame werden alle unter widgets (children) gesucht"""
     all_children = [top_frame] + top_frame.winfo_children()
     
     for item in all_children:
@@ -155,15 +158,20 @@ class RechnerFrame(Frame):
         self.input_entry.bind("<Return>", self.commit_input)
     
     def commit_input(self, event=None):
+        """Beim enter press vom entry wird wier geschaut ob der input schon eingegeben wurde, wenn ja wird das
+        gespeicherte angezeigt, wenn nicht, wird der input interpretiert und das ergebnnis gespeichert."""
+        
         self.rang = -1
         self.input = self.input_entry.get()
         if not self.input:
             return None
         if not (self.listed_memory and self.input == self.listed_memory[-1]):
+            """self.listed_memory speichert nur die inputs in der reihenfolge, sodass die inputs mit den pfeiltasten
+            wieder gewählt in eingefügt werden können"""
             self.listed_memory.append(self.input)
         
         if self.input in self.memory:
-            # Wenn das Eingegebene schon berechnet wurde, dann soll das gespeicherte Ergebnis angezeigt werden
+            """in self.memory werden die inputs und ergebnisse gespeichert. Jetzt wird das gespeicherte angezeigt"""
             self.show_answer(self.memory[self.input])
         else:
             answers = self.interprete(self.input)
@@ -182,7 +190,7 @@ class RechnerFrame(Frame):
         
         try:
             if "=" in user_input:
-                # Gleichheit überprüfen
+                """Gleichheit überprüfen"""
                 n = user_input.find("=")
                 lp = parse(user_input[:n])
                 rp = user_input[n + 1:]
@@ -194,12 +202,15 @@ class RechnerFrame(Frame):
                 output_latex = eval("write(lp) == write(parse(rp))")
             
             else:
-                # sonstige Berechnungen
+                """Sonstige Berechnungen"""
                 input_latex = write_latex(parse(user_input))
                 output_tree = parse(user_input, simp=True)
                 try:
+                    """Falls das ausgegebene zb 'sin(8)' ist, wird das berechnet"""
                     output_latex = eval(write(output_tree))
                 except:
+                    """Wenn eine variable im ergebnis ist, kann es nicht berechnet werden. Dann wird nur versucht
+                    das eingegebene zu vereinfachen."""
                     print(f"couldnt eval expr: {write(output_tree)}")
                     output_latex = write_latex(output_tree, simp=True)
         except Exception as error:
@@ -209,6 +220,9 @@ class RechnerFrame(Frame):
         return input_latex, output_latex
     
     def show_answer(self, answers=None):
+        """Die Antwort wird auf der matplotlib Figure angezeigt, damit der output in LaTeX schreibweise schön
+        gerendert werden kann. Text, das mit '$' umgeben ist, wird als LaTeX code erkannt"""
+        
         if not answers:
             # Figure wird nur wegen colormodechange refresht (keine answers gegeben)
             userinput_latex, output_latex = self.answers
@@ -223,7 +237,6 @@ class RechnerFrame(Frame):
         text = r"${}  =  {}$".format(userinput_latex, output_latex)
         length = len(text)
         size = int(2000 / (length + 60) + 5)
-        # print(f"INPUT: {size = }, {length = }")
         if text != "$  =  $":
             self.io_figure.text(0.5, 0.5, text, fontsize=size,
                                 color=["black", "white"][app.color_mode], va="center", ha="center")
@@ -234,6 +247,8 @@ class RechnerFrame(Frame):
         if error: print(f"Error: {error}")
     
     def show_einstellungen(self):
+        """Wenn ein Intergral berechnet wird (es wird nur nach 'Int' im input gesucht), dann erscheinen einstellungen
+        rechts neben dem input um die integrationsmethode zu bestimmen."""
         self.input_entry.place(relwidth=0.55)
         self.einstellungs_frame.place(relx=0.65, y=0, relwidth=0.25, relheight=0.2)
     
@@ -242,23 +257,23 @@ class RechnerFrame(Frame):
         self.einstellungs_frame.place_forget()
     
     def refresh_integration(self, method):
-        # Bei änderung der integrationsmethode (Riemann/Trapez/Simpson) wird der input erneut berechnet
+        """Bei änderung der integrationsmethode (Riemann/Trapez/Simpson) wird der input erneut berechnet"""
         set_default_integration_method(method)
         self.show_answer(self.interprete(self.input_entry.get()))
         
     def show_last(self, dir):
-        # Im entry wird bei Pfeil hoch/runter das letzte/nächste eingegebene angezeigt
+        """Im entry wird bei Pfeil hoch/runter das letzte/nächste eingegebene angezeigt"""
         if not self.listed_memory: pass
         self.rang += dir*1 if (not self.rang == dir*len(self.listed_memory)) and (not self.rang == -dir) else 0
         self.input_entry.delete(0, "end")
         self.input_entry.insert(0, self.listed_memory[self.rang])
         
     def switch_color(self):
-        # refresh the canvas
+        """refresht den canvas"""
         self.show_answer()
     
     def show_help(self, force=None):
-        #
+        """Die Hilfe oben links wird angezeigt/versteckt"""
         self.help_show = not self.help_show if force is None else force
         if self.help_show:
             self.help_label.place(x=10, y=0)
@@ -267,7 +282,8 @@ class RechnerFrame(Frame):
 
 
 class EntryLine(Frame):
-    # einzelne Zeile im AnalysisFrame
+    """Einzelne Zeile in AnalysisFrame mit button und entry"""
+    
     def __init__(self, container, super_, id_):
         super().__init__(container, height=40, bd=1, relief="groove")
         self.focus_set()
@@ -304,13 +320,17 @@ class EntryLine(Frame):
         self.error_label.pack_forget()
     
     def activate_bttn(self):
+        """Der Button wird aktiviert indem die jeweilige Farbe (nicht mehr grau) angezeigt wird."""
         self.bttn.config(image=self.super_.rings[self.color])
         
     def disable_bttn(self):
+        """Der button wird grau."""
         self.bttn.config(image=self.super_.rings["gray"])
 
 
 class FunctionWrapper(Function):
+    """Wrapper für eine Funktion in AnalysisFrame. Hat zusätzlich zur class Function wichtige Attribute wie
+    name, Farbe, sichtbarkeit im Graph, und ID"""
     def __init__(self, string, variable="x", name=None, color=None, isvisible=True, entry_index=None):
         print(f"neue funktion: {string}, {name = }")
         super().__init__(string, variable)
@@ -431,12 +451,14 @@ class AnalysisFrame(Frame):
         self.stored_values = {}
     
     def configure_canvas(self, event=None):
+        """Die EntryLines werden auf die korrekte Breite gebracht und der Frame, der sie hält, wird mit der Scrollbar
+        verbunden, damit man darin scrollen kann"""
         width = self.scroll_canvas.winfo_width()
         self.scroll_canvas.configure(scrollregion=self.scroll_canvas.bbox(self.canvas_window))
         self.scroll_canvas.itemconfig(self.canvas_window, width=width)
     
     def add_new_func(self):
-        # Über den Button "f(x) = " unter den EntryLines wird diese Funktion aufgerufen
+        """Über den Button 'f(x) = ' unter den EntryLines wird diese Funktion aufgerufen"""
         line = self.get_first_empty_line()
         id = line.id
         name = self.generate_func_name()
@@ -446,13 +468,13 @@ class AnalysisFrame(Frame):
         line.entry.focus_set()
     
     def add_new_dgl(self):
-        # Über den Button "y' = " aufgerufen
+        """Über den Button "y' = " aufgerufen"""
         line = self.get_first_empty_line()
         line.entry.insert(0, "y' = ")
         line.entry.focus_set()
     
     def get_first_empty_line(self):
-        # suche erstmal eine leere zeile:
+        """Suche erstmal eine leere zeile:"""
         for line in self.lines:
             if not line.entry.get():
                 return line
@@ -461,6 +483,7 @@ class AnalysisFrame(Frame):
         return self.create_new_line()
         
     def create_new_line(self):
+        """Eine neue EntryLine wird erstellt und returned"""
         id_ = self.generate_new_id()
         self.new_line = EntryLine(self.scrolled_frame, self, id_)
         self.new_line.pack(fill="x")
@@ -469,6 +492,7 @@ class AnalysisFrame(Frame):
         return self.new_line
     
     def generate_new_id(self):
+        """Jede EntryLine hat eine ID. Hier wird eine neue generiert"""
         n = 0
         _all = [line.id for line in self.lines]
         while n in _all:
@@ -476,6 +500,8 @@ class AnalysisFrame(Frame):
         return n
     
     def enter_pressed(self, obj):
+        """Wenn enter von der EntryLine 'obj' gedrückt wird, wird der input interpretiert und wenn es keinen fehler
+        gibt, zur nächsten Zeile gesprungen"""
         obj.hide_error()
         
         id_ = obj.id
@@ -491,6 +517,8 @@ class AnalysisFrame(Frame):
             self.create_new_line()
             
     def destroy_line(self, obj):
+        """wenn man in einer leeren Zeile nochmal 'Delete' drückt (also die zeile löschen will), wird geschaut, ob es
+        vor oder nach dieser Zeile noch eine leere Zeile gibt."""
         index = self.lines.index(obj)
         if self.check_line(index + 1) or self.check_line(index - 1) and not self.lines[index - 1].entry.get():
             self.lines[index].destroy()
@@ -500,7 +528,7 @@ class AnalysisFrame(Frame):
             self.lines[-1].entry.focus_set()
 
     def check_line(self, index):
-        # Überprüft, ob es eine nächste Zeile gibt
+        """Überprüft, ob es diese Zeile gibt"""
         try:
             _ = self.lines[index]
             return True
@@ -508,6 +536,7 @@ class AnalysisFrame(Frame):
             return False
         
     def interprete_function(self, obj):
+        """Der input einer EntryLine wird interpretiert."""
         entry = obj.entry
         string = entry.get()
         n = obj.id
@@ -576,6 +605,7 @@ class AnalysisFrame(Frame):
         return True
     
     def generate_func_name(self):
+        """Es wird automatisch ein neuer Name für eine Funktion generiert"""
         n = 0
         while self.funcnames_order[n] in [f.name for f in self.functions.values()]:
             n_max = len(self.funcnames_order)
@@ -587,6 +617,8 @@ class AnalysisFrame(Frame):
         return self.funcnames_order[n]
     
     def graph(self):
+        """Von allen gespeicherten Funktionen werden alle sichtbaren geplottet. Dabei werden alle Werte gespeichert, da
+        sie sonst bei jedem neuen graph() aufruf neu berechnet werden müssen"""
         # Default range:
         I_max = rrange(-5, 5, 0.01)
         
@@ -594,6 +626,7 @@ class AnalysisFrame(Frame):
         for function in self.functions.values():
             if function.isvisible:
                 if function.str_out in self.stored_values:
+                    # Die funktion wurde schon mal angezeigt und deren (x,y) werte wurden schon gespeichert
                     I, J = self.stored_values[function.str_out]
                 else:
                     I, J = [], []
@@ -618,6 +651,7 @@ class AnalysisFrame(Frame):
         self.canvas.draw()
     
     def toggle_visibility(self, obj):
+        """Wenn man auf den Farbkreis den EntryLine 'obj' drückt, wird deren sichtbarkeit getoggelt"""
         id_ = obj.id
         if id_ not in self.functions:
             return None
@@ -630,6 +664,8 @@ class AnalysisFrame(Frame):
         self.graph()
 
     def show_error(self, error, n=None):
+        """Der error wird entweder unter der EntryLine mit id=n angezeigt, oder unter dem entry fpr allgemeine
+        Rechnungen"""
         if n is not None:
             # Fehler in der EntryLine mit id = n
             for line in self.lines:
@@ -682,6 +718,7 @@ class AnalysisFrame(Frame):
         self.show_answer(input_latex, output_latex)
         
     def show_answer(self, input_latex, output_latex):
+        """Der output aus der 'compute_entry' wird hier auf einer matplotlib Figure angezeigt."""
         self.show_error("")
         text = rf"${input_latex} = {output_latex}$"
         self.io_figure.clear()
@@ -689,6 +726,7 @@ class AnalysisFrame(Frame):
         self.io_canvas.draw()
         
     def show_help(self, force=None):
+        """Die Hilfe für den AnalysisFrame wird angezeigt/versteckt."""
         self.help_show = not self.help_show if force is None else force
         
         if self.help_show:
@@ -1133,6 +1171,9 @@ class MainScreen(Tk):
         self.bind("<KP_Enter>", self.exit_screen)
         
     def move_logo(self, state):
+        """Das logo wird animiert. Dazu müss alle 40ms ein neues frame des gifs angezeigt werden.
+        Das muss manuell gemacht werden da tkinter das Anzeigen einer Animation nicht anders unterstützt."""
+        
         self.logo_state = state
         self.logo.config(image=self.logo_frames[self.logo_index])
         self.logo_index += 1
@@ -1141,6 +1182,7 @@ class MainScreen(Tk):
             self.after(40, lambda:self.move_logo(self.logo_state))
     
     def toggle_main_frame(self, n):
+        """ Von den blauen Buttons wird der jeweilige Frame angezeigt."""
         frame = (self.rechner_frame, self.analysis_frame, self.matrix_frame, self.code_frame)[n]
         
         if frame is None:
@@ -1165,6 +1207,7 @@ class MainScreen(Tk):
         self.current_frame.focus_set()
     
     def switch_color_mode(self):
+        """Von den Darkmode/lightmode button werden hier alle widgets durchgegangen und die Farbe angepasst."""
         self.color_mode = not self.color_mode
         self.cm_button.config(image=[self.lightmode_image, self.darkmode_image][not self.color_mode])
         
@@ -1190,7 +1233,7 @@ class MainScreen(Tk):
             pass
     
     def selection_buttons(self, container, *names):
-        # für die 4 Buttons links
+        """Erstellt die vier Buttons links."""
         buttons = []
         for i, name in enumerate(names):
             button = Button(container,
@@ -1211,18 +1254,19 @@ class MainScreen(Tk):
         return buttons
     
     def select_main_frame(self, n):
-        # die Farbe des jeweiligen buttons bleibt dunkler und das frame wird angezeigt
+        """Beim druck auf den knopf bleibt dessen Farbe dunkler, die anderen werden hell und das Frame wird angezeigt"""
         for i in range(4):
             self.buttons[i]["bg"] = lblue
         self.toggle_main_frame(n)
         self.buttons[n]["bg"] = dblue
     
     def show_help(self):
+        """Vom Button '?' wird die Hilfe auf dem aktuellen Frame angezeigt."""
         self.current_frame.show_help()
     
     def exit_screen(self, event=None):
+        """Vom 'Schließen' button unten rechts wird das hier aufgerufen"""
         self.destroy()
-        # print(f"{self.rechner_frame.memory = }")
 
 
 if __name__ == "__main__":
