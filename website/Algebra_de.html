@@ -11,29 +11,28 @@
 <body>
 
 
-<a href=url('website_tutorial_de.html')><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
-<a href="url('website_tutorial.html'"><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
+<a href=Algebra_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
+<a href=Algebra_fr.html><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
 <img  id="logo" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/logo.png" alt=""/>
-<img  id="ana3" src="ana3.png" style="top:20px;" alt=""/>
-<br/><br/><br/>
-https://de.w3docs.com/
-<a href="https://de.w3docs.com/" class="button" style="top:0px;">Home</a>
-<a href="https://de.w3docs.com/" class="button" style="top:90px;">Rechner</a>
+<img  id="ana3" src="ana3.png" style="top:50px;" alt=""/>
+<br/><br/><br/><br/>
+
+<a href="website_de.html" class="button" style="top:0px;">Home</a>
+<a href="Algebra_de.html" class="button" style="top:90px;">Rechner</a>
 <a href="https://de.w3docs.com/" class="button" style="top:180px;">Analysis</a>
-<a href="https://de.w3docs.com/" class="button" style="top:270px;">Matrizen</a>
+<a href="Matrix_de.html" class="button" style="top:270px;">Matrizen</a>
 <a href="https://de.w3docs.com/" class="button" style="top:360px;">Console</a>
 
-<h3> Was kann man im Algebra-Screen machen?</h3>
+<h3> Was kann man im Rechner-Screen machen?</h3>
 
-<p>Man kann eine Vielzahl an Ausdrücken numeriscb berechnen. Dabei wurden elementare Funktionen, Integrale und Ableitungen implementiert. Es gibt aber auch Zahlentheoretische Funktionen und Lösungen zu analytischen Aufgaben (mehr dazu im Analysis-Screen) </p>
-<h3>Die möglichen Befehle:</h3>
-
-<h4>Funktionen:</h4>
+<p>Man kann eine Vielzahl an Ausdrücken numeriscb berechnen. Dabei wurden elementare Funktionen, Integrale und Ableitungen implementiert. Es gibt aber auch Zahlentheoretische Funktionen und Lösungen zu analytischen Aufgaben (mehr dazu im Analysis-Screen). </p>
+<h4>Hier eine Liste der möglichen Befehle:</h4>
+<h3>Funktionen:</h4>
 
 <table>
 <tr>  <th>Ausdruck</th>   <th>Funktion</th>   <th>Beispiel</th>  </tr>
 
-<tr> <td>cos, arccos, cosh, arccosh, sin, arcsin, sinh, arcsinh, tan, arctan, tanh, arctanh</td>   <td> Berechnung der elementaren trigonometrischen Funktionen</td>   <td> cos(pi)</td>   </tr>
+<tr> <td>cos, arccos, cosh, arccosh,<br> sin, arcsin, sinh, arcsinh,<br> tan, arctan, tanh, arctanh</td>   <td> Elementare trigonometrischen Funktionen</td>   <td> cos(pi)</td>   </tr>
 
 <tr> <td>exp(x) oder e^x</td>   <td>Exponentialfunktion</td>   <td>e^4</td>   </tr>
 
@@ -47,20 +46,20 @@ https://de.w3docs.com/
 
 </table>
 
-<h4>Differentialoperatoren:</h4>
+<h3>Differentialoperatoren:</h4>
 
 <table>
 <tr>  <th>Ausdruck</th>   <th>Funktion</th>   <th>Beispiel</th>  </tr>
 
-<tr> <td>d/dx(f(x))</td>   <td>bestimmt die exakte Ableitung der Funktion f. Dabei kann f von weiteren Parametern abhängen.</td>   <td>d/dx(log(a*tan(x)-b))</td>   </tr>
+<tr> <td>d/dx(f(x))</td>   <td>Bestimmt die exakte Ableitung der Funktion f. Dabei kann f von weiteren Parametern abhängen.</td>   <td>d/dx(log(a*x^2-b))</td>   </tr>
 
 <tr> <td>d^n/dx^n(f(x))(x_0) </td>   <td> bestimmt die approximative n-te Ableitung von f in x_0. Kann instabil sein.</td>   <td>d^3/dx^3(sin(x))(1)</td>   </tr>
 
-<tr> <td>Int(a,b,f(x),x)</td>   <td>Integral von f(x)dx von a nach b. Dabei werden rechts von der Eingabeleiste verschiedene Approximationsverfahren vorgschlagen und eine obere Schranke für die jeweiligen Fehler angegeben</td>   <td>Int(2,3,sin(x)^2,x)</td>   </tr>
+<tr> <td>Int(a,b,f(x),x)</td>   <td>Integral von f(x)dx von a nach b.<br> Rechts von der Eingabeleiste werden die Approximationsverfahren vorgeschlagen. <br>Es wird eine obere Schranke für den Fehler angegeben </td>   <td>Int(2,3,sin(x)^2,x)</td>   </tr>
 
 </table>
 
-<h4>Zahlentheorie:</h4>
+<h3>Zahlentheorie:</h4>
 
 <table>
 <tr>  <th>Ausdruck</th>   <th>Funktion</th>   <th>Beispiel</th>  </tr>
@@ -73,7 +72,7 @@ https://de.w3docs.com/
 
 <tr> <td>ggT(a,b) oder PGCD(a,b)</td>   <td>größter gemeinsame Teiler von a und b</td>   <td>ggT(45,25)</td>   </tr>
 
-<tr> <td>isprime(n)</td>   <td>Falls n eine Primzahl ist, wird "True" ausgegeben. Sonst "False". Dies kein probabilistischer Primzahltest, sondern überprüft alle Faktoren, bis ein Teiler gefunden wird.</td>   <td>isprime(527)</td>   </tr>
+<tr> <td>isprime(n)</td>   <td>Falls n eine Primzahl ist, wird "True" ausgegeben. Sonst "False". Es wird dabei nach Teilern gesucht.</td>   <td>isprime(527)</td>   </tr>
 
 <tr> <td>eratosthenes(n)</td>   <td>Gibt eine Liste von den Primzahlen kleiner als n aus.</td>   <td>eratosthenes(100)</td>   </tr>
 
