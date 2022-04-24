@@ -1,123 +1,120 @@
+
+
 <!doctype html>
 <html lang="fr">
+   <head>
+      <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
+      <meta charset="utf-8">
+      <title>Wolframbeta</title>
+   </head>
+   
+   
+   <body>
+      <a href=Analysis_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
+      <a href="Analysis_fr.html"><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
+      <img  id="logo" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/logo.png" alt=""/>
+      <img  id="ana3" src="ana3.png" style="top:50px;" alt=""/>
+      <br/><br/><br/><br/>
+      
+      <a href="website_de.html" class="button" style="top:0px;">Home</a>
+      <a href="Algebra_de.html" class="button" style="top:90px;">Rechner</a>
+      <a href="https://de.w3docs.com/" class="button" style="top:180px;">Analysis</a>
+      <a href="Matrix_de.html" class="button" style="top:270px;">Matrizen</a>
+      <a href="https://de.w3docs.com/" class="button" style="top:360px;">Console</a>
+      
+      <div>
+         
+         <h3> Was kann man im Analysis-Screen machen?</h3>
+         
+         <p> Man kann Funktionen oben links eingeben und damit speichern. Diese werden dann rechts als Graph gezeichnet. Um mehr über die Funktion zu erfahren, haben wir viele Algorithmen und Funktionen für Analystische Probleme implementiert. </p>
+         
+         <h4>Hier eine Liste der Funktionen:</h4>
+         
+         <h3>Funktionen:</h3>
+         
+         <table>
+            <tr>
+               <th>Ausdruck</th>
+               <th>Funktion</th>
+               <th>Beispiel</th>
+            </tr>
+            <tr>
+               <td>cos, arccos, cosh, arccosh,<br> sin, arcsin, sinh, arcsinh,<br> tan, arctan, tanh, arctanh</td>
+               <td>Elementare trigonometrischen Funktionen</td>
+               <td>cos(pi)</td>
+            </tr>
+            <tr>
+               <td>exp(x) oder e^x</td>
+               <td>Exponentialfunktion</td>
+               <td>e^4</td>
+            </tr>
+            <tr>
+               <td>pow(a,b) oder a^b</td>
+               <td>Potenzen</td>
+               <td>der(x^x,4,x)</td>
+            </tr>
+            <tr>
+               <td>sqrt(x)</td>
+               <td>Wurzelfunktion</td>
+               <td>sqrt(2)</td>
+            </tr>
+            <tr>
+               <td>ln(x)</td>
+               <td>natürlicher Logarithmus</td>
+               <td>ln(2)</td>
+            </tr>
+            <tr>
+               <td>log(x,n)</td>
+               <td>Logarithmus (Basis n) von x</td>
+               <td> log(10,2)</td>
+            </tr>
+         </table>
 
-  <head>
-    <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
-    <meta charset="utf-8">
-    <title>Wolframbeta</title>
-  </head>
-
-  <body>
-
-
-    <a href=Analysis_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
-    <a href="Analysis_fr.html"><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
-    <img  id="logo" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/logo.png" alt=""/>
-    <img  id="ana3" src="ana3.png" style="top:50px;" alt=""/>
-    <br/><br/><br/><br/>
-
-    <a href="website_de.html" class="button" style="top:0px;">Home</a>
-    <a href="Algebra_de.html" class="button" style="top:90px;">Rechner</a>
-    <a href="https://de.w3docs.com/" class="button" style="top:180px;">Analysis</a>
-    <a href="Matrix_de.html" class="button" style="top:270px;">Matrizen</a>
-    <a href="https://de.w3docs.com/" class="button" style="top:360px;">Console</a>
-
-    <div>
-      <h3> Was kann man im Analysis-Screen machen?</h3>
-
-        <p> Man kann Funktionen oben links eingeben und damit speichern. Diese werden dann rechts als Graph gezeichnet. Um mehr über die Funktion zu erfahren, haben wir viele Algorithmen und Funktionen für Analystische Probleme implementiert. </p>
-
-        <h4>Hier eine Liste der Funktionen:</h4>
-        
-    <h3>Funktionen:</h3>
-
-        <table>
-          <tr>
-            <th>Ausdruck</th>
-            <th>Funktion</th>
-            <th>Beispiel</th>
-          </tr>
-          <tr>
-            <td>cos, arccos, cosh, arccosh,<br> sin, arcsin, sinh, arcsinh,<br> tan, arctan, tanh, arctanh</td>
-            <td>Elementare trigonometrischen Funktionen</td>
-            <td>cos(pi)</td>
-          </tr>
-
-          <tr>
-            <td>exp(x) oder e^x</td>
-            <td>Exponentialfunktion</td>
-            <td>e^4</td>
-          </tr>
-
-
-          <tr>
-            <td>pow(a,b) oder a^b</td>
-            <td>Potenzen</td>
-            <td>der(x^x,4,x)</td>
-          </tr>
-
-
-          <tr>
-            <td>sqrt(x)</td>
-            <td>Wurzelfunktion</td>
-            <td>sqrt(2)</td>
-          </tr>
-
-          <tr>
-            <td>ln(x)</td>
-            <td>natürlicher Logarithmus</td>
-            <td>ln(2)</td>
-          </tr>
-          
-          
-          <tr>
-            <td>log(x,n)</td>
-            <td>Logarithmus (Basis n) von x</td>
-            <td> log(10,2)</td>
-          </tr>
-          
-		 </table>
-
-
-		</table>
-
-       <h3>Operatoren:</h3>
-
-        <table>
-          <tr>
-            <th>Ausdruck</th>
-            <th>Funktion</th>
-            <th>Beispiel</th>
-          </tr>
-          <tr>
-            <td></td>
-            <td>Minimum/Maximum von f auf [a;b] bestimmen</td>
-            <td>min(sin^2 - cos(5*x), 0.5, 0.7)</td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>Nullstellen von f auf [a;b] bestimmen</td>
-			<td>nullstelle(x^3-x*sin(x),0,2)</td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>Integral von f über [a;b] bezüglich der Variable x.</td>
-            <td>Int(ln(x)/x,3,4,x)</td>
-          </tr>
-
-        </table>
-
-		<h4>Man kann auch Differentialgleichungen lösen lassen:</h4>
-		
-		<p>Oben kann man nicht nur Funktionen eingeben! Geben sie zum Beispiel folgendes ein: y'=sin(yt)*cos(t) &amp; y(2)=3 </p>
-		<p>Der Approximative Polygonzug wird im Graph eingezeichnet. Dieser Algorithmus verwendet das Euler-Collatz-Verfahren.</p>
-        
-        <br />
-        <hr />
-
-      <h4> Die Entwickler: &nbsp;&nbsp; Felix Dehon und Eric Trébuchon, aus der TSMP </h4>
-    </div>
-
-    <a href="https://github.com/Feeeeeeeeeelix/WolframBeta">Hier gehts zu unserem Github-Projekt!</a>
-  </body>
+         <h3>Operatoren:</h3>
+         
+         <table>
+            <tr>
+               <th>Ausdruck</th>
+               <th>Funktion</th>
+               <th>Beispiel</th>
+            </tr>
+            <tr>
+               <td></td>
+               <td>Minimum/Maximum von f auf [a;b] bestimmen</td>
+               <td>min(sin^2 - cos(5*x), 0.5, 0.7)</td>
+            </tr>
+            <tr>
+               <td></td>
+               <td>Nullstellen von f auf [a;b] bestimmen</td>
+               <td>nullstelle(x^3-x*sin(x),0,2)</td>
+            </tr>
+            <tr>
+               <td></td>
+               <td>Integral von f über [a;b] bezüglich der Variable x.</td>
+               <td>Int(ln(x)/x,3,4,x)</td>
+            </tr>
+            <tr>
+               <td>der(f(x),x)</td>
+               <td>Ableitung von f in x_0.</td>
+               <td>der(ln(sin(x)^2 + 1),x)</td>
+            </tr>
+            <tr>
+               <td></td>
+               <td>n-te Ableitung von f in x_0.</td>
+               <td></td>
+            </tr>
+         </table>
+         
+         <h4>Man kann auch Differentialgleichungen lösen lassen:</h4>
+         <p>Oben kann man nicht nur Funktionen eingeben! Geben sie zum Beispiel folgendes ein: y'=sin(yt)*cos(t) &amp; y(2)=3 </p>
+         <p>Der Approximative Polygonzug wird im Graph eingezeichnet. Dieser Algorithmus verwendet das Euler-Collatz-Verfahren.</p>
+         
+         <br />
+         <hr />
+         
+         <h4> Die Entwickler: &nbsp;&nbsp; Felix Dehon und Eric Trébuchon, aus der TSMP </h4>
+      </div>
+      <a href="https://github.com/Feeeeeeeeeelix/WolframBeta">Hier gehts zu unserem Github-Projekt!</a>
+   </body>
 </html>
+
