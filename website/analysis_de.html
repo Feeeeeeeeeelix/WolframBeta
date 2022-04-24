@@ -25,8 +25,22 @@
       <div>
          
          <h3> Was kann man im Analysis-Screen machen?</h3>
-         
-         <p> Man kann Funktionen oben links eingeben und damit speichern. Diese werden dann rechts als Graph gezeichnet. Um mehr über die Funktion zu erfahren, haben wir viele Algorithmen und Funktionen für Analystische Probleme implementiert. </p>
+
+         <p>
+            Links in den einzelnen Zeilen kann man entweder Funktionen eingeben oder Differentialgleichungen approximativ
+            lösen lassen: <br />
+            Um Funktionen zu speichern, kann man einen Funktionsterm eingeben, woraufhin automatisch ein
+            zugehöriger Name und eine Farbe für die Funktion generiert wird. Die Funktion wird dann rechts in dem Graphen
+            angezeigt. Die Funktion kann man später ändern, und deren Sichtbarkeit durch den Kopf links der Funktions ein-/
+            und ausschalten. <br />
+            Um Differentialgleichungen zu lösen, gibt man eine Funktion abhängig von y(t) und t, und einen Startwert ein.
+            Sie soll die Form y' = f(y, t) & y(t_0) = y_0 haben.
+         </p>
+         <p>
+            Unter den Eingabezeilen kann man Funktions-spezifische Berechnungen tätigen. Dort kann man unter anderem die
+            Wendepunkte, Nullstellen oder Ableitungen von den gespeicherten Funktionen anzeigen lassen. Es werden auch
+            die normalen arithmetischen Operatationen zwischen den Funktionstermen interpretiert.
+         </p>
          
          <h4>Hier eine Liste der Funktionen:</h4>
          
@@ -49,14 +63,14 @@
                <td>e^4</td>
             </tr>
             <tr>
-               <td>pow(a,b) oder a^b</td>
+               <td>pow(a, b) oder a^b</td>
                <td>Potenzen</td>
-               <td>der(x^x,4,x)</td>
+               <td>pow(3, 7), 3^7, 3**7</td>
             </tr>
             <tr>
-               <td>sqrt(x)</td>
+               <td>sqrt(x) oder root(x, n)</td>
                <td>Wurzelfunktion</td>
-               <td>sqrt(2)</td>
+               <td>sqrt(2), root(18, 5)</td>
             </tr>
             <tr>
                <td>ln(x)</td>
@@ -64,9 +78,9 @@
                <td>ln(2)</td>
             </tr>
             <tr>
-               <td>log(x,n)</td>
+               <td>log(x, n)</td>
                <td>Logarithmus (Basis n) von x</td>
-               <td> log(10,2)</td>
+               <td> log(10, 2)</td>
             </tr>
          </table>
 
@@ -79,36 +93,57 @@
                <th>Beispiel</th>
             </tr>
             <tr>
-               <td></td>
+               <td>min(f, a, b), max(f, a, b)</td>
                <td>Minimum/Maximum von f auf [a;b] bestimmen</td>
                <td>min(sin^2 - cos(5*x), 0.5, 0.7)</td>
             </tr>
             <tr>
-               <td></td>
+               <td>nullstellen(f, a, b), f=0</td>
                <td>Nullstellen von f auf [a;b] bestimmen</td>
                <td>nullstelle(x^3-x*sin(x),0,2)</td>
             </tr>
             <tr>
-               <td></td>
-               <td>Integral von f über [a;b] bezüglich der Variable x.</td>
-               <td>Int(ln(x)/x,3,4,x)</td>
+               <td>Int(a, b, f(x), x)</td>
+               <td>Integral von f über [a; b] bezüglich der Variable x.</td>
+               <td>Int(3,4,ln(x)/x,x)</td>
             </tr>
             <tr>
-               <td>der(f(x),x)</td>
-               <td>Ableitung von f in x_0.</td>
-               <td>der(ln(sin(x)^2 + 1),x)</td>
+               <td>d/dx(f(x))</td>
+               <td>Ableitung von f(x).</td>
+               <td>d/dx(sqrt(1-cos(x)^2))</td>
             </tr>
             <tr>
-               <td></td>
-               <td>n-te Ableitung von f in x_0.</td>
-               <td></td>
+               <td>d^n/dx^n(f(x))</td>
+               <td>Exakte n'te Ableitung von f(x).</td>
+               <td>d^3/dx^3(ln(sin(x)^2 + 1))</td>
             </tr>
+            <tr>
+               <td>d^n/dx^n(f(x))(x_0)</td>
+               <td>Approximative n'te Ableitung von f(x) in x_0.</td>
+               <td>d^3/dx^3(sin(exp(x^2 - 4)))(5)</td>
+            </tr>
+            <tr>
+               <td>Int(a, b, f)</td>
+               <td>Integral von a nach b von f</td>
+               <td>Int(0, 5, f)</td>
+            </tr>
+
          </table>
+
+         <p>
+            Bei Funktionen wie min, max und nullstellen ist die Angabe des Intervalls [a, b] nicht notwendig: Wenn sie
+            a und b beim Aufruf der Funktionen weglassen, wird automatisch das unter dem Graphen angezeigte Intervall
+            (das man übrigens frei ändern kann) als Standartintervall genommen.
+         </p>
          
-         <h4>Man kann auch Differentialgleichungen lösen lassen:</h4>
-         <p>Oben kann man nicht nur Funktionen eingeben! Geben sie zum Beispiel folgendes ein: y'=sin(yt)*cos(t) &amp; y(2)=3 </p>
-         <p>Der Approximative Polygonzug wird im Graph eingezeichnet. Dieser Algorithmus verwendet das Euler-Collatz-Verfahren.</p>
-         
+         <h4>Man kann auch ein Polynom durch gegebene Punkte finden:</h4>
+         <p>
+            Durch das Neville-Schema kann ein Polynom gefunden werden, das durch alle Punkte läuft, die man angibt.
+            Geben Sie in der Eingabe unten zum Beispiel Folgendes ein:<br />
+                  neville((2, 3), (4, 8), (9, 0)) <br />
+            Es werden die gegebenen Punkte und das gefundene Polynom im Graphen angezeigt.
+         </p>
+
          <br />
          <hr />
          
