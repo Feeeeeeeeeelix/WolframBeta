@@ -21,19 +21,29 @@ ln3 = 1.098612288668110
 
 #  ELEMENTARE FUNKTIONEN
 
-def is_pos_int(n):
+def is_pos_int(n: str or int or float) -> bool:
     if int(n) != float(n) or float(n) < 0:
         return False
     return True
 
 
-def is_int(n):
+def is_int(n: str or int or float) -> bool:
     if int(n) != float(n):
         return False
     return True
 
 
-def fact(n):
+def isfloat(n: str or int or float) -> bool:
+    if type(n) is bool or type(n) is list:
+        return False
+    try:
+        float(n)
+    except ValueError:
+        return False
+    return True
+
+
+def fact(n: int) -> int:
     if not is_pos_int(n):
         raise ValueError(f"fact argument must be a positive integer")
     if n > 997:
@@ -41,7 +51,7 @@ def fact(n):
     return n * fact(n - 1) if n > 1 else 1
 
 
-def C(n, k):
+def C(n: int, k: int) -> int:
     if not is_pos_int(n) or not is_pos_int(k):
         raise ValueError(f"C arguments must be positive intergers")
     if n < k:
@@ -49,7 +59,8 @@ def C(n, k):
     return fact(n) / (fact(n - k) * fact(k))
 
 
-def exp(x):  # Taylor Reihe (ohne x**i jedes mal neu zu berechnen)
+def exp(x: float) -> float:
+    # Taylor Reihe (ohne x**i jedes mal neu zu berechnen)
     sum = 0
     term = 1
     for i in range(1, int(20 + 3 * abs(x))):
@@ -111,7 +122,7 @@ def sqrt(x):
         xold = xnew
 
 
-def root(a, k):
+def root(a, k: int):
     if a < 0 and not k % 2:
         raise ValueError
     if not is_pos_int(k):
@@ -240,13 +251,15 @@ def arctanh(x):
 #  ZAHLENTHEORIE
 
 
-def division_with_rest(a, b):
+def division_with_rest(a: int, b: int):
     max_multiple = a // b
     rest = a % b  # a = max_multiple * b +rest , rest<b
     return max_multiple, rest
 
 
-def euclidean_algorithm(a, b):
+def euclidean_algorithm(a: int, b: int):
+    if not isfloat(a) or not isfloat(b):
+        raise ValueError("a and b must be integers")
     while b != 0:  # b==0 --> Algorithmus fertig
         n, rest = division_with_rest(a, b)
         print(a, "=", n, "*", b, "+", rest)
@@ -255,7 +268,7 @@ def euclidean_algorithm(a, b):
     return a  # ggT von a,b nach dem euklidischen Algorithmus
 
 
-def kgV(a, b):
+def kgV(a: int, b: int):
     return a * b / euclidean_algorithm(a, b)
 
 
@@ -264,7 +277,7 @@ PGCD = ggT
 PPCM = kgV
 
 
-def eratosthenes(n):
+def eratosthenes(n: int):
     x = [True] * (n + 3)
     prime_list = []
     
@@ -281,7 +294,7 @@ def eratosthenes(n):
     return prime_list
 
 
-def isprime(n):
+def isprime(n: int):
     if n <= 1:
         return False
     for i in range(2, int(sqrt(n)) + 1):
@@ -290,11 +303,11 @@ def isprime(n):
     return True
 
 
-def primfactors(n):
+def primfactors(n: int):
     factors = []
     temp = n
     
-    for i in range(2, sqrt(temp) + 1):
+    for i in range(2, int(sqrt(temp) + 1)):
         
         while temp % i == 0:
             temp = temp / i
@@ -303,7 +316,7 @@ def primfactors(n):
     return factors
 
 
-def partition(n):
+def partition(n: int):
     part = [[1 if i == j or j == 0 else 0 for j in range(i + 1)] for i in range(n + 1)]
     
     for i in range(1, n + 1):

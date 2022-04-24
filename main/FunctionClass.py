@@ -41,6 +41,8 @@ dim = "riemann"
 
 
 def isfloat(n: str or int or float) -> bool:
+    if type(n) is bool or type(n) is list:
+        return False
     try:
         float(n)
     except ValueError:
@@ -419,7 +421,7 @@ def write(f: list) -> str or int:
             return str(integrate(*f[1:]))
         args = ", ".join([str(write(arg)) for arg in f[1:]])
         try:
-            return flint(eval(f"{f[0]}({args})"))
+            return eval(f"{f[0]}({args})")
         except:
             return f"{f[0]}({args})"
     
