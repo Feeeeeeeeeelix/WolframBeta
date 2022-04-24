@@ -6,7 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from FunctionClass import *
 from functions import *
-from analysis import min, minimum, max, maximum, nullstellen, der, DEFAULT_RANGE
+from analysis import min, minimum, max, maximum, nullstellen, der, DEFAULT_RANGE, euler_collatz
 from matrix import Matrix
 from polynomials import neville
 
@@ -74,7 +74,7 @@ def check_and_clean(string):
     string = string.replace("²", "^2").replace("³", "^3")
     string = string.replace("pi", "π")
     for char in string:
-        if char not in ".,+-*/()_^`'! π=3" + '"' + NUMBERS + ALPHABET:
+        if char not in ".,+-*/()_^`'!& π=3" + '"' + NUMBERS + ALPHABET:
             return SyntaxError(f"Invalid input: '{char}'")
     if "++" in string or "**" in string or "//" in string or "^^" in string or ".." in string or ",," in string:
         return SyntaxError("invalid input!")
@@ -485,6 +485,8 @@ class AnalysisFrame(Frame):
         Label(self.range_frame, text="]").pack(side="left")
         self.refresh_icon = PhotoImage(file="../pictures/refresh.png").subsample(30, 30)
         Button(self.range_frame, image=self.refresh_icon, command=self.refresh_max_range).pack(side="left", padx=20)
+        self.x_min_entry.bind("<Return>", lambda _: self.x_max_entry.focus_set())
+        self.x_max_entry.bind("<Return>", lambda _: self.refresh_max_range)
         
         # clear button
         self.clear_button = Button(self, text="X", command=self.clear_frame)
@@ -535,7 +537,7 @@ class AnalysisFrame(Frame):
     def add_new_dgl(self):
         """Über den Button "y' = " aufgerufen"""
         line = self.get_first_empty_line()
-        line.entry.insert(0, "y' = ")
+        line.entry.insert(0, "y' = y & y(0) = 1")
         line.entry.focus_set()
     
     def get_first_empty_line(self):
@@ -666,7 +668,41 @@ class AnalysisFrame(Frame):
                 return False
         
         elif string.startswith("y'="):
-            pass
+            # Diffentialgleichung gegeben, Form: y'=f(y,t)&y(t_0)=y_0
+            if (sep_n := string.find("&")) != -1 and string[sep_n+1:].startswith("y(") and ")=" in string[sep_n+1:]:
+                f_yt_str = string[3:sep_n]
+                
+                try:
+                    f_written = write(parse(f_yt_str, True))
+                except Exception as error:
+                    self.show_error(f"invalid function :{f_yt_str}", n)
+                    return None
+                
+                t_0 = string[sep_n+3:string.index(")=")]
+                if not isfloat(t_0):
+                    self.show_error(f"invalid t_0: {t_0}", n)
+                    return None
+                t_0 = flint(t_0)
+                
+                y_0 = string[string.index(")=")+2:]
+                try:
+                    y_0 = flint(eval(y_0))
+                except:
+                    self.show_error(f"invalid y_0: {y_0}", n)
+                    return None
+                
+                end = t_0 + 5
+                if t_0 + 5 < self.default_range[1]:
+                    end = self.default_range[1]
+                    
+                color = self.all_colors[n % 7]
+                self.dgl[n] = (*tuple(euler_collatz(f_written, t_0, y_0, end=end)), color, True)
+                obj.color = self.color_names[color]
+                obj.activate_bttn()
+                self.graph()
+            else:
+                self.show_error("diff.eq. must be of the form y'=f(y,t)&y(t_0)=y_0", n)
+                return None
         
         return True
     
@@ -724,10 +760,13 @@ class AnalysisFrame(Frame):
                     self.stored_values[function.str_out] = [I, J]
                 self.subplot.plot(I, J, color=function.color, label=f"y = {function.name}(x)")
                 self.subplot.legend(loc="upper left")
-        # self.subplot.spines["left"].set_position("center")
-        # self.subplot.spines["bottom"].set_position("center")
-        # self.subplot.spines["top"].set_color(None)
-        # self.subplot.spines["right"].set_color(None)
+                
+        for tuple_ in self.dgl.values():
+            if tuple_[3]:
+                # tuple_[3] ist ein bool der die sichtbarkeit beschreibt
+                i, j = tuple_[0], tuple_[1]
+                self.subplot.plot(i, j, color=tuple_[2])
+        
         self.subplot.grid(True)
         self.canvas.draw()
     
@@ -761,10 +800,16 @@ class AnalysisFrame(Frame):
     def toggle_visibility(self, obj):
         """Wenn man auf den Farbkreis den EntryLine 'obj' drückt, wird deren sichtbarkeit getoggelt"""
         id_ = obj.id
-        if id_ not in self.functions:
+        
+        if id_ in self.dgl:
+            isvisible = self.dgl[id_][3]
+            self.dgl[id_] = *self.dgl[id_][:3], not isvisible
+        elif id_ in self.functions:
+            isvisible = self.functions[id_].isvisible
+            self.functions[id_].isvisible = not isvisible
+        else:
             return None
-        isvisible = self.functions[id_].isvisible
-        self.functions[id_].isvisible = not isvisible
+        
         if isvisible:
             obj.disable_bttn()
         else:

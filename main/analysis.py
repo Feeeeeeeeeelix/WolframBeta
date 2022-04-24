@@ -198,7 +198,8 @@ def euler_collatz(f_str, t_0, y_0, end, steps=1000):
     for i in range(1, steps):
         y[i] = y[i - 1] + dt * f(t + dt / 2, y[i - 1] + dt / 2 * f(t, y[i - 1]))
         t += dt
-    return y  # Die Menge der Funktionswerte (die dazugehörigen x-Werte sind [x_0 + i * dt for i in range(0,steps)])
+    x = [t_0 + i * dt for i in range(steps)]
+    return x, y  # Die Menge der Funktionswerte (die dazugehörigen x-Werte sind [x_0 + i * dt for i in range(0,steps)])
 
 
 def der(f, var="x", n=1, dx=10 ** (-3)):
@@ -218,9 +219,9 @@ def der(f, var="x", n=1, dx=10 ** (-3)):
 
 
 if __name__ == "__main__":
-    from functions import sin, cos, ln, sqrt
+    from functions import sin, cos, ln, sqrt, e
     
-    """print("Beispiele:")
+    print("Beispiele:")
     
     y = euler_collatz("y", 0, 1, 3)  # Löse y' = y mit y(0) = 1   --> y(t) = e^t einzige Lösung
     print(y)
@@ -238,7 +239,7 @@ if __name__ == "__main__":
     y = euler_collatz("y*t", 0, 1,
                       2)  # Löse y'(t) = y*t mit y(0) = 1 auf Intervall (0,2) --> exakte Lösung y(t) = e^{1/2*t^2}
     print(y)
-    print("Zum Vergleich mit dem letzten Term: ", e ** (1 / 2 * 2 ** 2))"""
+    print("Zum Vergleich mit dem letzten Term: ", e ** (1 / 2 * 2 ** 2))
     
     """ f = lambda t: sin(t ** 2)
     df = lambda t: 2 * t * cos(t ** 2)

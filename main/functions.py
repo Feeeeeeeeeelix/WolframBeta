@@ -52,7 +52,7 @@ def C(n, k):
 def exp(x):  # Taylor Reihe (ohne x**i jedes mal neu zu berechnen)
     sum = 0
     term = 1
-    for i in range(1, 20 + 3 * abs(x)):
+    for i in range(1, int(20 + 3 * abs(x))):
         sum += term
         term *= x / i
     return sum
