@@ -158,8 +158,8 @@ class RechnerFrame(Frame):
         self.clear_button.place(relx=0.95, y=10)
         
         # Help label
-        with open("../help/rechner_de.txt", "r") as help:
-            rechner_de = help.read()
+        with open("../help/rechner_de.txt", "r") as help_:
+            rechner_de = help_.read()
         self.help_label = Message(self, text=rechner_de, relief="raised")
         self.help_show = False
         
@@ -218,12 +218,12 @@ class RechnerFrame(Frame):
                     lp_simp = round(flint(lp_simp), 10)
                 if isfloat(rp_simp):
                     rp_simp = round(flint(rp_simp), 10)
-                    
+                
                 if not isfloat(eq := write(parse(f"{lp_simp}-{rp_simp}", True))):
                     # gleichung lösen:
                     loesungen = nullstellen(lambda x: eval(eq), -10, 10)
                     output_latex = r"x \in \{" + str([flint(round(ans, 5)) for ans in loesungen])[1:-1] + r"\}"
-                    
+                
                 else:
                     # gleichheit überprüfen
                     output_latex = eval(f"{lp_simp} == {rp_simp}")
@@ -293,10 +293,10 @@ class RechnerFrame(Frame):
         set_default_integration_method(method)
         self.show_answer(self.interprete(self.input_entry.get()))
     
-    def show_last(self, dir):
+    def show_last(self, dir_):
         """Im entry wird bei Pfeil hoch/runter das letzte/nächste eingegebene angezeigt"""
         if not self.listed_memory: return None
-        self.rang += dir * 1 if (not self.rang == dir * len(self.listed_memory)) and (not self.rang == -dir) else 0
+        self.rang += dir_ * 1 if (not self.rang == dir_ * len(self.listed_memory)) and (not self.rang == -dir_) else 0
         self.input_entry.delete(0, "end")
         self.input_entry.insert(0, self.listed_memory[self.rang])
     
@@ -498,7 +498,7 @@ class AnalysisFrame(Frame):
         
         self.functions = {}  # alle gespeicherte funktionen
         self.dgl = {}
-        self.nev_pts = [] # Wenn ein neville schema eingegeben wurde, sind hier die punkte gespeichert
+        self.nev_pts = []  # Wenn ein neville schema eingegeben wurde, sind hier die punkte gespeichert
         self.funcnames_order = ["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"]
         self.all_colors = ["r", "g", "b", "c", "m", "y", "k"]
         self.color_names = {'r': 'red', 'g': 'green', 'b': 'blue', 'c': 'cyan', 'm': 'magenta',
@@ -516,16 +516,16 @@ class AnalysisFrame(Frame):
         """Über den Button 'f(x) = ' unter den EntryLines wird diese Funktion aufgerufen, oder diese funktion wird dafür
          missbraucht, um ein polynom vom neville-schema einzufügen."""
         line = self.get_first_empty_line()
-        id = line.id
+        id_ = line.id
         name = self.generate_func_name()
         if func is None:
-            color = self.all_colors[id % 7]
-            self.functions[id] = FunctionWrapper("", "x", name, color, False, id)
+            color = self.all_colors[id_ % 7]
+            self.functions[id_] = FunctionWrapper("", "x", name, color, False, id_)
             line.entry.insert(0, f"{name}(x) = ")
         else:
             # Ein vom neville-schema generierter polynom wird eingefügt
             string, nev_pts = func
-            self.functions[id] = FunctionWrapper(string, "x", name, "k", True, id, nev_pts)
+            self.functions[id_] = FunctionWrapper(string, "x", name, "k", True, id_, nev_pts)
             line.color = self.color_names["k"]
             line.activate_bttn()
             line.entry.insert(0, f"{name}(x) = {write(string)}")
@@ -550,11 +550,11 @@ class AnalysisFrame(Frame):
     def create_new_line(self):
         """Eine neue EntryLine wird erstellt und returned"""
         id_ = self.generate_new_id()
-        self.new_line = EntryLine(self.scrolled_frame, self, id_)
-        self.new_line.pack(fill="x")
-        self.new_line.entry.focus_set()
-        self.lines.append(self.new_line)
-        return self.new_line
+        self.line = EntryLine(self.scrolled_frame, self, id_)
+        self.line.pack(fill="x")
+        self.line.entry.focus_set()
+        self.lines.append(self.line)
+        return self.line
     
     def generate_new_id(self):
         """Jede EntryLine hat eine ID. Hier wird eine neue generiert"""
@@ -701,9 +701,9 @@ class AnalysisFrame(Frame):
                         x_max = tuple_[0]
                         self.set_range(x_min, x_max)
                     self.subplot.scatter(*tuple_)
-                
+        
         """mit der eventuell erweiterteten x-range wird die range erstellt"""
-        I_max = rrange(x_min, x_max, (x_max-x_min)/100)
+        I_max = rrange(x_min, x_max, (x_max - x_min) / 100)
         
         for function in self.functions.values():
             if function.isvisible:
@@ -745,7 +745,7 @@ class AnalysisFrame(Frame):
         if (x_min := flint(x_min)) > (x_max := flint(x_max)):
             x_min, x_max = x_max, x_min
             self.set_range(x_min, x_max)
-            
+        
         self.default_range = [x_min, x_max]
         # für analysis.py wird die default range für min, max, und nullstellen geändert
         DEFAULT_RANGE = [x_min, x_max]
@@ -757,7 +757,7 @@ class AnalysisFrame(Frame):
         self.x_min_entry.insert(0, x_min)
         self.x_max_entry.delete(0, "end")
         self.x_max_entry.insert(0, x_max)
-        
+    
     def toggle_visibility(self, obj):
         """Wenn man auf den Farbkreis den EntryLine 'obj' drückt, wird deren sichtbarkeit getoggelt"""
         id_ = obj.id
@@ -806,19 +806,19 @@ class AnalysisFrame(Frame):
         try:
             if "=" in string:
                 """Gleichheit überprüfen"""
-    
+                
                 n = string.find("=")
-    
+                
                 lp_raw = string[:n]
                 rp_raw = string[n + 1:]
-    
+                
                 if "=" in rp_raw:
                     self.show_error("Invalid input: '=='; rather write '='")
                     return None
-    
+                
                 lp, rp = parse(lp_raw, False), parse(rp_raw, False)
                 lp_simp, rp_simp = write(parse(lp_raw, True)), write(parse(rp_raw, True))
-    
+                
                 if isfloat(lp_simp):
                     lp_simp = round(flint(lp_simp), 10)
                 if isfloat(rp_simp):
@@ -828,14 +828,14 @@ class AnalysisFrame(Frame):
                     # gleichung lösen:
                     loesungen = nullstellen(lambda x: eval(eq))
                     output_latex = r"x \in \{" + str([flint(round(ans, 5)) for ans in loesungen])[1:-1] + r"\}"
-    
+                
                 else:
                     # gleichheit überprüfen
                     output_latex = eval(f"{lp_simp} == {rp_simp}")
-    
+                
                 input_latex = f"{write_latex(lp)} = {write_latex(rp)}"
                 self.show_answer(rf"{input_latex}:\/\/ {output_latex}")
-                
+            
             elif string.startswith("neville(") and string.endswith(")"):
                 # Neville Schema
                 if string[8] == "(" and string[-2] == ")" or string[8] == "[" and string[-2] == "]":
@@ -865,18 +865,18 @@ class AnalysisFrame(Frame):
                     w = write(output_tree)
                     print(f"write: {w}")
                     output_latex = eval(w)
-                    
+                
                 except Exception as e:
                     print(f"couldnt eval {write(output_tree)}, {e}")
                     output_latex = write_latex(output_tree, simp=True)
-                    
+                
                 output = f"{input_latex} = {output_latex}"
                 self.show_answer(output)
-                
+        
         except Exception as error:
             self.show_error(format_error(error))
             return None
-        
+    
     def show_answer(self, string=""):
         """Der output aus der 'compute_entry' wird hier auf einer matplotlib Figure angezeigt."""
         self.show_error("")
@@ -1021,9 +1021,8 @@ class MatrixFrame(Frame):
                                 justify="center")
         self.rows_box.pack(side="left", padx=10)
         self.refresh_logo = PhotoImage(file="../pictures/refresh.png").subsample(30, 30)
-        Button(self.dimensions_frame, image=self.refresh_logo, command=self.refresh_dimensions, padx=20, pady=20, bd=0).pack(
-            side="right",
-            padx=10)
+        Button(self.dimensions_frame, image=self.refresh_logo, command=self.refresh_dimensions, padx=20, pady=20,
+               bd=0).pack(side="right", padx=10)
         self.columns_variable = StringVar(value="3")
         self.columns_box = Spinbox(self.dimensions_frame, from_=1, to=15, width=3, textvariable=self.columns_variable,
                                    justify="center")
@@ -1057,7 +1056,8 @@ class MatrixFrame(Frame):
         self.input_entry.pack(side="left", fill="both", expand=True, padx=20)
         self.input_entry.bind("<Return>", self.interprete_input)
         self.return_icon = PhotoImage(file="../pictures/enter.png").subsample(24, 24)
-        Button(self.entry_frame, image=self.return_icon, command=self.interprete_input, bg="white").pack(side="left", padx=10)
+        Button(self.entry_frame, image=self.return_icon, command=self.interprete_input, bg="white").pack(side="left",
+                                                                                                         padx=10)
         
         # Output Frame
         self.output_frame = Label(self, bd=1, relief="raised")
@@ -1159,8 +1159,8 @@ class MatrixFrame(Frame):
         """Eine neue Matrix wird mit den aktuellen dimensionen erstellt und angezeigt"""
         self.show_error()  # clear the error label
         
-        if dim := self.check_dimensions():
-            n, m = dim
+        if dim_ := self.check_dimensions():
+            n, m = dim_
             
             if cm := self.current_matrix:
                 cm.hide()
@@ -1421,7 +1421,7 @@ class MainScreen(Tk):
                 container["bg"] = [lgray, dgray][self.color_mode]
         try:
             self.current_frame.switch_color()
-        except:
+        except AttributeError:
             pass
     
     def selection_buttons(self, container, *names):
@@ -1454,7 +1454,10 @@ class MainScreen(Tk):
     
     def show_help(self):
         """Vom Button '?' wird die Hilfe auf dem aktuellen Frame angezeigt."""
-        self.current_frame.show_help()
+        try:
+            self.current_frame.show_help()
+        except AttributeError:
+            pass
     
     def exit_screen(self, event=None):
         """Vom 'Schließen' button unten rechts wird das hier aufgerufen"""
