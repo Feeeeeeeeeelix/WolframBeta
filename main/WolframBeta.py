@@ -18,7 +18,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 0
+default_frame = 1
 min_window = True
 
 """TODO:
@@ -442,18 +442,18 @@ class AnalysisFrame(Frame):
         
         Label(self.new_frame, text=["Neu: ", "Nouveau: ", "New: "][lang]).grid(row=0, column=0, sticky="news")
         Button(self.new_frame, text="f(x) = ...", command=self.add_new_func).grid(row=0, column=1, sticky="news")
-        Button(self.new_frame, text="y' = ...", command=self.add_new_dgl).grid(row=0, column=2, sticky="news")
+        Button(self.new_frame, text="y' = f(y, t) & y(t0) = y0", command=self.add_new_dgl).grid(row=0, column=2, sticky="news")
         
         # single entry Frame
         self.compute_frame = Frame(self, bd=1, relief="solid", highlightthickness=0)
         self.compute_frame.place(relx=0.1, rely=0.55, relwidth=0.35, relheight=0.1)
-        
-        self.compute_entry = Entry(self.compute_frame, justify="center")
-        self.compute_entry.pack(side="left", fill="both", expand=True)
+
+        self.compute_entry = Entry(self.compute_frame, bd=0, highlightthickness=0)
+        self.compute_entry.pack(side="left", fill="both", expand=True, padx=20)
         self.compute_entry.bind("<Return>", self.interprete_input)
-        
-        self.submit_bttn = Button(self.compute_frame, text="?", command=self.interprete_input)
-        self.submit_bttn.pack(side="right", fill="both")
+        self.return_icon = PhotoImage(file="../pictures/enter.png").subsample(24, 24)
+        Button(self.compute_frame, image=self.return_icon, command=self.interprete_input, bg="white").pack(side="left",
+                                                                                                         padx=10)
         
         self.compute_error_label = Label(self, fg="red")
         self.compute_error_label.place(relx=0.1, rely=0.65, relheight=0.05, relwidth=0.35)
@@ -494,7 +494,7 @@ class AnalysisFrame(Frame):
         self.refresh_icon = PhotoImage(file="../pictures/refresh.png").subsample(30, 30)
         Button(self.range_frame, image=self.refresh_icon, command=self.refresh_max_range).pack(side="left", padx=20)
         self.x_min_entry.bind("<Return>", lambda _: self.x_max_entry.focus_set())
-        self.x_max_entry.bind("<Return>", lambda _: self.refresh_max_range)
+        self.x_max_entry.bind("<Return>", lambda _: self.refresh_max_range())
         
         # clear button
         self.clear_button = Button(self, text="X", command=self.clear_frame)
@@ -545,7 +545,7 @@ class AnalysisFrame(Frame):
     def add_new_dgl(self):
         """Über den Button "y' = " aufgerufen"""
         line = self.get_first_empty_line()
-        line.entry.insert(0, "y' = y & y(0) = 1")
+        line.entry.insert(0, "y' =  & y( ) = ")
         line.entry.focus_set()
     
     def get_first_empty_line(self):
@@ -959,6 +959,8 @@ class AnalysisFrame(Frame):
             line.destroy()
         self.lines = []
         self.create_new_line()
+        self.set_range(-5, 5)
+        self.refresh_max_range()
         self.graph()
         self.compute_entry.delete(0, "end")
         self.show_answer()
@@ -1037,7 +1039,7 @@ class MatrixFrame(Frame):
         
         # Auswahl Frame
         self.matrix_auswahl = Frame(self, bd=1, relief="raised")
-        self.matrix_auswahl.place(relx=0.1, rely=0.0, relwidth=0.3, relheight=0.2)
+        self.matrix_auswahl.place(relx=0.1, rely=0.0, relwidth=0.3, relheight=0.25)
         Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2).pack(side="left",
                                                                                                   anchor="n")
         
@@ -1103,7 +1105,7 @@ class MatrixFrame(Frame):
         
         # Entry Frame
         self.entry_frame = Frame(self, bd=1, relief="raised", bg="white")
-        self.entry_frame.place(relx=0.1, rely=0.4, relwidth=0.3, relheight=0.1)
+        self.entry_frame.place(relx=0.1, rely=0.35, relwidth=0.3, relheight=0.15)
         
         self.input_entry = Entry(self.entry_frame, bd=0, highlightthickness=0)
         self.input_entry.pack(side="left", fill="both", expand=True, padx=20)
@@ -1144,9 +1146,9 @@ class MatrixFrame(Frame):
             n, m = int(n), int(m)
             if n < 1 or n > 15 or m < 1 or m > 15:
                 raise ValueError
-            self.show_error()
+            self.show_edit_error()
         except ValueError:
-            self.show_error("Dimensions must be integers between 1 and 15")
+            self.show_edit_error("Dimensions must be integers between 1 and 15")
             return None
         return n, m
     
@@ -1187,15 +1189,15 @@ class MatrixFrame(Frame):
     def submit_matrix(self):
         """Vom 'save' Button werden die werte und der name der aktuellen Matrix gespeichert und Fehler überprüft.
         Dann werden die Werte in einer neuen Matric() Instanz gespeichert, die später genutzt werden kann"""
-        self.show_error()
+        self.show_edit_error()
         self.current_matrix.save_values()
         name = self.name_entry.get()
         id_ = self.current_matrix.id
         
         if not name:
-            self.show_error("No name")
+            self.show_edit_error("No name")
         elif name in [m.name if id_ != m.id else "" for m in self.matrices]:
-            self.show_error("Name is already taken")
+            self.show_edit_error("Name is already taken")
         elif self.current_matrix not in self.matrices:
             self.matrices.append(self.current_matrix)
         
@@ -1215,7 +1217,7 @@ class MatrixFrame(Frame):
     
     def create_new_matrix(self, leave_name=False):
         """Eine neue Matrix wird mit den aktuellen dimensionen erstellt und angezeigt"""
-        self.show_error()  # clear the error label
+        self.show_edit_error()  # clear the error label
         if leave_name:
             if (name := self.name_entry.get()) in [m.name for m in self.matrices]:
                 name = ""
@@ -1233,7 +1235,7 @@ class MatrixFrame(Frame):
     
     def show_matrix(self, matrix=None):
         """Es wird die gegebene Matrix angezeigt (zb vom AnzeigeButton links) oder eine neue erstellt."""
-        self.show_error()  # clear the error label
+        self.show_edit_error()  # clear the error label
         
         if not matrix:
             self.create_new_matrix()
@@ -1250,7 +1252,7 @@ class MatrixFrame(Frame):
             id_matrix = Matrix.Id(n)
             self.current_matrix.insert_values(id_matrix)
         else:
-            self.show_error("dimensions are not symmetric")
+            self.show_edit_error("dimensions are not symmetric")
     
     def new_zero_matrix(self):
         self.create_new_matrix(leave_name=True)
@@ -1271,7 +1273,7 @@ class MatrixFrame(Frame):
             rnds_matrix = Matrix.RandomSym(n)
             self.current_matrix.insert_values(rnds_matrix)
         else:
-            self.show_error("dimensions are not symmetric")
+            self.show_edit_error("dimensions are not symmetric")
     
     def generate_new_id(self):
         """Jede Matrix hat eine ID um sie zu unterscheiden. Hier wird eine neue generiert."""
@@ -1285,10 +1287,15 @@ class MatrixFrame(Frame):
         """Hier wird überprüft ob es einträge in der aktuellen matrix gibt."""
         return any([any(col) for col in self.current_matrix.get_values()])
     
-    def show_error(self, error=""):
+    def show_edit_error(self, error=""):
         """Der error wird unter dem matrix_edit_frame angezeigt"""
         self.error_label.config(text=error)
-    
+        
+    def show_input_error(self, error=""):
+        """Der error wird unter dem input entry angezeigt"""
+        self.in_label.config(text="")
+        self.out_label.config(text=error, fg="red")
+        
     def interprete_input(self, _=None):
         """Interpretiert den input vom entry."""
         string = self.input_entry.get()
@@ -1303,7 +1310,7 @@ class MatrixFrame(Frame):
     def show_answer(self, answer=("", "")):
         left, right = answer
         self.in_label.config(text=left)
-        self.out_label.config(text=right)
+        self.out_label.config(text=right, fg="black")
     
     def show_help(self, force=None):
         """Der Hilfe für den MatrixFrame wird oben links angezeigt.
