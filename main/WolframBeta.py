@@ -6,7 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from FunctionClass import *
 from functions import *
-from analysis import min, minimum, max, maximum, nullstellen, der, DEFAULT_RANGE, euler_collatz
+from analysis import DEFAULT_RANGE, min, minimum, max, maximum, nullstellen, der,  euler_collatz
 from matrix import Matrix
 from polynomials import neville
 
@@ -18,7 +18,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 1
+default_frame = 2
 min_window = True
 
 """TODO:
@@ -1105,8 +1105,13 @@ class MatrixFrame(Frame):
                                                                                                          padx=10)
         
         # Output Frame
-        self.output_frame = Label(self, bd=1, relief="raised")
+        self.output_frame = Frame(self, bd=1, relief="raised")
         self.output_frame.place(relx=0.1, rely=0.55, relwidth=0.8, relheight=0.45)
+        
+        self.in_label = Label(self.output_frame, anchor="e")
+        self.in_label.pack(side="left", padx=(40, 5))
+        self.out_label = Label(self.output_frame, anchor="w", justify="center")
+        self.out_label.pack(side="left", padx=10)
         
         # clear button
         self.clear_button = Button(self, text="X", command=self.clear_frame)
@@ -1200,17 +1205,22 @@ class MatrixFrame(Frame):
         Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2).pack(side="left",
                                                                                                   anchor="n")
     
-    def create_new_matrix(self):
+    def create_new_matrix(self, leave_name=False):
         """Eine neue Matrix wird mit den aktuellen dimensionen erstellt und angezeigt"""
         self.show_error()  # clear the error label
-        
+        if leave_name:
+            if (name := self.name_entry.get()) in [m.name for m in self.matrices]:
+                name = ""
+        else:
+            name = ""
+                
         if dim_ := self.check_dimensions():
             n, m = dim_
             
             if cm := self.current_matrix:
                 cm.hide()
             id_ = self.generate_new_id()
-            self.current_matrix = MatrixWrapper(self, "", n, m, id_)
+            self.current_matrix = MatrixWrapper(self, name, n, m, id_)
             self.current_matrix.show()
     
     def show_matrix(self, matrix=None):
@@ -1226,16 +1236,16 @@ class MatrixFrame(Frame):
     
     def new_identity_matrix(self):
         """Eine Neue ID Matrix wird erstellt und eingefügt"""
-        self.create_new_matrix()
+        self.create_new_matrix(leave_name=True)
         n, m = self.check_dimensions()
         if n == m:
             id_matrix = Matrix.Id(n)
             self.current_matrix.insert_values(id_matrix)
         else:
-            self.show_error("dimensions are not symetric")
+            self.show_error("dimensions are not symmetric")
     
     def new_zero_matrix(self):
-        self.create_new_matrix()
+        self.create_new_matrix(leave_name=True)
         n, m = self.check_dimensions()
         zero_matrix = Matrix.Zero(n, m)
         self.current_matrix.insert_values(zero_matrix)
@@ -1253,7 +1263,7 @@ class MatrixFrame(Frame):
             rnds_matrix = Matrix.RandomSym(n)
             self.current_matrix.insert_values(rnds_matrix)
         else:
-            self.show_error("dimensions are not symetric")
+            self.show_error("dimensions are not symmetric")
     
     def generate_new_id(self):
         """Jede Matrix hat eine ID um sie zu unterscheiden. Hier wird eine neue generiert."""
@@ -1272,9 +1282,20 @@ class MatrixFrame(Frame):
         self.error_label.config(text=error)
     
     def interprete_input(self, _=None):
+        """Interpretiert den input vom entry."""
         string = self.input_entry.get()
-        if string in self.matrices_name:
-            self.output_frame.config(text=str(self.matrices_name[string]))
+        try:
+            for name, matrix in self.matrices_name.items():
+                locals()[name] = matrix
+            out = eval(string)
+            self.show_answer((f"{string} = ", out))
+        except Exception as error:
+            raise error
+    
+    def show_answer(self, answer=("", "")):
+        left, right = answer
+        self.in_label.config(text=left)
+        self.out_label.config(text=right)
     
     def show_help(self, force=None):
         """Der Hilfe für den MatrixFrame wird oben links angezeigt.

@@ -255,8 +255,8 @@ class Matrix:
         try:
             [L, U] = self.lu()
             
-            y = lower_triangle_solve(L, b)
-            x = upper_triangle_solve(U, y)
+            y = L._lower_triangle_solve(b)
+            x = U._upper_triangle_solve(y)
             
             return x
         except:
@@ -811,13 +811,4 @@ class Matrix:
         
 
 if __name__ == "__main__":
-    A = Matrix([[2,3,4,5],[6,6,6,5],[4,2.0,6.9999,5]])
-    print(A._latex())
-    
-    #docstring = ""
-    #for method in dir(Matrix):
-    #    if method[0] != "_":
-    #        method = getattr(Matrix, method)
-    #        docstring += "    " + method.__name__ + "()\n"
-    #        docstring += method.__doc__ + "\n\n"
-    #print(docstring)
+    pass
