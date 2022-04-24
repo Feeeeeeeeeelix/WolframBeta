@@ -1,97 +1,154 @@
 <!doctype html>
 <html lang="fr">
-<head>
-  <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
-  <meta charset="utf-8">
-  <title>Wolframbeta</title>
-</head>
-
-
- 
-<body>
-
-
-<a href=Algebra_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
-<a href=Algebra_fr.html><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
-<img  id="logo" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/logo.png" alt=""/>
-<img  id="ana3" src="ana3.png" style="top:50px;" alt=""/>
-<br/><br/><br/><br/>
-
-<a href="website_de.html" class="button" style="top:0px;">Home</a>
-<a href="Algebra_de.html" class="button" style="top:90px;">Rechner</a>
-<a href="https://de.w3docs.com/" class="button" style="top:180px;">Analysis</a>
-<a href="Matrix_de.html" class="button" style="top:270px;">Matrizen</a>
-<a href="https://de.w3docs.com/" class="button" style="top:360px;">Console</a>
-
-<h3> Was kann man im Rechner-Screen machen?</h3>
-
-<p>Man kann eine Vielzahl an Ausdrücken numeriscb berechnen. Dabei wurden elementare Funktionen, Integrale und Ableitungen implementiert. Es gibt aber auch Zahlentheoretische Funktionen und Lösungen zu analytischen Aufgaben (mehr dazu im Analysis-Screen). </p>
-<h4>Hier eine Liste der möglichen Befehle:</h4>
-<h3>Funktionen:</h4>
-
-<table>
-<tr>  <th>Ausdruck</th>   <th>Funktion</th>   <th>Beispiel</th>  </tr>
-
-<tr> <td>cos, arccos, cosh, arccosh,<br> sin, arcsin, sinh, arcsinh,<br> tan, arctan, tanh, arctanh</td>   <td> Elementare trigonometrischen Funktionen</td>   <td> cos(pi)</td>   </tr>
-
-<tr> <td>exp(x) oder e^x</td>   <td>Exponentialfunktion</td>   <td>e^4</td>   </tr>
-
-<tr> <td>pow(a,b) oder a^b</td>   <td>potenzen</td>   <td>(-2.4)^5</td>   </tr>
-
-<tr> <td>sqrt(x)</td>   <td>Wurzelfunktion</td>   <td>sqrt(2)</td>   </tr>
-
-<tr> <td>ln(x)</td>   <td>natürlicher Logarithmus</td>   <td>ln(2)</td>   </tr>
-
-<tr> <td>log(x,n)</td>   <td>Logarithmus (Basis n) von x</td>   <td> log(10,2)</td>   </tr>
-
-</table>
-
-<h3>Differentialoperatoren:</h4>
-
-<table>
-<tr>  <th>Ausdruck</th>   <th>Funktion</th>   <th>Beispiel</th>  </tr>
-
-<tr> <td>d/dx(f(x))</td>   <td>Bestimmt die exakte Ableitung der Funktion f. Dabei kann f von weiteren Parametern abhängen.</td>   <td>d/dx(log(a*x^2-b))</td>   </tr>
-
-<tr> <td>d^n/dx^n(f(x))(x_0) </td>   <td> bestimmt die approximative n-te Ableitung von f in x_0. Kann instabil sein.</td>   <td>d^3/dx^3(sin(x))(1)</td>   </tr>
-
-<tr> <td>Int(a,b,f(x),x)</td>   <td>Integral von f(x)dx von a nach b.<br> Rechts von der Eingabeleiste werden die Approximationsverfahren vorgeschlagen. <br>Es wird eine obere Schranke für den Fehler angegeben </td>   <td>Int(2,3,sin(x)^2,x)</td>   </tr>
-
-</table>
-
-<h3>Zahlentheorie:</h4>
-
-<table>
-<tr>  <th>Ausdruck</th>   <th>Funktion</th>   <th>Beispiel</th>  </tr>
-
-<tr> <td>C(a,b) oder aCb</td>   <td>Binomialkoeffizienten</td>   <td>9C4</td>   </tr>
-
-<tr> <td>fact(n) oder n!</td>   <td>Faktoriell</td>   <td>5!</td>   </tr>
-
-<tr> <td>kgV(a,b) oder PDCM(a,b)</td>   <td>kleinstes gemeinsames Vielfache von a und b</td>   <td>kgV(4,22)</td>   </tr>
-
-<tr> <td>ggT(a,b) oder PGCD(a,b)</td>   <td>größter gemeinsame Teiler von a und b</td>   <td>ggT(45,25)</td>   </tr>
-
-<tr> <td>isprime(n)</td>   <td>Falls n eine Primzahl ist, wird "True" ausgegeben. Sonst "False". Es wird dabei nach Teilern gesucht.</td>   <td>isprime(527)</td>   </tr>
-
-<tr> <td>eratosthenes(n)</td>   <td>Gibt eine Liste von den Primzahlen kleiner als n aus.</td>   <td>eratosthenes(100)</td>   </tr>
-
-<tr> <td>primfactors(n)</td>   <td>Gibt die Primteilerzerlegung der Zahl n an.</td>   <td>primfactors(137435)</td>   </tr>
-
-<tr> <td>partition(n)</td>   <td>Partitionszahl von n</td>   <td>partition(23)</td>   </tr>
-
-</table>
-
-
-
-<br />
-
-<hr />
-
-<h4> Die Entwickler: &nbsp;&nbsp; Felix Dehon und Eric Trébuchon, aus der TSMP </h4>
-
-<a href="https://github.com/Feeeeeeeeeelix/WolframBeta">Hier gehts zu unserem Github-Projekt!</a>
-</body>
+   <head>
+      <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
+      <meta charset="utf-8">
+      <title>Wolframbeta</title>
+   </head>
+   
+   <body>
+      <a href=Algebra_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
+      <a href=Algebra_fr.html><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
+      <img  id="logo" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/logo.png" alt=""/>
+      <img  id="ana3" src="ana3.png" style="top:50px;" alt=""/>
+      <br/><br/><br/><br/>
+      
+      
+      <a href="website_de.html" class="button" style="top:0px;">Home</a>
+      <a href="Algebra_de.html" class="button" style="top:90px;">Rechner</a>
+      <a href="https://de.w3docs.com/" class="button" style="top:180px;">Analysis</a>
+      <a href="Matrix_de.html" class="button" style="top:270px;">Matrizen</a>
+      <a href="https://de.w3docs.com/" class="button" style="top:360px;">Console</a>
+      
+      
+      <h3> Was kann man im Rechner-Screen machen?</h3>
+      
+      <p>Man kann eine Vielzahl an Ausdrücken numeriscb berechnen. Dabei wurden elementare Funktionen, Integrale und Ableitungen implementiert. Es gibt aber auch Zahlentheoretische Funktionen und Lösungen zu analytischen Aufgaben (mehr dazu im Analysis-Screen). </p>
+      
+      <h4>Hier eine Liste der möglichen Befehle:</h4>
+      
+      <h3>Funktionen:</h3>
+      
+      <table>
+         <tr>
+            <th>Ausdruck</th>
+            <th>Funktion</th>
+            <th>Beispiel</th>
+         </tr>
+         <tr>
+            <td>cos, arccos, cosh, arccosh,<br> sin, arcsin, sinh, arcsinh,<br> tan, arctan, tanh, arctanh</td>
+            <td> Elementare trigonometrischen Funktionen</td>
+            <td> cos(pi)</td>
+         </tr>
+         <tr>
+            <td>exp(x) oder e^x</td>
+            <td>Exponentialfunktion</td>
+            <td>e^4</td>
+         </tr>
+         <tr>
+            <td>pow(a,b) oder a^b</td>
+            <td>potenzen</td>
+            <td>(-2.4)^5</td>
+         </tr>
+         <tr>
+            <td>sqrt(x)</td>
+            <td>Wurzelfunktion</td>
+            <td>sqrt(2)</td>
+         </tr>
+         <tr>
+            <td>ln(x)</td>
+            <td>natürlicher Logarithmus</td>
+            <td>ln(2)</td>
+         </tr>
+         <tr>
+            <td>log(x,n)</td>
+            <td>Logarithmus (Basis n) von x</td>
+            <td> log(10,2)</td>
+         </tr>
+      </table>
+      
+      <h3>Differentialoperatoren:</h3>
+      
+      <table>
+         <tr>
+            <th>Ausdruck</th>
+            <th>Funktion</th>
+            <th>Beispiel</th>
+         </tr>
+         <tr>
+            <td>d/dx(f(x))</td>
+            <td>Bestimmt die exakte Ableitung der Funktion f. Dabei kann f von weiteren Parametern abhängen.</td>
+            <td>d/dx(log(a*x^2-b))</td>
+         </tr>
+         <tr>
+            <td>d^n/dx^n(f(x))(x_0) </td>
+            <td> bestimmt die approximative n-te Ableitung von f in x_0. Kann instabil sein.</td>
+            <td>d^3/dx^3(sin(x))(1)</td>
+         </tr>
+         <tr>
+            <td>Int(a,b,f(x),x)</td>
+            <td>Integral von f(x)dx von a nach b.<br> Rechts von der Eingabeleiste werden die Approximationsverfahren vorgeschlagen. <br>Es wird eine obere Schranke für den Fehler angegeben </td>
+            <td>Int(2,3,sin(x)^2,x)</td>
+         </tr>
+      </table>
+      
+      <h3>Zahlentheorie:</h3>
+      
+      <table>
+         <tr>
+            <th>Ausdruck</th>
+            <th>Funktion</th>
+            <th>Beispiel</th>
+         </tr>
+         <tr>
+            <td>C(a,b) oder aCb</td>
+            <td>Binomialkoeffizienten</td>
+            <td>9C4</td>
+         </tr>
+         <tr>
+            <td>fact(n) oder n!</td>
+            <td>Faktoriell</td>
+            <td>5!</td>
+         </tr>
+         <tr>
+            <td>kgV(a,b) oder PDCM(a,b)</td>
+            <td>kleinstes gemeinsames Vielfache von a und b</td>
+            <td>kgV(4,22)</td>
+         </tr>
+         <tr>
+            <td>ggT(a,b) oder PGCD(a,b)</td>
+            <td>größter gemeinsame Teiler von a und b</td>
+            <td>ggT(45,25)</td>
+         </tr>
+         <tr>
+            <td>isprime(n)</td>
+            <td>Falls n eine Primzahl ist, wird "True" ausgegeben. Sonst "False". Es wird dabei nach Teilern gesucht.</td>
+            <td>isprime(527)</td>
+         </tr>
+         <tr>
+            <td>eratosthenes(n)</td>
+            <td>Gibt eine Liste von den Primzahlen kleiner als n aus.</td>
+            <td>eratosthenes(100)</td>
+         </tr>
+         <tr>
+            <td>primfactors(n)</td>
+            <td>Gibt die Primteilerzerlegung der Zahl n an.</td>
+            <td>primfactors(137435)</td>
+         </tr>
+         <tr>
+            <td>partition(n)</td>
+            <td>Partitionszahl von n</td>
+            <td>partition(23)</td>
+         </tr>
+      </table>
+      
+      
+      <br />
+      <hr />
+      
+      <h4> Die Entwickler: &nbsp;&nbsp; Felix Dehon und Eric Trébuchon, aus der TSMP </h4>
+      <a href="https://github.com/Feeeeeeeeeelix/WolframBeta">Hier gehts zu unserem Github-Projekt!</a>
+   
+   </body>
 </html>
-
 
