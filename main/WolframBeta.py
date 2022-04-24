@@ -18,7 +18,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 2
+default_frame = 0
 min_window = True
 
 """TODO:
@@ -239,15 +239,23 @@ class RechnerFrame(Frame):
                 write_ = write(output_tree)
                 try:
                     """Falls das ausgegebene zb 'sin(8)' ist, wird das berechnet"""
-                    output_latex = flint(eval(str(write_)))
-                except Exception:
+                    output_latex = eval(str(write_))
+                except Exception as e:
                     """Wenn eine variable im ergebnis ist, kann es nicht berechnet werden. Dann wird nur versucht
                     das eingegebene zu vereinfachen."""
-                    print(f"couldnt eval expr: {write_}")
+                    print(f"couldnt eval expr: {write_}, {e}")
                     output_latex = write_latex(output_tree, simp=True)
-                    
-                return f"{input_latex} = {output_latex}"
-        
+                print(write_, type(output_latex))
+                
+                if type(output_latex) == bool:
+                    return f"{input_latex} = {output_latex}"
+                elif isfloat(output_latex):
+                    return f"{input_latex} = {flint(output_latex)}"
+                elif type(output_latex) == list:
+                    return str(input_latex) + r": \{" + str([x for x in output_latex])[1:-1] + r"\}"
+                else:
+                    return f"{input_latex} = {flint(output_latex)}"
+                
         except Exception as error:
             self.show_error(format_error(error))
             return None
