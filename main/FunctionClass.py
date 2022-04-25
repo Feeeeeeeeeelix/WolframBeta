@@ -31,7 +31,7 @@ FUNCTIONS = ['C', 'PGCD', 'PPCM', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arc
 SIMPLE_FUNCTIONS = ['cos', 'cosh', 'arccos', 'arccosh', 'sin', 'sinh', 'arcsin', 'arcsinh', 'tan', 'tanh', 'arctan', 'arctanh',
                     'exp', 'log', 'ln', 'sqrt']
 
-DEFINED_FUNCTIONS = {}
+DEFINED_FUNCTIONS = {"f": "sin(x)"}
 DEFINED_MATRICES = []
 
 ALPHABET = "qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNMπ"
@@ -216,6 +216,11 @@ def parse(f: str, simp=False):
             return f
     if f in DEFINED_MATRICES:
         return f
+    for matrix in DEFINED_MATRICES:
+        if matrix in f and f"({matrix})" not in f:
+            n0 = f.index(matrix)
+            n1 = n0 + len(matrix)
+            f = f[:n0] + "(" + f[n0:n1] + ")" + f[n1:]
     
     f0 = f
     f, innerargs = _extract_args(f)  # klammern und ihr inneres ersetzen
@@ -332,7 +337,7 @@ def parse(f: str, simp=False):
     # Funktion
     if f[0] in ALPHABET and f[-1] == "@":
         funcname = f[:-1]
-        if funcname in FUNCTIONS:
+        if funcname in FUNCTIONS+list(DEFINED_FUNCTIONS.keys()):
             args = innerargs[0].split(",")
             n = len(args)
             if funcname == "Int":
@@ -423,7 +428,7 @@ def write(f: list) -> str or int:
             pass
         return f"{base}**{power}" if power != 1 and power != "(1)" else base if int(power) != 0 else 1
     
-    if f[0] in FUNCTIONS:
+    if f[0] in FUNCTIONS+list(DEFINED_FUNCTIONS.keys()):
         if f[0] == "Int":
             return str(integrate(*f[1:]))
         args = ", ".join([str(write(arg)) for arg in f[1:]])
@@ -503,7 +508,7 @@ def write_latex(f: list, simp=False):
         else:
             return "{(" + str(base) + ")}^{" + str(power) + "}"
     
-    if f[0] in FUNCTIONS:
+    if f[0] in FUNCTIONS+list(DEFINED_FUNCTIONS.keys()):
         # args = [str(write(arg)) for arg in f[1:]]
         if f[0] == "log":
             return "\\" + f[0] + "_{" + str(write_latex(f[2], simp)) + "}(" + str(write_latex(f[1], simp)) + ")"
@@ -750,7 +755,7 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "lol"
+    func = "f(8)"
     
     try:
         s = Function(func)

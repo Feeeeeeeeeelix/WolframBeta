@@ -29,14 +29,8 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 0
+default_frame = 1
 min_window = True
-
-
-def toggle_lang(language):
-    global lang
-    lang = language
-    print(f"changed language to {lang}")
 
 
 def format_error(error):
@@ -125,7 +119,8 @@ class RechnerFrame(Frame):
         self.lab = Label(self.einstellungs_frame,
                          text=["Integrationsmethode:", "Methode d'integration", "Integration method"][lang])
         self.lab.grid(row=0, column=0)
-        Button(self.einstellungs_frame, text="X", bd=0, command=self.hide_einstellungen).grid(row=0, column=1)
+        Button(self.einstellungs_frame, text="X", bd=0, command=self.hide_einstellungen,
+               highlightbackground="#707070").grid(row=0, column=1)
         self.method = StringVar(value="riemann")
         self.method.trace("w", lambda *_: self.refresh_integration(self.method.get()))
         Radiobutton(self.einstellungs_frame, text="Riemann", variable=self.method,
@@ -154,7 +149,7 @@ class RechnerFrame(Frame):
         self.answers = ""
         
         # clear button
-        self.clear_button = Button(self, text="X", command=self.clear_frame)
+        self.clear_button = Button(self, text="X", command=self.clear_frame, bd=0, highlightbackground="#707070")
         self.clear_button.place(relx=0.95, y=10)
         
         # Help label
@@ -171,7 +166,6 @@ class RechnerFrame(Frame):
         self.help_show = False
         
         self.elements = get_all_children(self)
-        self.int_fehler = int_fehler
         self.input_entry.bind("<Return>", self.commit_input)
     
     def commit_input(self, event=None):
@@ -254,7 +248,7 @@ class RechnerFrame(Frame):
                 except Exception as e:
                     """Wenn eine variable im ergebnis ist, kann es nicht berechnet werden. Dann wird nur versucht
                     das eingegebene zu vereinfachen."""
-                    print(f"couldnt eval expr: {write_}, {e}")
+                    # print(f"couldnt eval expr: {write_}, {e}")
                     output_latex = write_latex(output_tree, simp=True)
                     
                 if f := get_int_fehler():
@@ -289,14 +283,14 @@ class RechnerFrame(Frame):
         
         self.show_error()
         self.io_figure.clear()
-        self.io_figure.set_facecolor(["white", "#505050"][app.color_mode])
+        self.io_figure.set_facecolor(["white", "#505050"][self.color_mode])
         
         text = rf"${answers}$"
         length = len(text)
         size = int(2000 / (length + 60) + 5)
         if text != "$$":
             self.io_figure.text(0.5, 0.5, text, fontsize=size,
-                                color=["black", "white"][app.color_mode], va="center", ha="center")
+                                color=["black", "white"][self.color_mode], va="center", ha="center")
         self.io_canvas.draw()
         
     def show_max_error(self, approx):
@@ -304,7 +298,7 @@ class RechnerFrame(Frame):
         if not approx:
             return None
         text = rf"${['Fehler', 'Erreur', 'Error'][lang]}: {approx}$"
-        self.io_figure.text(0.5, 0.2, text, size=17, color=["black", "white"][app.color_mode], va="center", ha="center")
+        self.io_figure.text(0.5, 0.2, text, size=17, color=["black", "white"][self.color_mode], va="center", ha="center")
         self.io_canvas.draw()
     
     def show_error(self, error=""):
@@ -335,9 +329,29 @@ class RechnerFrame(Frame):
         self.input_entry.delete(0, "end")
         self.input_entry.insert(0, self.listed_memory[self.rang])
     
-    def switch_color(self):
+    def switch_color(self, color_mode):
         """refresht den canvas"""
         self.show_answer()
+        self.color_mode = color_mode
+        
+        for container in self.elements:
+            if type(container) == Entry:
+                container["fg"] = ["black", "white"][self.color_mode]
+                container["bg"] = ["white", "#505050"][self.color_mode]
+            elif type(container) == Button:
+                container["fg"] = ["black", "#f0f0f0"][self.color_mode]
+                container["bg"] = [lgray, dgray][self.color_mode]
+                container["activeforeground"] = ["black", "#f0f0f0"][self.color_mode]
+                container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
+            elif type(container) == Text:
+                container["bg"] = [lgray, dgray][self.color_mode]
+                container["fg"] = ["black", "white"][self.color_mode]
+            elif type(container) == Radiobutton:
+                container["bg"] = [lgray, dgray][self.color_mode]
+                container["highlightbackground"] = [lgray, dgray][self.color_mode]
+                container["highlightcolor"] = [lgray, dgray][self.color_mode]
+            else:
+                container["bg"] = [lgray, dgray][self.color_mode]
     
     def switch_lang(self):
         # help texts:
@@ -387,25 +401,28 @@ class EntryLine(Frame):
         self.fr.pack(side="top", expand=1, fill="both")
         self.fr.focus_set()
         
-        self.bttn = Button(self.fr, takefocus=0, bd=0, bg="white", highlightthickness=0,
-                           image=super_.rings["gray"], command=lambda: super_.toggle_visibility(self))
+        self.bttn = Button(self.fr, takefocus=0, bd=0, bg=["white", "#505050"][super_.color_mode], highlightthickness=0,
+                           image=super_.rings["gray"], command=lambda: super_.toggle_visibility(self),
+                           activebackground = ["#ececec", "#4c4c4c"][super_.color_mode])
         self.bttn.pack(side="left", fill="both")
         
-        self.pfeil = Label(self.fr, takefocus=0, text=" > ", bg="white", fg="black", height=2)
+        self.pfeil = Label(self.fr, takefocus=0, text=" > ", bg=["white", "#505050"][super_.color_mode],
+                           fg=["black", "white"][super_.color_mode], height=2)
         self.pfeil.pack(side="left", fill="both")
         
-        self.entry = Entry(self.fr, takefocus=1, bd=0, highlightthickness=0, fg="black", bg="white")
+        self.entry = Entry(self.fr, takefocus=1, bd=0, highlightthickness=0, fg=["black", "white"][super_.color_mode],
+                           bg=["white", "#505050"][super_.color_mode])
         self.entry.pack(side="left", fill="both", expand=True)
         self.entry.focus_set()
         
-        self.error_label = Label(self, takefocus=0, height=0, fg="red")
+        self.error_label = Label(self, takefocus=0, height=0, fg="red", bg=["white", "#505050"][super_.color_mode])
         # wird nur wenn nötig angezeigt
         
         self.entry.bind("<Return>", lambda _: super_.enter_pressed(self))
         self.entry.bind("<BackSpace>", lambda _: super_.destroy_line(self) if not self.entry.get() else 0)
     
     def show_error(self, error_message):
-        self.error_label.config(text=error_message)
+        self.error_label.config(text=error_message, fg="red")
         self.error_label.pack(side="bottom", fill="x", expand=0)
     
     def hide_error(self):
@@ -425,7 +442,6 @@ class FunctionWrapper(Function):
     name, Farbe, sichtbarkeit im Graph, und ID"""
     
     def __init__(self, string, variable="x", name=None, color=None, isvisible=True, id_=None, nev_pts=None):
-        # print(f"neue funktion: {string}, {name = }")
         super().__init__(string, variable)
         self.name = name
         self.color = color
@@ -437,6 +453,7 @@ class FunctionWrapper(Function):
 class AnalysisFrame(Frame):
     def __init__(self, container):
         super().__init__(container)
+        self.color_mode = 0
         
         # Entry lines Frame
         self.entry_lines_outer_frame = Frame(self, bg="white", bd=1, relief="solid")
@@ -483,9 +500,10 @@ class AnalysisFrame(Frame):
         
         self.new_lab = Label(self.new_frame, text=["Neu: ", "Nouveau: ", "New: "][lang])
         self.new_lab.grid(row=0, column=0, sticky="news")
-        Button(self.new_frame, text="f(x) = ...", command=self.add_new_func).grid(row=0, column=1, sticky="news")
-        Button(self.new_frame, text="y' = f(y, t) & y(t0) = y0", command=self.add_new_dgl).grid(row=0, column=2,
-                                                                                                sticky="news")
+        Button(self.new_frame, text="f(x) = ...", command=self.add_new_func, bd=0,
+               highlightbackground="#707070").grid(row=0, column=1, padx=2, pady=2, sticky="news")
+        Button(self.new_frame, text="y' = f(y, t) & y(t0) = y0", command=self.add_new_dgl, bd=0,
+               highlightbackground="#707070").grid(row=0, column=2, padx=2, pady=2, sticky="news")
         
         # single entry Frame
         self.compute_frame = Frame(self, bd=1, relief="solid", highlightthickness=0, bg="white")
@@ -495,8 +513,8 @@ class AnalysisFrame(Frame):
         self.compute_entry.pack(side="left", fill="both", expand=True, padx=20)
         self.compute_entry.bind("<Return>", self.interprete_input)
         self.return_icon = PhotoImage(file="../pictures/enter.png").subsample(24, 24)
-        Button(self.compute_frame, image=self.return_icon, command=self.interprete_input, bg="white").pack(side="left",
-                                                                                                           padx=10)
+        Button(self.compute_frame, image=self.return_icon, command=self.interprete_input, bg="white", bd=0,
+               highlightbackground="#707070").pack(side="left", padx=10)
         
         self.compute_error_label = Label(self, fg="red")
         self.compute_error_label.place(relx=0.1, rely=0.65, relheight=0.05, relwidth=0.35)
@@ -526,21 +544,22 @@ class AnalysisFrame(Frame):
         self.range_frame = Frame(self)
         self.range_frame.place(relx=0.65, rely=0.95, relheight=0.05, relwidth=0.25)
         Label(self.range_frame, text="x-range: [").pack(side="left")
-        self.x_min_entry = Entry(self.range_frame, width=4)
+        self.x_min_entry = Entry(self.range_frame, width=4, bd=0, highlightbackground="#707070")
         self.x_min_entry.pack(side="left")
         self.x_min_entry.insert(0, self.default_range[0])
         Label(self.range_frame, text=", ").pack(side="left")
-        self.x_max_entry = Entry(self.range_frame, width=4)
+        self.x_max_entry = Entry(self.range_frame, width=4, bd=0, highlightbackground="#707070")
         self.x_max_entry.pack(side="left")
         self.x_max_entry.insert(0, self.default_range[1])
         Label(self.range_frame, text="]").pack(side="left")
         self.refresh_icon = PhotoImage(file="../pictures/refresh.png").subsample(30, 30)
-        Button(self.range_frame, image=self.refresh_icon, command=self.refresh_max_range).pack(side="left", padx=20)
+        Button(self.range_frame, image=self.refresh_icon, command=self.refresh_max_range, bd=0,
+               highlightbackground="#707070").pack(side="left", padx=20)
         self.x_min_entry.bind("<Return>", lambda _: self.x_max_entry.focus_set())
         self.x_max_entry.bind("<Return>", lambda _: self.refresh_max_range())
         
         # clear button
-        self.clear_button = Button(self, text="X", command=self.clear_frame)
+        self.clear_button = Button(self, text="X", bd=0, highlightbackground="#707070", command=self.clear_frame)
         self.clear_button.place(relx=0.95, y=10)
         
         # Help Label
@@ -556,10 +575,14 @@ class AnalysisFrame(Frame):
         self.help_label.config(state="disabled")
         self.help_show = False
         
+        self.elements = get_all_children(self)
+        self.entry_line_elements = get_all_children(self.entry_lines_outer_frame)
+        self.elements = [item for item in self.elements if item not in self.entry_line_elements]
+        
         self.functions = {}  # alle gespeicherte funktionen
-        self.dgl = {}
-        self.nev_pts = []  # Wenn ein neville schema eingegeben wurde, sind hier die punkte gespeichert
         self.funcnames_order = ["f", "g", "h", "i", "j", "k", "u", "v", "p", "s", "l"]
+        self.nev_pts = []  # Wenn ein neville schema eingegeben wurde, sind hier die punkte gespeichert
+        self.dgl = {}
         self.all_colors = ["r", "g", "b", "c", "m", "y", "k"]
         self.color_names = {'r': 'red', 'g': 'green', 'b': 'blue', 'c': 'cyan', 'm': 'magenta',
                             'y': 'yellow', 'k': 'black'}
@@ -651,6 +674,7 @@ class AnalysisFrame(Frame):
                 del self.functions[index]
             self.lines.pop(index)
             self.lines[-1].entry.focus_set()
+            self.graph()
     
     def check_line(self, index):
         """Überprüft, ob es diese Zeile gibt"""
@@ -811,7 +835,6 @@ class AnalysisFrame(Frame):
                     I, J = self.stored_values[function.str_out]
                 else:
                     I, J = [], []
-                    print(function.str_out)
                     for x in I_max:
                         try:
                             J.append(function(x))
@@ -828,7 +851,8 @@ class AnalysisFrame(Frame):
             if tuple_[3]:
                 # tuple_[3] ist ein bool der die sichtbarkeit beschreibt
                 i, j = tuple_[0], tuple_[1]
-                self.subplot.plot(i, j, color=tuple_[2])
+                self.subplot.plot(i, j, color=tuple_[2], label=f"y")
+                self.subplot.legend(loc="upper left")
         
         self.subplot.grid(True)
         self.canvas.draw()
@@ -958,6 +982,7 @@ class AnalysisFrame(Frame):
                 # Sonstige Eingaben
                 input_latex = write_latex(parse(string))
                 output_tree = parse(string, simp=True)
+                print(DEFINED_FUNCTIONS)
                 print(input_latex, output_tree)
                 
                 try:
@@ -965,10 +990,10 @@ class AnalysisFrame(Frame):
                         locals()[func.name] = func
                     for func in SIMPLE_FUNCTIONS:
                         locals()[func] = globals()[func]
-                    # print(locals())
+                    
                     w = write(output_tree)
                     print(f"write: {w}")
-                    output_latex = eval(w)
+                    output_latex = eval(str(w))
                 
                 except Exception as e:
                     print(f"couldnt eval {write(output_tree)}, {e}")
@@ -987,7 +1012,8 @@ class AnalysisFrame(Frame):
         text = rf"${string}$"
         text = text if text != "$$" else ""
         self.io_figure.clear()
-        self.io_figure.text(0.5, 0.5, text, size=int(1000 / (len(text) + 50)), va="center", ha="center")
+        self.io_figure.text(0.5, 0.5, text, size=int(1000 / (len(text) + 50)),color=["black", "white"][self.color_mode],
+                            va="center", ha="center")
         self.io_canvas.draw()
     
     def show_help(self, force=None):
@@ -999,9 +1025,46 @@ class AnalysisFrame(Frame):
         else:
             self.help_label.place_forget()
     
-    def switch_color(self):
-        pass
-
+    def switch_color(self, color_mode):
+        """Switch darkmode/lightmode"""
+        self.color_mode = color_mode
+        
+        for container in self.elements:
+            if type(container) == Entry:
+                container["fg"] = ["black", "white"][self.color_mode]
+                container["bg"] = ["white", "#505050"][self.color_mode]
+            elif type(container) == Button:
+                container["fg"] = ["black", "#f0f0f0"][self.color_mode]
+                container["bg"] = [lgray, dgray][self.color_mode]
+                container["activeforeground"] = ["black", "#f0f0f0"][self.color_mode]
+                container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
+            elif type(container) == Text:
+                container["bg"] = [lgray, dgray][self.color_mode]
+                container["fg"] = ["black", "white"][self.color_mode]
+            else:
+                container["bg"] = [lgray, dgray][self.color_mode]
+                
+        self.entry_line_elements = get_all_children(self.entry_lines_outer_frame)
+        
+        for container in self.entry_line_elements:
+            if type(container) == Entry or type(container) == Label:
+                container["fg"] = ["black", "white"][self.color_mode]
+                container["bg"] = ["white", "#505050"][self.color_mode]
+            elif type(container) == Button:
+                container["fg"] = ["black", "#f0f0f0"][self.color_mode]
+                container["bg"] = ["white", "#505050"][self.color_mode]
+                container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
+            else:
+                container["bg"] = [lgray, dgray][self.color_mode]
+        
+        self.compute_frame["bg"] = ["white", "#505050"][self.color_mode]
+        self.figure.set_facecolor(["white", "#505050"][self.color_mode])
+        self.subplot.set_facecolor(["white", "#505050"][self.color_mode])
+        self.io_figure.set_facecolor(["white", "#505050"][self.color_mode])
+        self.canvas.draw()
+        self.io_canvas.draw()
+        self.interprete_input()
+        
     def switch_lang(self):
         # help texts:
         self.help_label.config(state="normal")
@@ -1454,7 +1517,7 @@ class MainScreen(Tk):
         self.top_frame.rowconfigure(0, weight=1)
         
         # Help Button
-        self.help_button = Button(self.top_frame, text="?", command=self.show_help)
+        self.help_button = Button(self.top_frame, text="?", command=self.show_help, bd=0)
         self.help_button.grid(row=0, column=0)
         
         # Colormode Buttons
@@ -1521,7 +1584,8 @@ class MainScreen(Tk):
                                   highlightbackground="red")
         self.exit_button.place(relx=0.85, rely=0.2, relwidth=0.1, relheight=0.6)
         
-        self.elements = get_all_children(self)
+        self.elements = [self, self.top_frame, self.bottom_frame, self.help_button, self.cm_button, self.logo,
+                         self.lang_frame, self.de_button, self.fr_button, self.gb_button, self.exit_button]
         
         self.rechner_frame = self.analysis_frame = self.matrix_frame = self.code_frame = None
         self.current_frame = Frame(self)
@@ -1548,20 +1612,17 @@ class MainScreen(Tk):
             # initiate frame objects
             if n == 0:
                 self.rechner_frame = RechnerFrame(self)
-                self.elements.extend(get_all_children(self.rechner_frame))
             elif n == 1:
                 self.analysis_frame = AnalysisFrame(self)
-                self.elements.extend(get_all_children(self.analysis_frame))
             elif n == 2:
                 self.matrix_frame = MatrixFrame(self)
-                self.elements.extend(get_all_children(self.matrix_frame))
             elif n == 3:
                 self.code_frame = CodeFrame(self)
         
         frame = (self.rechner_frame, self.analysis_frame, self.matrix_frame, self.code_frame)[n]
         self.current_frame.place_forget()
         self.current_frame = frame
-        self.current_frame.show_help(False)
+        self.current_frame.show_help(False) if hasattr(self.current_frame, "show_help") else None
         self.current_frame.place(rely=0.1, relx=0.07, relheight=0.8, relwidth=0.93)
         self.current_frame.focus_set()
     
@@ -1571,30 +1632,22 @@ class MainScreen(Tk):
         self.cm_button.config(image=[self.lightmode_image, self.darkmode_image][not self.color_mode])
         
         for container in self.elements:
-            if type(container) == Entry:
-                container["fg"] = ["black", "white"][self.color_mode]
-                container["bg"] = ["white", "#505050"][self.color_mode]
-                # container["highlightbackground"] = [lgray, dgray][self.color_mode]
-            elif type(container) == Button:
+            if type(container) == Button:
                 container["fg"] = ["black", "#f0f0f0"][self.color_mode]
                 container["bg"] = [lgray, dgray][self.color_mode]
                 container["activeforeground"] = ["black", "#f0f0f0"][self.color_mode]
                 container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
                 # container["highlightbackground"] = [lgray, dgray][self.color_mode]
-            elif type(container) == Message:
-                container["bg"] = [lgray, dgray][self.color_mode]
-                container["fg"] = ["black", "white"][self.color_mode]
             else:
                 container["bg"] = [lgray, dgray][self.color_mode]
         try:
-            self.current_frame.switch_color()
+            self.current_frame.switch_color(self.color_mode)
         except AttributeError:
             pass
         
     def switch_language(self, language):
         global lang
         lang = language
-        print(f"switched lang to {lang}")
         try:
             self.current_frame.switch_lang()
         except AttributeError:
@@ -1609,7 +1662,6 @@ class MainScreen(Tk):
         """Erstellt die vier Buttons links."""
         buttons = []
         for i, name in enumerate(names):
-            print(name)
             button = Button(container,
                             textvariable=name,
                             bg=lblue,
