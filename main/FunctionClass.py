@@ -24,13 +24,13 @@ from functions import *
 
 """
 
-FUNCTIONS = ['C', 'PGCD', 'PPCM', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctan', 'arctanh', 'cos', 'cosh', 'sin', 'sinh',
-             'eratosthenes', 'exp', 'fact', 'ggT', 'isprime', 'kgV', 'log', 'ln', 'partition', 'pow', 'root',
-             'sqrt', 'tan', 'tanh', 'Int', 'min', 'max', 'primfactors', 'nullstellen']
+FUNCTIONS = ['C', 'PGCD', 'PPCM', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctan', 'arctanh', 'cos', 'cosh', 'sin', 'sinh', 'eratosthenes', 'exp', 'fact', 'ggT', 'isprime', 'kgV', 'log', 'ln', 'partition', 'pow', 'root', 'sqrt', 'tan', 'tanh', 'Int', 'min', 'max', 'primfactors', 'nullstellen', "T", "s", "m", "v", "sq", "normZ", "normS", "lu", "cholesky", "inverse", "det", "QR", "ausgleichs_problem", "power_method", "eigenvalues"]
+
 SIMPLE_FUNCTIONS = ['cos', 'cosh', 'arccos', 'arccosh', 'sin', 'sinh', 'arcsin', 'arcsinh', 'tan', 'tanh', 'arctan', 'arctanh',
                     'exp', 'log', 'ln', 'sqrt']
 
 DEFINED_FUNCTIONS = {}
+DEFINED_MATRICES = []
 
 ALPHABET = "qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNMπ"
 NUMBERS = "0123456789"
@@ -209,6 +209,8 @@ def parse(f: str, simp=False):
             return parse(DEFINED_FUNCTIONS[f], simp)
         else:
             return f
+    if f in DEFINED_MATRICES:
+        return f
     
     f0 = f
     f, innerargs = _extract_args(f)  # klammern und ihr inneres ersetzen
@@ -731,7 +733,7 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "sin(x)-(cos(x) + ln(x))"
+    func = "lol"
     
     try:
         s = Function(func)

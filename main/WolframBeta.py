@@ -7,7 +7,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from FunctionClass import *
 from functions import *
 from analysis import DEFAULT_RANGE, min, minimum, max, maximum, nullstellen, der,  euler_collatz
-from matrix import Matrix
+from matrix import *
 from polynomials import neville
 
 lblue = "#1e3799"
@@ -18,7 +18,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 1
+default_frame = 2
 min_window = True
 
 """TODO:
@@ -160,7 +160,9 @@ class RechnerFrame(Frame):
         # Help label
         with open("../help/rechner_de.txt", "r") as help_:
             rechner_de = help_.read()
-        self.help_label = Message(self, text=rechner_de, relief="raised")
+        self.help_label = Text(self, bg=lgray, padx=20, pady=20, bd=1, relief="raised", width=50, height=35)
+        self.help_label.insert("end", rechner_de)
+        self.help_label.config(state="disabled")
         self.help_show = False
         
         self.elements = get_all_children(self)
@@ -445,7 +447,7 @@ class AnalysisFrame(Frame):
         Button(self.new_frame, text="y' = f(y, t) & y(t0) = y0", command=self.add_new_dgl).grid(row=0, column=2, sticky="news")
         
         # single entry Frame
-        self.compute_frame = Frame(self, bd=1, relief="solid", highlightthickness=0)
+        self.compute_frame = Frame(self, bd=1, relief="solid", highlightthickness=0, bg="white")
         self.compute_frame.place(relx=0.1, rely=0.55, relwidth=0.35, relheight=0.1)
 
         self.compute_entry = Entry(self.compute_frame, bd=0, highlightthickness=0)
@@ -503,7 +505,9 @@ class AnalysisFrame(Frame):
         # Help Label
         with open("../help/analysis_deutsch.txt", "r") as help_:
             ana_deutsch = help_.read()
-        self.help_label = Message(self, text=ana_deutsch, relief="raised")
+        self.help_label = Text(self, bg=lgray, padx=20, pady=20, bd=1, relief="raised", width=50, height=35)
+        self.help_label.insert("end", ana_deutsch)
+        self.help_label.config(state="disabled")
         self.help_show = False
         
         self.functions = {}  # alle gespeicherte funktionen
@@ -1118,9 +1122,9 @@ class MatrixFrame(Frame):
         self.output_frame = Frame(self, bd=1, relief="raised")
         self.output_frame.place(relx=0.1, rely=0.55, relwidth=0.8, relheight=0.45)
         
-        self.in_label = Label(self.output_frame, anchor="e")
+        self.in_label = Label(self.output_frame, font=("verdana", 25), anchor="e")
         self.in_label.pack(side="left", padx=(40, 5))
-        self.out_label = Label(self.output_frame, anchor="w", justify="center")
+        self.out_label = Label(self.output_frame, anchor="w", font=("verdana", 25), justify="center")
         self.out_label.pack(side="left", padx=10)
         
         # clear button
@@ -1130,7 +1134,7 @@ class MatrixFrame(Frame):
         # Help Label
         with open("../help/matrix_deutsch.txt", "r") as help_:
             matrix_deutsch = help_.read()
-        self.help_label = Text(self)
+        self.help_label = Text(self, bg=lgray, padx=20, pady=20, bd=1, relief="raised", width=50, height=35)
         self.help_label.insert("end", matrix_deutsch)
         self.help_label.config(state="disabled")
         self.help_show = False
@@ -1261,13 +1265,13 @@ class MatrixFrame(Frame):
         self.current_matrix.insert_values(zero_matrix)
     
     def new_random_matrix(self):
-        self.create_new_matrix()
+        self.create_new_matrix(True)
         n, m = self.check_dimensions()
         rnd_matrix = Matrix.Random(n, m)
         self.current_matrix.insert_values(rnd_matrix)
     
     def new_randomsym_matrix(self):
-        self.create_new_matrix()
+        self.create_new_matrix(True)
         n, m = self.check_dimensions()
         if n == m:
             rnds_matrix = Matrix.RandomSym(n)
@@ -1302,7 +1306,8 @@ class MatrixFrame(Frame):
         try:
             for name, matrix in self.matrices_name.items():
                 locals()[name] = matrix
-            out = eval(string)
+                DEFINED_MATRICES.append(name)
+            out = eval(write(parse(string)))
             self.show_answer((f"{string} = ", out))
         except Exception as error:
             raise error
@@ -1329,7 +1334,7 @@ class MatrixFrame(Frame):
         self.refresh_auswahl()
         self.show_matrix()
         self.input_entry.delete(0, "end")
-        self.output_frame.config(text="")
+        self.show_answer()
         self.show_help(False)
 
 
