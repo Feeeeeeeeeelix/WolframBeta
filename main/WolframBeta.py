@@ -72,19 +72,21 @@ def rrange(a, b, n=1.0):
 def check_and_clean(string):
     """Der gegeben string wird für den parser lesbar gemacht und es werden illegale Charaktere gesucht."""
     if not string:
-        return None
+        return ""
     string = string.replace(" ", "").replace("**", "^")
     string = string.replace("²", "^2").replace("³", "^3")
     string = string.replace("pi", "π")
     for char in string:
         if char not in ".,+-*/()_^`'!& π=3" + '"' + NUMBERS + ALPHABET:
-            return SyntaxError(f"Invalid input: '{char}'")
+            return SyntaxError([f"Ungültige Eingabe: '{char}'", f"Entrée invalide: '{char}'", f"Invalid input: '{char}'"][lang])
     if "++" in string or "**" in string or "//" in string or "^^" in string or ".." in string or ",," in string:
-        return SyntaxError("invalid input!")
+        return SyntaxError(["Ungültige Eingabe", "Entrée invalide",  "invalid input"][lang])
     if string[0] in "*/^).,_!=":
-        return SyntaxError(f"Invalid first character: {string[0]}")
+        return SyntaxError([f"Ungültiger erster Charakter: {string[0]}", f"Premier charactère invalide: {string[0]}",
+                            f"Invalid first character: {string[0]}"][lang])
     if string[-1] in "+-*/^(.,_":
-        return SyntaxError(f"Invalid last character: {string[-1]}")
+        return SyntaxError([f"Ungültiger letzter Charakter: {string[0]}", f"Dernier charactère invalide: {string[0]}",
+                            f"Invalid last character: {string[0]}"][lang])
     return string
 
 
@@ -149,15 +151,20 @@ class RechnerFrame(Frame):
         self.io_figure = Figure()
         self.io_canvas = FigureCanvasTkAgg(self.io_figure, master=self.latex_io)
         self.io_canvas.get_tk_widget().pack(expand=1, fill="both")
-        self.answers = "", ""
+        self.answers = ""
         
         # clear button
         self.clear_button = Button(self, text="X", command=self.clear_frame)
         self.clear_button.place(relx=0.95, y=10)
         
         # Help label
-        with open("../help/rechner_de.txt", "r") as help_:
-            rechner_de = help_.read()
+        with open("../help/rechner_de.txt", "r") as help_de, \
+            open("../help/rechner_fr.txt") as help_fr, \
+            open("../help/rechner_en.txt") as help_en:
+            rechner_de = help_de.read()
+            rechner_fr = help_fr.read()
+            rechner_en = help_en.read()
+        self.help_texts = [rechner_de, rechner_fr, rechner_en]
         self.help_label = Text(self, bg=lgray, padx=20, pady=20, bd=1, relief="raised", width=50, height=35)
         self.help_label.insert("end", rechner_de)
         self.help_label.config(state="disabled")
@@ -195,6 +202,8 @@ class RechnerFrame(Frame):
         if type(user_input) == SyntaxError:
             self.show_error(format_error(user_input))
             return None
+        if not user_input:
+            return None
         
         set_int_fehler(0)
         self.show_einstellungen() if "Int" in user_input else self.hide_einstellungen()
@@ -210,7 +219,7 @@ class RechnerFrame(Frame):
                 rp_raw = user_input[n + 1:]
                 
                 if "=" in rp_raw:
-                    self.show_error("Invalid input: '=='; rather write '='")
+                    self.show_error(["Ungültige Eingabe: '=='", "Entrée invalide: '=='",  "invalid input: '=='"][lang])
                     return None
                 
                 lp, rp = parse(lp_raw, False), parse(rp_raw, False)
@@ -294,7 +303,7 @@ class RechnerFrame(Frame):
         """Zeigt unter dem ergebnis einees berechneten integrals die obere Schranke für den Fehler beim berechnen"""
         if not approx:
             return None
-        text = rf"$Fehler: {approx}$"
+        text = rf"${['Fehler', 'Erreur', 'Error'][lang]}: {approx}$"
         self.io_figure.text(0.5, 0.2, text, size=17, color=["black", "white"][app.color_mode], va="center", ha="center")
         self.io_canvas.draw()
     
@@ -329,6 +338,20 @@ class RechnerFrame(Frame):
     def switch_color(self):
         """refresht den canvas"""
         self.show_answer()
+    
+    def switch_lang(self):
+        # help texts:
+        self.help_label.config(state="normal")
+        self.help_label.delete("1.0", "end")
+        self.help_label.insert("end", self.help_texts[lang])
+        self.help_label.config(state="disabled")
+        
+        # Integrationsmethode label:
+        self.lab.config(text=["Integrationsmethode:", "Methode d'integration", "Integration method"][lang])
+        
+        # error label:
+        if self.error_label["text"]:
+            self.commit_input()
     
     def show_help(self, force=None):
         """Die Hilfe oben links wird angezeigt/versteckt"""
@@ -458,7 +481,8 @@ class AnalysisFrame(Frame):
         self.new_frame.columnconfigure(1, weight=3)
         self.new_frame.columnconfigure(2, weight=3)
         
-        Label(self.new_frame, text=["Neu: ", "Nouveau: ", "New: "][lang]).grid(row=0, column=0, sticky="news")
+        self.new_lab = Label(self.new_frame, text=["Neu: ", "Nouveau: ", "New: "][lang])
+        self.new_lab.grid(row=0, column=0, sticky="news")
         Button(self.new_frame, text="f(x) = ...", command=self.add_new_func).grid(row=0, column=1, sticky="news")
         Button(self.new_frame, text="y' = f(y, t) & y(t0) = y0", command=self.add_new_dgl).grid(row=0, column=2,
                                                                                                 sticky="news")
@@ -520,10 +544,15 @@ class AnalysisFrame(Frame):
         self.clear_button.place(relx=0.95, y=10)
         
         # Help Label
-        with open("../help/analysis_deutsch.txt", "r") as help_:
-            ana_deutsch = help_.read()
+        with open("../help/analysis_deutsch.txt", "r") as help_de, \
+                open("../help/analysis_francais.txt") as help_fr, \
+                open("../help/analysis_english.txt") as help_en:
+            analysis_de = help_de.read()
+            analysis_fr = help_fr.read()
+            analysis_en = help_en.read()
+        self.help_texts = [analysis_de, analysis_fr, analysis_en]
         self.help_label = Text(self, bg=lgray, padx=20, pady=20, bd=1, relief="raised", width=50, height=35)
-        self.help_label.insert("end", ana_deutsch)
+        self.help_label.insert("end", analysis_de)
         self.help_label.config(state="disabled")
         self.help_show = False
         
@@ -625,6 +654,8 @@ class AnalysisFrame(Frame):
     
     def check_line(self, index):
         """Überprüft, ob es diese Zeile gibt"""
+        if index < 0:
+            return False
         try:
             _ = self.lines[index]
             return True
@@ -641,6 +672,8 @@ class AnalysisFrame(Frame):
         if type(string) == SyntaxError:
             self.show_error(format_error(string), n)
             return None
+        if not string:
+            return False
         
         if "=" not in string:
             # Funktionsterm gegeben, das geplottet werden soll
@@ -669,10 +702,10 @@ class AnalysisFrame(Frame):
             funcname = string[:string.index("(x)=")]
             
             if not func:
-                self.show_error("Error: no input", n)
+                self.show_error(["Keine Eingabe", "Aucune Entrée",  "No input"][lang], n)
                 return False
             if funcname in [func.name if n != index else "" for index, func in self.functions.items()]:
-                self.show_error("Error: function name already taken", n)
+                self.show_error(["Name existiert schon", "Nom existe déjà",  "name already exists"][lang], n)
                 return False
             
             if n in self.functions:
@@ -704,12 +737,12 @@ class AnalysisFrame(Frame):
                 try:
                     f_written = write(parse(f_yt_str, True))
                 except Exception as error:
-                    self.show_error(f"invalid function :{f_yt_str}", n)
+                    self.show_error([f"Ungültige Funktion :{f_yt_str}", f"Fonction invalide :{f_yt_str}",  f"invalid function :{f_yt_str}"][lang], n)
                     return None
                 
                 t_0 = string[sep_n + 3:string.index(")=")]
                 if not isfloat(t_0):
-                    self.show_error(f"invalid t_0: {t_0}", n)
+                    self.show_error([f"Ungültiges t_0: {t_0}", f"t_0 invalide: {t_0}",  f"invalid t_0: {t_0}"][lang], n)
                     return None
                 t_0 = flint(t_0)
                 
@@ -717,7 +750,7 @@ class AnalysisFrame(Frame):
                 try:
                     y_0 = flint(eval(y_0))
                 except:
-                    self.show_error(f"invalid y_0: {y_0}", n)
+                    self.show_error([f"Ungültiges y_0: {t_0}", f"y_0 invalide: {t_0}",  f"invalid y_0: {t_0}"][lang], n)
                     return None
                 
                 end = t_0 + 5
@@ -730,7 +763,8 @@ class AnalysisFrame(Frame):
                 obj.activate_bttn()
                 self.graph()
             else:
-                self.show_error("diff.eq. must be of the form y'=f(y,t)&y(t_0)=y_0", n)
+                self.show_error(["DGL muss die Form haben:", "Eq.diff. doit avoir la forme: ",
+                                 "Diff. eq. must be of the form: "][lang]+" y'=f(y,t)&y(t_0)=y_0", n)
                 return None
         
         return True
@@ -859,19 +893,14 @@ class AnalysisFrame(Frame):
         if error: print(f"Error({n}): {error}")
     
     def interprete_input(self, _=None):
-        """
-        min(f) / max(f)
-        * f(x) = 0 / nullstelle(f)
-        * f'(x) / df(x)/dx
-        * f^n(a) / d^nf(a)/dx^n
-        * int(a, b, f(x))
-        neville()
-        """
-        string = self.compute_entry.get()
         self.show_error("")
+        string = self.compute_entry.get()
         string = check_and_clean(string)
+        
         if type(string) == SyntaxError:
             self.show_error(format_error(string))
+            return None
+        if not string:
             return None
         
         for function in self.functions.values():
@@ -887,7 +916,7 @@ class AnalysisFrame(Frame):
                 rp_raw = string[n + 1:]
                 
                 if "=" in rp_raw:
-                    self.show_error("Invalid input: '=='; rather write '='")
+                    self.show_error(["Ungültige Eingabe: '=='", "Entrée invalide: '=='", "invalid input: '=='"][lang])
                     return None
                 
                 lp, rp = parse(lp_raw, False), parse(rp_raw, False)
@@ -922,7 +951,8 @@ class AnalysisFrame(Frame):
                     self.nev_pts.append(list_)
                     self.graph(True)
                 else:
-                    raise SyntaxError("must pass list of tuples for neville schema")
+                    raise SyntaxError(["neville() braucht eine liste von Tuplen", "neville() prend une liste de tuples",
+                                       "neville() takes list of tuples"][lang])
             
             else:
                 # Sonstige Eingaben
@@ -971,6 +1001,16 @@ class AnalysisFrame(Frame):
     
     def switch_color(self):
         pass
+
+    def switch_lang(self):
+        # help texts:
+        self.help_label.config(state="normal")
+        self.help_label.delete("1.0", "end")
+        self.help_label.insert("end", self.help_texts[lang])
+        self.help_label.config(state="disabled")
+        
+        # 'Neu' Label:
+        self.new_lab.config(text=["Neu: ", "Nouveau: ", "New: "][lang])
     
     def clear_frame(self):
         """Vom 'clear' button oben rechts wird alles vom AnalysisFrame gelöscht"""
@@ -1091,7 +1131,8 @@ class MatrixFrame(Frame):
         self.dimensions_frame = Frame(self.matrix_frame)
         self.dimensions_frame.grid(row=0, column=1)
         
-        Label(self.dimensions_frame, text="rows: ").pack(side="left")
+        self.row_lab = Label(self.dimensions_frame, text="rows: ")
+        self.row_lab.pack(side="left")
         self.rows_variable = StringVar(value="3")
         self.rows_box = Spinbox(self.dimensions_frame, from_=1, to=15, width=3, textvariable=self.rows_variable,
                                 justify="center")
@@ -1103,7 +1144,8 @@ class MatrixFrame(Frame):
         self.columns_box = Spinbox(self.dimensions_frame, from_=1, to=15, width=3, textvariable=self.columns_variable,
                                    justify="center")
         self.columns_box.pack(side="right", padx=0)
-        Label(self.dimensions_frame, text="columns: ").pack(side="right", padx=10)
+        self.col_lab = Label(self.dimensions_frame, text="columns: ")
+        self.col_lab.pack(side="right", padx=10)
         
         # Vorschlag Frame (4 Buttons)
         self.vorschlag_frame = Frame(self.matrix_frame)
@@ -1149,10 +1191,15 @@ class MatrixFrame(Frame):
         self.clear_button.place(relx=0.95, y=10)
         
         # Help Label
-        with open("../help/matrix_deutsch.txt", "r") as help_:
-            matrix_deutsch = help_.read()
+        with open("../help/matrix_deutsch.txt", "r") as help_de, \
+                open("../help/matrix_francais.txt") as help_fr, \
+                open("../help/matrix_englisch.txt") as help_en:
+            matrix_de = help_de.read()
+            matrix_fr = help_fr.read()
+            matrix_en = help_en.read()
+        self.help_texts = [matrix_de, matrix_fr, matrix_en]
         self.help_label = Text(self, bg=lgray, padx=20, pady=20, bd=1, relief="raised", width=50, height=35)
-        self.help_label.insert("end", matrix_deutsch)
+        self.help_label.insert("end", matrix_de)
         self.help_label.config(state="disabled")
         self.help_show = False
         self.ignore = False
@@ -1169,7 +1216,9 @@ class MatrixFrame(Frame):
                 raise ValueError
             self.show_edit_error()
         except ValueError:
-            self.show_edit_error("Dimensions must be integers between 1 and 15")
+            self.show_edit_error(["Dimensions müssen Ganze Zahlen zwischen 1 und 15 sein",
+                                  "Dimensions deuvent être nombres entiers entre 1 et 15",
+                                  "Dimensions must be integers between 1 and 15"][lang])
             return None
         return n, m
     
@@ -1216,9 +1265,9 @@ class MatrixFrame(Frame):
         id_ = self.current_matrix.id
         
         if not name:
-            self.show_edit_error("No name")
+            self.show_edit_error(["Kein Name!", "Aucun nom!", "No name!"][lang])
         elif name in [m.name if id_ != m.id else "" for m in self.matrices]:
-            self.show_edit_error("Name is already taken")
+            self.show_edit_error(["Name existiert bereits", "Nom existe déjà", "Name already exists"][lang])
         elif self.current_matrix not in self.matrices:
             self.matrices.append(self.current_matrix)
         
@@ -1273,7 +1322,8 @@ class MatrixFrame(Frame):
             id_matrix = Matrix.Id(n)
             self.current_matrix.insert_values(id_matrix)
         else:
-            self.show_edit_error("dimensions are not symmetric")
+            self.show_edit_error(["Dimensionen müssen symmetrisch sein", "Dimensions deuvent être symétriques",
+                                  "Dimensions must be symmetric"][lang])
     
     def new_zero_matrix(self):
         self.create_new_matrix(leave_name=True)
@@ -1294,7 +1344,9 @@ class MatrixFrame(Frame):
             rnds_matrix = Matrix.RandomSym(n)
             self.current_matrix.insert_values(rnds_matrix)
         else:
-            self.show_edit_error("dimensions are not symmetric")
+            self.show_edit_error(["Dimensionen müssen symmetrisch sein", "Dimensions deuvent être symétriques",
+                                  "Dimensions must be symmetric"][lang])
+
     
     def generate_new_id(self):
         """Jede Matrix hat eine ID um sie zu unterscheiden. Hier wird eine neue generiert."""
@@ -1354,6 +1406,17 @@ class MatrixFrame(Frame):
         self.show_answer()
         self.show_help(False)
 
+    def switch_lang(self):
+        # help texts:
+        self.help_label.config(state="normal")
+        self.help_label.delete("1.0", "end")
+        self.help_label.insert("end", self.help_texts[lang])
+        self.help_label.config(state="disabled")
+        
+        # row/column labels:
+        self.row_lab.config(text=["Zeilen: ", "Lignes: ", "Rows: "][lang])
+        self.col_lab.config(text=["Spalten: ", "Colonnes: ", "Columns: "][lang])
+
 
 class CodeFrame(Frame):
     def __init__(self, container):
@@ -1395,8 +1458,8 @@ class MainScreen(Tk):
         self.help_button.grid(row=0, column=0)
         
         # Colormode Buttons
-        self.lightmode_image = PhotoImage(file="../pictures/lm.png").subsample(4, 4)
-        self.darkmode_image = PhotoImage(file="../pictures/dm.png").subsample(4, 4)
+        self.lightmode_image = PhotoImage(file="../pictures/lm.png").subsample(5)
+        self.darkmode_image = PhotoImage(file="../pictures/dm.png").subsample(5)
         self.cm_button = Button(self.top_frame, bd=0, highlightbackground="#707070",
                                 image=self.darkmode_image, command=self.switch_color_mode)
         self.cm_button.grid(row=0, column=1)
@@ -1417,19 +1480,19 @@ class MainScreen(Tk):
         self.lang_frame = Frame(self.top_frame)
         self.lang_frame.grid(row=0, column=3)
         
-        self.de_flag = PhotoImage(file="../pictures/de.png").subsample(4, 4)
+        self.de_flag = PhotoImage(file="../pictures/de.png").subsample(5)
         self.de_button = Button(self.lang_frame, bd=0, highlightbackground="#707070",
-                                image=self.de_flag, command=lambda: toggle_lang(0))
+                                image=self.de_flag, command=lambda: self.switch_language(0))
         self.de_button.grid(row=0, column=0, ipadx=3, ipady=3)
         
-        self.fr_flag = PhotoImage(file="../pictures/fr.png").subsample(4, 4)
+        self.fr_flag = PhotoImage(file="../pictures/fr.png").subsample(5)
         self.fr_button = Button(self.lang_frame, bd=0, highlightbackground="#707070",
-                                image=self.fr_flag, command=lambda: toggle_lang(1))
+                                image=self.fr_flag, command=lambda: self.switch_language(1))
         self.fr_button.grid(row=0, column=1, padx=4, ipadx=3, ipady=3)
         
-        self.gb_flag = PhotoImage(file="../pictures/gb.png").subsample(4, 4)
+        self.gb_flag = PhotoImage(file="../pictures/gb.png").subsample(5)
         self.gb_button = Button(self.lang_frame, bd=0, highlightbackground="#707070",
-                                image=self.gb_flag, command=lambda: toggle_lang(2))
+                                image=self.gb_flag, command=lambda: self.switch_language(2))
         self.gb_button.grid(row=0, column=2, ipadx=3, ipady=3)
         
         # Left frame
@@ -1443,7 +1506,8 @@ class MainScreen(Tk):
         # self.selection_frame.place(x=0, rely=0.305, relwidth=1, relheight=0.695)
         
         self.selection = 0
-        self.buttons = self.selection_buttons(self.left_frame, "Rechner", "Analysis", "Matrix", "Code")
+        self.button_names = [StringVar(value="Rechner"), StringVar(value="Analysis"), StringVar(value="Matrix"), StringVar(value="Code")]
+        self.buttons = self.selection_buttons(self.left_frame, *self.button_names)
         
         # Bottom frame
         self.bottom_frame = Label(self)
@@ -1526,13 +1590,28 @@ class MainScreen(Tk):
             self.current_frame.switch_color()
         except AttributeError:
             pass
-    
+        
+    def switch_language(self, language):
+        global lang
+        lang = language
+        print(f"switched lang to {lang}")
+        try:
+            self.current_frame.switch_lang()
+        except AttributeError:
+            pass
+        self.exit_button.config(text=["Schließen", "Fermer", "Exit"][lang])
+        self.button_names[0].set(["Rechner", "Calcul", "Calculator"][lang])
+        self.button_names[1].set(["Analysis", "Analyse", "Analysis"][lang])
+        self.button_names[2].set(["Matrix", "Matrice", "Matrix"][lang])
+        self.button_names[3].set(["Code", "Code", "Code"][lang])
+        
     def selection_buttons(self, container, *names):
         """Erstellt die vier Buttons links."""
         buttons = []
         for i, name in enumerate(names):
+            print(name)
             button = Button(container,
-                            text=name,
+                            textvariable=name,
                             bg=lblue,
                             fg="white",
                             highlightthickness=0,
