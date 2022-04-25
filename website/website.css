@@ -24,17 +24,17 @@
 
 #de {
 	position: absolute;
-	left: 10px;
+	left: 18px;
 	top: 550px;
-	width: 90px;
+	width: 80px;
 	position: fixed;
 }
 
 #fr {
 	position: absolute;
-	left: 10px;
+	left: 18px;
 	top: 660px;
-	width: 90px;
+	width: 80px;
 	position: fixed;
 }
 
@@ -81,7 +81,7 @@ h3 {
 	width: 350px;
 	background-color: #001B81;
 	box-shadow: 6px 8px 15px grey;
-	border-radius: 5px 20px 5px 15px;
+	border-radius: 15px 15px 15px 15px;
 }
 
 ul,
@@ -96,7 +96,7 @@ table {
 	color: black;
 	padding: 30px 300px 30px 60px;
 	box-shadow: 6px 8px 15px 10px grey;
-	border-radius: 5px 20px 5px 15px;
+	border-radius: 0px 0px 25px 25px;
 	width: 70%;
 	border-collapse: collapse;
 	margin-left: 220px;
