@@ -7,23 +7,25 @@
    </head>
    <body>
 	   
-      <a href=Algebra_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
-      <a href=Algebra_fr.html><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
+      <a href=Matrix_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
+      <a href=Matrix_fr.html><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
       <img  id="logo" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/logo.png" alt=""/>
       <img  id="ana3" src="ana3.png" style="top:50px;" alt=""/>
       <br/><br/><br/><br/>
       
       <a href="website.html" class="button" style="top:0px;">Home</a>
       <a href="Algebra_fr.html" class="button" style="top:90px;">Algèbre</a>
-      <a href="https://de.w3docs.com/" class="button" style="top:180px;">Analyse</a>
+      <a href="Analysis_fr.html" class="button" style="top:180px;">Analyse</a>
       <a href="Matrix_fr.html" class="button" style="top:270px;">Matrice</a>
-      <a href="https://de.w3docs.com/" class="button" style="top:360px;">Console</a>
+      <a href="Console_fr.html" class="button" style="top:360px;">Console</a>
       
-      <h3> Qu'est-ce possible dans l'ècran "Matrice"?</h3>
-      <p> En au à droite on peut donner les entrés de matrices de taille variable. Ces Matrices sont alors storées en haut à gauche. Grace à une multitude d'algorithme et de fonction, le calcul matricielle est fortement simplifié. </p>
-      <h4>Voici les fonctions:</h4>
+      <h3> Possibilités de l'ècran "Matrice"</h3>
+      <p> En haut à droite on peut donner les entrées de matrices de tailles variables. Ces matrices sont alors enregistrées en haut à gauche. Grâce à une multitude d'algorithmes et de fonctions, le calcul matriciel est fortement simplifié.</p>
+	  <h4>Voici les algorithmes implémentés:</h4>
       
-      <h3>Operateurs:</h3>
+      <div id="tables">
+		  
+      <h3>Opérateurs:</h3>
       
       <table>
          <tr>
@@ -32,7 +34,7 @@
          </tr>
          <tr>
             <td>+, -, *, ^n</td>
-            <td>Operateurs élementaires</td>
+            <td>Operations élementaires</td>
          </tr>
          <tr>
             <td>^-1 oder inverse</td>
@@ -44,11 +46,11 @@
          </tr>
          <tr>
             <td>det</td>
-            <td>Le determinant</td>
+            <td>Le déterminant</td>
          </tr>
          <tr>
             <td>Eigenvalues</td>
-            <td>Permet de calculer les valeurs propres complexes <br>Pour les matrices symmétriques, on utilise la méthode de Jacobi.<br> Sinon, nous utilisons une transformations en forme hesseberg, pour éffectuer la méthode QR avec éfficacité,<br> en utilisant des rotations de givens.</td>
+            <td>Permet de calculer les valeurs propres complexes. <br>Pour les matrices symétriques, on utilise la méthode de Jacobi.<br> Sinon, nous utilisons une transformation en forme Hesseberg<br> pour effectuer la méthode QR avec efficacité,<br> en utilisant des rotations de Givens.</td>
          </tr>
       </table>
       
@@ -61,15 +63,15 @@
          </tr>
          <tr>
             <td>LU</td>
-            <td>Calcule, si possible, la décomposition LU: A = LU.<br> L est une matrice inférierue triangulaire normée,<br> U une matrice supérieure triangulaire.</td>
+            <td>Calcule, si possible, la décomposition LU: A = LU.<br> L est une matrice inférieure triangulaire normée,<br> U une matrice supérieure triangulaire.</td>
          </tr>
          <tr>
             <td>QR</td>
-            <td>Calcule, pour toute matrice la décomposition QR: A = QR<br> Q est une matrice othogonale et R une matrice triangulaire de dimension n x m.</td>
+            <td>Calcule pour toute matrice la décomposition QR: A = QR<br> Q est une matrice orthogonale et R une matrice triangulaire de dimension n x m.</td>
          </tr>
          <tr>
             <td>Cholesky</td>
-            <td>Pour des matrices A symmétriques et positive définite, on décompose en cholesky: A = L*L^T<br> L est une matrice inférieure.</td>
+            <td>Pour une matrice A, symétrique et définie positive, on décompose en Cholesky:<br> A = L*L^T<br> L est une matrice inférieure.</td>
          </tr>
       </table>
       
@@ -86,20 +88,23 @@
          </tr>
          <tr>
             <td>Cholesky</td>
-            <td>Comme pour la déomposition LU.</td>
+            <td>Comme pour la décomposition LU.</td>
          </tr>
          <tr>
             <td>Gauss</td>
-            <td>Avec des opérations sur les lignes de A, on transforme A en Id.<br> Ces operations sont appliqué sur b pour résoudre Ax=b</td>
+            <td>Avec des opérations sur les lignes de A, on transforme A en Id.<br> Ces opérations sont appliquées sur b pour résoudre Ax=b</td>
          </tr>
          <tr>
             <td>Ausgleichsproblem</td>
-            <td>Régression linéaire: Quand Ax=b à trops de constraint,<br> il se trouve qu'il n'y a pas de solution.<br> Or il existe un x tel que Ax-b a une norme minimale.<br> Cette fonction calcule cet x, ce qui est utile en interpolation en physique et autre.</td>
+            <td>Régression linéaire: Quand Ax=b a trop de contraintes,<br> il n'y a pas de solution.<br> Or il existe un x tel que Ax-b a une norme minimale.<br> Cette fonction calcule cet x,<br> ce qui est utile pour interpoler en physique et cetera.</td>
          </tr>
       </table>
+      
+      </div>
+      
       <br />
       <hr />
-      <h4> Les  developpeurs: &nbsp;&nbsp; Felix Dehon et Eric Trébuchon, de la TSMP </h4>
+      <h4> Les  développeurs: &nbsp;&nbsp; Felix Dehon et Eric Trébuchon, de la TSMP </h4>
       <a href="https://github.com/Feeeeeeeeeelix/WolframBeta">Allez voire notre projet sur Github!</a>
    </body>
 </html>
