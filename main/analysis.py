@@ -12,6 +12,11 @@ analysis.py module:
 DEFAULT_RANGE = [-5, 5]
 
 
+def set_default_range(ran):
+    global DEFAULT_RANGE
+    DEFAULT_RANGE = ran
+
+
 def _sekanten_verfahren(f, x1, x2):
     eps_stop = 10 ** -15
     
@@ -47,8 +52,9 @@ def _sign(x):
     return 1 if x > 0 else 0 if x == 0 else -1
 
 
-def nullstellen(func, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
-    
+def nullstellen(func, a=None, b=None):
+    a = DEFAULT_RANGE[0] if a is None else a
+    b = DEFAULT_RANGE[1] if b is None else b
     if type(func) == str:
         # funktionsterme werden in eine funktion umgewandelt
         f = lambda x: eval(func)
@@ -95,7 +101,9 @@ def nullstellen(func, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
     return nulls
 
 
-def maximum(func, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
+def maximum(func, a=None, b=None):
+    a = DEFAULT_RANGE[0] if a is None else a
+    b = DEFAULT_RANGE[1] if b is None else b
     if type(func) == str:
         # funktionsterme werden in eine funktion umgewandelt
         f = lambda x: eval(func)
@@ -113,7 +121,9 @@ def maximum(func, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
     return max_fx
 
 
-def minimum(func, a=DEFAULT_RANGE[0], b=DEFAULT_RANGE[1]):
+def minimum(func, a=None, b=None):
+    a = DEFAULT_RANGE[0] if a is None else a
+    b = DEFAULT_RANGE[1] if b is None else b
     if type(func) == str:
         # funktionsterme werden in eine funktion umgewandelt
         f = lambda x: eval(func)
@@ -177,12 +187,12 @@ def simpson(f, a, b):
 
 def trapez_fehler(f, a, b):
     h = (b - a) / 5000
-    return abs(1 / 12 * (b - a) * h ** 2 * maximum(der(f, 2), a, b))
+    return abs(1 / 12 * (b - a) * h ** 2 * maximum(der(f, n=2), a, b))
 
 
 def simpson_fehler(f, a, b):
     h = (b - a) / 5000
-    return abs(1 / 180 * (b - a) * h ** 4 * maximum(der(f, 4), a, b))
+    return abs(1 / 180 * (b - a) * h ** 4 * maximum(der(f, n=4), a, b))
 
 
 def euler_collatz(f_str, t_0, y_0, end, steps=1000):
@@ -219,7 +229,7 @@ def der(f, var="x", n=1, dx=10 ** (-3)):
 if __name__ == "__main__":
     from functions import sin, cos, ln, sqrt, e
     
-    print("Beispiele:")
+    """print("Beispiele:")
     
     y = euler_collatz("y", 0, 1, 3)  # Löse y' = y mit y(0) = 1   --> y(t) = e^t einzige Lösung
     print(y)
@@ -237,7 +247,7 @@ if __name__ == "__main__":
     y = euler_collatz("y*t", 0, 1,
                       2)  # Löse y'(t) = y*t mit y(0) = 1 auf Intervall (0,2) --> exakte Lösung y(t) = e^{1/2*t^2}
     print(y)
-    print("Zum Vergleich mit dem letzten Term: ", e ** (1 / 2 * 2 ** 2))
+    print("Zum Vergleich mit dem letzten Term: ", e ** (1 / 2 * 2 ** 2))"""
     
     """ f = lambda t: sin(t ** 2)
     df = lambda t: 2 * t * cos(t ** 2)

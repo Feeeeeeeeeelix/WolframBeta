@@ -337,7 +337,7 @@ def parse(f: str, simp=False):
     # Funktion
     if f[0] in ALPHABET and f[-1] == "@":
         funcname = f[:-1]
-        if funcname in FUNCTIONS+list(DEFINED_FUNCTIONS.keys()):
+        if funcname in FUNCTIONS:
             args = innerargs[0].split(",")
             n = len(args)
             if funcname == "Int":
@@ -347,7 +347,11 @@ def parse(f: str, simp=False):
             if funcname == "root" and len(args) == 1:
                 return ["root", parse(args[0], simp), 2]
             return [funcname, *[parse(a, simp) for a in args]]
-        
+        elif funcname in DEFINED_FUNCTIONS:
+            if simp:
+                return (lambda x: eval(DEFINED_FUNCTIONS[funcname]))(float(innerargs[0]))
+            else:
+                return [funcname, parse(innerargs[0], simp)]
         else:
             raise SyntaxError(*tuple(f"{text}: {funcname}" for text in
                                      ["Unbekannte funktion",

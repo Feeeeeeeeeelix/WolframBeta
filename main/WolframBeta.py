@@ -17,7 +17,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from FunctionClass import *
 from functions import *
-from analysis import DEFAULT_RANGE, min, minimum, max, maximum, nullstellen, der, euler_collatz
+from analysis import set_default_range, min, minimum, max, maximum, nullstellen, der, euler_collatz
 from matrix import *
 from polynomials import neville
 
@@ -874,7 +874,7 @@ class AnalysisFrame(Frame):
         
         self.default_range = [x_min, x_max]
         # für analysis.py wird die default range für min, max, und nullstellen geändert
-        DEFAULT_RANGE = [x_min, x_max]
+        set_default_range([x_min, x_max])
         self.graph(new=True)
     
     def set_range(self, x_min, x_max):
@@ -929,7 +929,11 @@ class AnalysisFrame(Frame):
         
         for function in self.functions.values():
             DEFINED_FUNCTIONS[function.name] = str(function.str_out)
-        
+        for func in self.functions.values():
+            locals()[func.name] = func
+        for func in SIMPLE_FUNCTIONS:
+            locals()[func] = globals()[func]
+            
         try:
             if "=" in string:
                 """Gleichheit überprüfen"""
@@ -986,11 +990,6 @@ class AnalysisFrame(Frame):
                 print(input_latex, output_tree)
                 
                 try:
-                    for func in self.functions.values():
-                        locals()[func.name] = func
-                    for func in SIMPLE_FUNCTIONS:
-                        locals()[func] = globals()[func]
-                    
                     w = write(output_tree)
                     print(f"write: {w}")
                     output_latex = eval(str(w))
@@ -1064,7 +1063,7 @@ class AnalysisFrame(Frame):
         self.canvas.draw()
         self.io_canvas.draw()
         self.interprete_input()
-        
+    
     def switch_lang(self):
         # help texts:
         self.help_label.config(state="normal")
