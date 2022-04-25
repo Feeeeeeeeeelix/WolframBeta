@@ -1,4 +1,6 @@
-"""FunctionClass.py module:
+"""
+FunctionClass.py module:
+
 - parse mathematical expression into a syntax tree
 - write expressions as LaTeX code
 - differentiate expressions
@@ -6,7 +8,7 @@
 
 """
 
-from analysis import trapez, riemann, simpson, der
+from analysis import trapez, riemann, simpson, der, trapez_fehler, simpson_fehler
 from functions import *
 
 """TODO:
@@ -38,6 +40,9 @@ NUMBERS = "0123456789"
 PRINT = ""
 
 dim = "riemann"
+# für WolframBeta, wenn man von dort ein integral berechnet wird hier der fehler gespeichert damit wolframbeta den wert
+# hier sehen und im interface zeigen kann:
+int_fehler = 0
 
 
 def isfloat(n: str or int or float) -> bool:
@@ -45,7 +50,7 @@ def isfloat(n: str or int or float) -> bool:
         return False
     try:
         float(n)
-    except ValueError:
+    except Exception:
         return False
     return True
 
@@ -641,11 +646,23 @@ def set_default_integration_method(method):
 
 
 def integrate(a, b, f, variable, method=None):
+    global int_fehler
     # method: riemann, trapez or simpson
     f = Function(f, variable)
     if not method:
         method = dim
+    if method in ("trapez", "simpson"):
+        int_fehler = {"trapez": trapez_fehler, "simpson": simpson_fehler}[method](f, a, b)
     return {"riemann": riemann, "trapez": trapez, "simpson": simpson}[method](f, a, b)
+
+
+def get_int_fehler():
+    return int_fehler
+
+
+def set_int_fehler(fel=0):
+    global int_fehler
+    int_fehler = fel
 
 
 class Function:

@@ -1,3 +1,14 @@
+"""
+Main WolframBeta.py:
+
+best: python 3.8
+
+external modules:
+- tkinter
+- matplotlib
+
+"""
+
 from tkinter import *
 
 from matplotlib.figure import Figure
@@ -6,7 +17,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from FunctionClass import *
 from functions import *
-from analysis import DEFAULT_RANGE, min, minimum, max, maximum, nullstellen, der,  euler_collatz
+from analysis import DEFAULT_RANGE, min, minimum, max, maximum, nullstellen, der, euler_collatz
 from matrix import *
 from polynomials import neville
 
@@ -18,16 +29,8 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 2
+default_frame = 0
 min_window = True
-
-"""TODO:
-CodeFrame
-ein paar kürzungen (kein 2x^3 = 2*3*x^2)
-language überall änderbar
-Farbe überall änderbar
-angepasste größe der latex outputs
-"""
 
 
 def toggle_lang(language):
@@ -123,17 +126,12 @@ class RechnerFrame(Frame):
         Button(self.einstellungs_frame, text="X", bd=0, command=self.hide_einstellungen).grid(row=0, column=1)
         self.method = StringVar(value="riemann")
         self.method.trace("w", lambda *_: self.refresh_integration(self.method.get()))
-        Radiobutton(self.einstellungs_frame, text="Riemann", variable=self.method, value="riemann").grid(row=1,
-                                                                                                         column=0,
-                                                                                                         sticky="W",
-                                                                                                         padx=10)
-        Radiobutton(self.einstellungs_frame, text="Trapez", variable=self.method, value="trapez").grid(row=2, column=0,
-                                                                                                       sticky="W",
-                                                                                                       padx=10)
-        Radiobutton(self.einstellungs_frame, text="Simpson", variable=self.method, value="simpson").grid(row=3,
-                                                                                                         column=0,
-                                                                                                         sticky="W",
-                                                                                                         padx=10)
+        Radiobutton(self.einstellungs_frame, text="Riemann", variable=self.method,
+                    value="riemann").grid(row=1, column=0, sticky="W", padx=10)
+        Radiobutton(self.einstellungs_frame, text="Trapez", variable=self.method,
+                    value="trapez").grid(row=2, column=0, sticky="W", padx=10)
+        Radiobutton(self.einstellungs_frame, text="Simpson", variable=self.method,
+                    value="simpson").grid(row=3, column=0, sticky="W", padx=10)
         
         # Error Label für die Fehler im user input
         self.error_label = Label(self.io_frame, fg="red")
@@ -166,7 +164,7 @@ class RechnerFrame(Frame):
         self.help_show = False
         
         self.elements = get_all_children(self)
-        
+        self.int_fehler = int_fehler
         self.input_entry.bind("<Return>", self.commit_input)
     
     def commit_input(self, event=None):
@@ -198,7 +196,9 @@ class RechnerFrame(Frame):
             self.show_error(format_error(user_input))
             return None
         
+        set_int_fehler(0)
         self.show_einstellungen() if "Int" in user_input else self.hide_einstellungen()
+        self.show_max_error("")
         
         try:
             if "=" in user_input:
@@ -247,17 +247,23 @@ class RechnerFrame(Frame):
                     das eingegebene zu vereinfachen."""
                     print(f"couldnt eval expr: {write_}, {e}")
                     output_latex = write_latex(output_tree, simp=True)
-                print(write_, type(output_latex))
-                
+                    
+                if f := get_int_fehler():
+                    self.show_max_error(f)
+                    
                 if type(output_latex) == bool:
+                    # Ausgabe: True/False zb bei isprime(8)
                     return f"{input_latex} = {output_latex}"
                 elif isfloat(output_latex):
+                    # Ausgabe: int or float
                     return f"{input_latex} = {flint(output_latex)}"
                 elif type(output_latex) == list:
+                    # Ausgabe: list zb: primfactors(45)
                     return str(input_latex) + r": \{" + str([x for x in output_latex])[1:-1] + r"\}"
                 else:
-                    return f"{input_latex} = {flint(output_latex)}"
-                
+                    # Ausgabe: str
+                    return f"{input_latex} = {output_latex}"
+        
         except Exception as error:
             self.show_error(format_error(error))
             return None
@@ -283,6 +289,14 @@ class RechnerFrame(Frame):
             self.io_figure.text(0.5, 0.5, text, fontsize=size,
                                 color=["black", "white"][app.color_mode], va="center", ha="center")
         self.io_canvas.draw()
+        
+    def show_max_error(self, approx):
+        """Zeigt unter dem ergebnis einees berechneten integrals die obere Schranke für den Fehler beim berechnen"""
+        if not approx:
+            return None
+        text = rf"$Fehler: {approx}$"
+        self.io_figure.text(0.5, 0.2, text, size=17, color=["black", "white"][app.color_mode], va="center", ha="center")
+        self.io_canvas.draw()
     
     def show_error(self, error=""):
         self.error_label.config(text=error)
@@ -302,6 +316,8 @@ class RechnerFrame(Frame):
         """Bei änderung der integrationsmethode (Riemann/Trapez/Simpson) wird der input erneut berechnet"""
         set_default_integration_method(method)
         self.show_answer(self.interprete(self.input_entry.get()))
+        if f := get_int_fehler():
+            self.show_max_error(f)
     
     def show_last(self, dir_):
         """Im entry wird bei Pfeil hoch/runter das letzte/nächste eingegebene angezeigt"""
@@ -444,18 +460,19 @@ class AnalysisFrame(Frame):
         
         Label(self.new_frame, text=["Neu: ", "Nouveau: ", "New: "][lang]).grid(row=0, column=0, sticky="news")
         Button(self.new_frame, text="f(x) = ...", command=self.add_new_func).grid(row=0, column=1, sticky="news")
-        Button(self.new_frame, text="y' = f(y, t) & y(t0) = y0", command=self.add_new_dgl).grid(row=0, column=2, sticky="news")
+        Button(self.new_frame, text="y' = f(y, t) & y(t0) = y0", command=self.add_new_dgl).grid(row=0, column=2,
+                                                                                                sticky="news")
         
         # single entry Frame
         self.compute_frame = Frame(self, bd=1, relief="solid", highlightthickness=0, bg="white")
         self.compute_frame.place(relx=0.1, rely=0.55, relwidth=0.35, relheight=0.1)
-
+        
         self.compute_entry = Entry(self.compute_frame, bd=0, highlightthickness=0)
         self.compute_entry.pack(side="left", fill="both", expand=True, padx=20)
         self.compute_entry.bind("<Return>", self.interprete_input)
         self.return_icon = PhotoImage(file="../pictures/enter.png").subsample(24, 24)
         Button(self.compute_frame, image=self.return_icon, command=self.interprete_input, bg="white").pack(side="left",
-                                                                                                         padx=10)
+                                                                                                           padx=10)
         
         self.compute_error_label = Label(self, fg="red")
         self.compute_error_label.place(relx=0.1, rely=0.65, relheight=0.05, relwidth=0.35)
@@ -681,7 +698,7 @@ class AnalysisFrame(Frame):
         
         elif string.startswith("y'="):
             # Diffentialgleichung gegeben, Form: y'=f(y,t)&y(t_0)=y_0
-            if (sep_n := string.find("&")) != -1 and string[sep_n+1:].startswith("y(") and ")=" in string[sep_n+1:]:
+            if (sep_n := string.find("&")) != -1 and string[sep_n + 1:].startswith("y(") and ")=" in string[sep_n + 1:]:
                 f_yt_str = string[3:sep_n]
                 
                 try:
@@ -690,13 +707,13 @@ class AnalysisFrame(Frame):
                     self.show_error(f"invalid function :{f_yt_str}", n)
                     return None
                 
-                t_0 = string[sep_n+3:string.index(")=")]
+                t_0 = string[sep_n + 3:string.index(")=")]
                 if not isfloat(t_0):
                     self.show_error(f"invalid t_0: {t_0}", n)
                     return None
                 t_0 = flint(t_0)
                 
-                y_0 = string[string.index(")=")+2:]
+                y_0 = string[string.index(")=") + 2:]
                 try:
                     y_0 = flint(eval(y_0))
                 except:
@@ -706,7 +723,7 @@ class AnalysisFrame(Frame):
                 end = t_0 + 5
                 if t_0 + 5 < self.default_range[1]:
                     end = self.default_range[1]
-                    
+                
                 color = self.all_colors[n % 7]
                 self.dgl[n] = (*tuple(euler_collatz(f_written, t_0, y_0, end=end)), color, True)
                 obj.color = self.color_names[color]
@@ -772,7 +789,7 @@ class AnalysisFrame(Frame):
                     self.stored_values[function.str_out] = [I, J]
                 self.subplot.plot(I, J, color=function.color, label=f"y = {function.name}(x)")
                 self.subplot.legend(loc="upper left")
-                
+        
         for tuple_ in self.dgl.values():
             if tuple_[3]:
                 # tuple_[3] ist ein bool der die sichtbarkeit beschreibt
@@ -1227,7 +1244,7 @@ class MatrixFrame(Frame):
                 name = ""
         else:
             name = ""
-                
+        
         if dim_ := self.check_dimensions():
             n, m = dim_
             
@@ -1294,12 +1311,12 @@ class MatrixFrame(Frame):
     def show_edit_error(self, error=""):
         """Der error wird unter dem matrix_edit_frame angezeigt"""
         self.error_label.config(text=error)
-        
+    
     def show_input_error(self, error=""):
         """Der error wird unter dem input entry angezeigt"""
         self.in_label.config(text="")
         self.out_label.config(text=error, fg="red")
-        
+    
     def interprete_input(self, _=None):
         """Interpretiert den input vom entry."""
         string = self.input_entry.get()
@@ -1310,7 +1327,7 @@ class MatrixFrame(Frame):
             out = eval(write(parse(string)))
             self.show_answer((f"{string} = ", out))
         except Exception as error:
-            raise error
+            self.show_input_error(error)
     
     def show_answer(self, answer=("", "")):
         left, right = answer

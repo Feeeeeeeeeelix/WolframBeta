@@ -138,7 +138,6 @@ max = maximum
 def riemann(f, a, b):
     n = 5000
     Int = 0
-    x = a
     schrittweite = (b - a) / n
     
     for i in range(n):
@@ -152,7 +151,6 @@ def riemann(f, a, b):
 def trapez(f, a, b):
     n = 5000
     Int = 0
-    x = a
     schrittweite = (b - a) / n
     
     Int += 1 / 2 * f(a)
