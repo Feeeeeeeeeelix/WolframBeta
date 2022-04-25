@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="fr">
+   <head>
+      <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
+      <meta charset="utf-8">
+      <title>Wolframbeta</title>
+   </head>
+   
+   
+   <body>
+      <a href=Console_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
+      <a href="Console_fr.html"><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
+      <img  id="logo" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/logo.png" alt=""/>
+      <img  id="ana3" src="ana3.png" style="top:50px;" alt=""/>
+      <br/><br/><br/><br/>
+      
+      <a href="website_de.html" class="button" style="top:0px;">Home</a>
+      <a href="Algebra_de.html" class="button" style="top:90px;">Rechner</a>
+      <a href="Analysis_de.html" class="button" style="top:180px;">Analysis</a>
+      <a href="Matrix_de.html" class="button" style="top:270px;">Matrizen</a>
+      <a href="Console_de.html" class="button" style="top:360px;">Console</a>
+      
+      <div>
+         
+         <h3> Was kann man im Cosnole-Screen machen?</h3>
+
+         <p>
+            Hier ist alles möglich. Das schöne ist, hier kann man viel genauer arbeiten und Methoden wie for-Schleifen und if-Abfragen verwenden.
+            Man kann zum Beispiel eine Folge an Polynomen definieren, zum Beispiel die Tschebbycheff Polynome, indem man eine Rekursive Folge berechnet.
+            Für eine Folge von Funktionen könnte man ihre Integrale untersuchen, um mehr über die Folge zu lernen.
+            Auch zufällige Ereignisse kann man gut untersuchen, zum Beispiel die durschnittliche Norm von Eigenwerten von Matrizen mit bestimmter Verteilung von Einträgen oder ähnliches betrachten.
+            Für Konvergenzfragen und Stabilität kann man auf unser Programm zurückgreifen.
+            Fragt man sich wie gut ein Algorithmus gegen eine Lösung konvergiert, so kann man mit unserem Programm die Lösung bestimmen und die Konvergenz untersuchen!
+            Es gibt kaum Grenzen, weshalb sich diese Konsole für eine Fortgeschrittene Arbeit sehr lohnt! 
+         </p>
+         
+         <p>
+            Die Konsole ist wie ein Programm in Python, jedoch sind unsere eigenen Funktionen implementiert.
+            Für ein genaues Verständniss der Funktionen kann man unseren Code lesen,
+            jedoch empfiehlt sich diese Liste einfach durchzulesen/in dieser Liste nachzuschlagen.
+         </p>
+			
+         
+         <h4>Hier eine Liste unserer nützlichen Funktionen:</h4>
+         
+         <h3>Klassen:</h3>
+         
+		  <table>
+            <tr>
+               <th>Ausdruck</th>
+               <th>Funktion</th>
+               <th>Beispiel</th>
+            </tr>
+            <tr>
+               <td>Function(f(x))</td>
+               <td>Definiert Funktionen</td>
+               <td>f = Function("sin(x^2-1)")</td>
+            </tr>
+			<tr>
+               <td>Polynom("a_n*x^n + ... + a_0")</td>
+               <td>Definiert Polynom</td>
+               <td>f = Polynom("x^4 -3x^2 -1x +2")</td>
+            </tr>
+			<tr>
+               <td>Matrix([[a_11,...,a_1n],...,[a_n1,...,a_nn]])</td>
+               <td>Definiert Matrizen</td>
+               <td>f = Matrix([[1,2,3],[4,2,1],[0,0.1,18])</td>
+            </tr>
+         </table>
+         
+         <h3>Methoden für Funktionen:</h3>
+         
+         <table>
+            <tr>
+               <th>Ausdruck</th>
+               <th>Funktion</th>
+               <th>Beispiel</th>
+            </tr>
+            <tr>
+               <td>cos, arccos, cosh, arccosh,<br> sin, arcsin, sinh, arcsinh,<br> tan, arctan, tanh, arctanh</td>
+               <td>Elementare trigonometrischen Funktionen</td>
+               <td>cos(pi)</td>
+            </tr>
+            <tr>
+               <td>exp(x) oder e^x</td>
+               <td>Exponentialfunktion</td>
+               <td>e^4</td>
+            </tr>
+            <tr>
+               <td>sqrt(x) oder root(x, n)</td>
+               <td>Wurzelfunktion</td>
+               <td>sqrt(2), root(18, 5)</td>
+            </tr>
+            <tr>
+               <td>ln(x)</td>
+               <td>natürlicher Logarithmus</td>
+               <td>ln(2)</td>
+            </tr>
+            <tr>
+               <td>log(x, n)</td>
+               <td>Logarithmus (Basis n) von x</td>
+               <td>log(10, 2)</td>
+            </tr>
+            <tr>
+               <td>min(f, a, b), max(f, a, b)</td>
+               <td>Minimum/Maximum von f auf [a;b] bestimmen.<br>
+				   Dabei kann f eine Instanz der class "Function" sein, oder ein string.</td>
+               <td>min(sin^2(x) - cos(5*x), 0.5, 0.7)</td>
+            </tr>
+            <tr>
+               <td>nullstellen(f, a, b), f=0</td>
+               <td>Nullstellen von f auf [a;b] bestimmen.</td>
+               <td>nullstelle(x^3-x*sin(x),0,2)</td>
+            </tr>
+            <tr>
+               <td>Int(a, b, f(x), x)</td>
+               <td>Integral von f über [a; b] bezüglich der Variable x.</td>
+               <td>Int(3,4,ln(x)/x,x)</td>
+            </tr>
+            <tr>
+               <td>d/dx(f(x))</td>
+               <td>Ableitung von f(x).</td>
+               <td>d/dx(sqrt(1-cos(x)^2))</td>
+            </tr>
+            <tr>
+               <td>d^n/dx^n(f(x))</td>
+               <td>Exakte n'te Ableitung von f(x).</td>
+               <td>d^3/dx^3(ln(sin(x)^2 + 1))</td>
+            </tr>
+            <tr>
+               <td>d^n/dx^n(f(x))(x_0)</td>
+               <td>Approximative n'te Ableitung von f(x) in x_0.</td>
+               <td>d^3/dx^3(sin(exp(x^2 - 4)))(5)</td>
+            </tr>
+         </table>
+         
+         <p>Hier ein Beispiel für die Anwendung dieser Klasse:</p>
+         <p>Angenommen wir haben eine Physikalische Aufgabe bei der wir ein Integral berechnen müssen, dessen exakter Wert nicht bestimmt werden kann, da das Integral nicht elementar ist. Dann kann man wie folgt vorgehen:</p>
+		
+		 <p>f = Function("2.65/sqrt(5.13 -x^2 + 0.03*x)<br>
+		 integral = Int(f,0,2,x)<br>
+		 print(integral)<br>
+		 </p>
+		 
+		 <p>
+		 Man könnte aber auch Differntialgleichungen lösen. Dafür die Funktion euler_collatz(f(t,y),t_0,y_0,t_ende). <br>
+		 Für die DGL y' = 9.8*y^2 - sin(t*y) mit y(0)=3 wäre zum Beispiel y(1) gesucht. Dann wäre folgender Code nützlich:<br>
+		 </p>
+		 <p>
+		 L = euler_collatz(9.8*y**2 - sin(t*y),0,3,1) <br>
+		 #Liste mit allen berechneten äquidistanten zwischenwerten Werten <br>
+		 print("y(1)=" + str(L[-1]))
+		 </p>
+         <h3>Methoden für Polynome:</h3>
+         
+         <table>
+            <tr>
+               <th>Ausdruck</th>
+               <th>Funktion</th>
+               <th>Beispiel</th>
+            </tr>
+			<tr>
+               <td>+,-,*, ^n</td>
+               <td>Elementare Operationen</td>
+               <td>P = Q^2 - R^2,<br> wobei Q und R Instanzen der Klasse sind</td>
+            </tr>
+			<tr>
+               <td>f.derivative()</td>
+               <td>Exakte Ableitung</td>
+               <td>P = Q.derivative()</td>
+            </tr>
+            <tr>
+               <td>f.nullstellen()</td>
+               <td>Approximative Nullstellen</td>
+               <td>L = P.nullstellen()</td>
+            </tr>
+			<tr>
+               <td>neville([[x_0,y_0],...,[x_n,y_n]]</td>
+               <td>Findet Polynom durch gegebene Punkte</td>
+               <td>P = neville([[1,3],[4,7],[6,-2],[7,1])</td>
+            </tr>
+         </table>
+         
+         <p>Hier ein Beispiel Programm um die ersten Tschebyscheff Funktionen zu berechnen:</p>   
+         
+         <p>
+         P_0 = Polynom("1") <br>
+         P_1 = Polynom("x") <br>
+         T = [P_0,P_1] <br>
+         for k in range(1,50): <br>
+			T.append(2*P_1*T[k] - T[k-1]) <br>
+			print(str(k) + "-th Tschebyscheff Polynom:  " + str(T[k])) <br>
+		
+         
+         </p>
+         
+         <h3>Methoden für Matrizen:</h3>
+         <br />
+         <hr />
+         
+         <h4> Die Entwickler: &nbsp;&nbsp; Felix Dehon und Eric Trébuchon, aus der TSMP </h4>
+      </div>
+   </body>
+</html>
+
