@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="fr">
+   <head>
+      <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
+      <meta charset="utf-8">
+      <title>Wolframbeta</title>
+   </head>
+   
+   
+   <body>
+      <a href=Algebra_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
+      <a href=Algebra_fr.html><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
+      <img  id="logo" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/logo.png" alt=""/>
+      <img  id="ana3" src="ana3.png" style="top:50px;" alt=""/>
+      <br/><br/><br/><br/>
+      
+      
+      <a href="website.html" class="button" style="top:0px;">Home</a>
+      <a href="Algebra_fr.html" class="button" style="top:90px;">Algèbre</a>
+      <a href="Analysis_fr.html" class="button" style="top:180px;">Analyse</a>
+      <a href="Matrix_fr.html" class="button" style="top:270px;">Matrice</a>
+      <a href="Console_fr.html" class="button" style="top:360px;">Console</a>
+      
+               <h3> Que fait le mode "Analyse"?</h3>
+
+         <p>
+            A gauche, dans les différentes lignes, on peut soit donner des fonctions, soit calculer approximativement des équations différentielles.
+            pour les résoudre : <br />
+            Pour enregistrer des fonctions, il est possible d'entrer une expression de fonction.
+            Alors, un nom et une couleur correspondants sont générés pour la fonction.
+            Puis, la fonction est représenté graphiquement à droite.
+            La fonction peut être modifiée ultérieurement et sa visibilité activée/désactivée par l'en-tête à gauche de la fonction.<br />
+			Pour résoudre des équations différentielles, on entre une fonction dépendant de y(t) et de t, et une valeur de départ.
+            Elle doit avoir la forme y' = f(y, t) & y(t_0) = y_0.
+         </p>
+         <p>
+			Sous les lignes de saisie, on peut effectuer des calculs spécifiques à la fonction. On peut y afficher, entre autres, les
+            points d'inflexion, les racines ou les dérivées des fonctions enregistrées. Il est également possible d'effectuer des
+            opérations arithmétiques entre les termes de ces la fonction.
+         </p>
+         
+         <h4>Voici les fonctions d'analyse:</h4>
+         
+         <h3>Fonctions:</h3>
+         
+         <table>
+            <tr>
+               <th>Expressions</th>
+               <th>Functions</th>
+               <th>Exemples</th>
+            </tr>
+            <tr>
+               <td>cos, arccos, cosh, arccosh,<br> sin, arcsin, sinh, arcsinh,<br> tan, arctan, tanh, arctanh</td>
+               <td>Opérateurs élementairs </td>
+               <td>cos(pi)</td>
+            </tr>
+            <tr>
+               <td>exp(x) oder e^x</td>
+               <td>Exponentialfunktion</td>
+               <td>e^4</td>
+            </tr>
+            <tr>
+               <td>pow(a, b) oder a^b</td>
+               <td>Puissance</td>
+               <td>pow(3, 7), 3^7, 3**7</td>
+            </tr>
+            <tr>
+               <td>sqrt(x) oder root(x, n)</td>
+               <td>Fonction racine</td>
+               <td>sqrt(2), root(18, 5)</td>
+            </tr>
+            <tr>
+               <td>ln(x)</td>
+               <td>logarithme népérien</td>
+               <td>ln(2)</td>
+            </tr>
+            <tr>
+               <td>log(x, n)</td>
+               <td>logarithme (de base n) de x</td>
+               <td> log(10, 2)</td>
+            </tr>
+         </table>
+
+         <h3>Operateurs:</h3>
+         
+         <table>
+            <tr>
+               <th>Expressions</th>
+               <th>Fonctions</th>
+               <th>Exemples</th>
+            </tr>
+            <tr>
+               <td>min(f, a, b), max(f, a, b)</td>
+               <td>Calcule le minimum/maximum de f sur [a;b].</td>
+               <td>min(sin^2 - cos(5*x), 0.5, 0.7)</td>
+            </tr>
+            <tr>
+               <td>nullstellen(f, a, b), f=0</td>
+               <td>Calcule les racines de f sur [a;b].</td>
+               <td>nullstelle(x^3-x*sin(x),0,2)</td>
+            </tr>
+            <tr>
+               <td>Int(a, b, f(x), x)</td>
+               <td>Calcule l'intégrale de f sur l'intervalle [a; b] avec variable x.</td>
+               <td>Int(3,4,ln(x)/x,x)</td>
+            </tr>
+            <tr>
+               <td>d/dx(f(x))</td>
+               <td>Dérivée de f(x).</td>
+               <td>d/dx(sqrt(1-cos(x)^2))</td>
+            </tr>
+            <tr>
+               <td>d^n/dx^n(f(x))</td>
+               <td>n-ième dérivé exacte de f(x).</td>
+               <td>d^3/dx^3(ln(sin(x)^2 + 1))</td>
+            </tr>
+            <tr>
+               <td>d^n/dx^n(f(x))(x_0)</td>
+               <td>n-ième dérivé approximative de f en x_0.</td>
+               <td>d^3/dx^3(sin(exp(x^2 - 4)))(5)</td>
+            </tr>
+            <tr>
+               <td>Int(a, b, f)</td>
+               <td>Integral de f sur [a;b]</td>
+               <td>Int(0, 5, f)</td>
+            </tr>
+
+         </table>
+
+         <p>
+            Pour les fonctions comme min, max et zéro, il n'est pas nécessaire d'indiquer l'intervalle [a;b] :
+            Si vous omettez a et b lors de l'appel des fonctions, l'intervalle affiché sous le graphique (que l'on peut d'ailleurs modifier librement)
+			est pris comme intervalle par défaut.
+         </p>
+         
+         <h4>On peut chercher un polynom passant par des points donnés:</h4>
+         <p>
+            Le schéma de Neville permet de trouver un polynôme qui passe par tous les points que l'on spécifie.
+            Dans la saisie, entrez par exemple ce qui suit :<br />
+                  neville((2, 3), (4, 8), (9, 0)) <br />
+            Les points donnés et le polynôme trouvé sont alors affichés sur le graphique.
+         </p>
+      
+      <br />
+      <hr />
+      
+      <h4> Les  développeurs: &nbsp;&nbsp; Felix Dehon et Eric Trébuchon, de la TSMP </h4>
+
+   </body>
+</html>
+
