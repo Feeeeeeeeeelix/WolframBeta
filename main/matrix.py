@@ -783,7 +783,7 @@ if __name__ == "__main__":
     #            docstring += method.__doc__ + "\n\n"
     # print(docstring)
 
-    v = Matrix([[0.5, 0.3, 0.2]])  # U_0
+    v = Matrix([[0.5], [0.3], [0.2]])  # U_0
     A = Matrix([[0.2, 0.5, 0], [0.6, 0, 0.2], [0.2, 0.5, 0.8]])
     for n in range(1, 100):
         v = A * v  # U_(n+1) = A * U_n
