@@ -226,59 +226,59 @@
                <td>Donne la Matrice nulle ou l'Identité</td>
             </tr>
             <tr>
-               <td>A.inverse()</td>
+               <td>inverse(A)</td>
                <td>La matrice inverse de A</td>
             </tr>
             <tr>
-               <td>A.T()</td>
+               <td>A.T() ou T(A)</td>
                <td>La matrice transposée de A</td>
             </tr>
             <tr>
-               <td>A.det()</td>
+               <td>det(A)</td>
                <td>Le déterminant de A</td>
             </tr>
-			<tr>
-               <td>A.normS()<br> A.normZ()</td>
-               <td>Clacule la "Zeilensummennorm" ou "Spaltensummennorm"</td>
+	    <tr>
+               <td>normS(A)<br> normZ(A)</td>
+               <td>Calcule la "Zeilensummennorm" ou "Spaltensummennorm"</td>
             </tr>
             <tr>
-               <td>A.eigenvalues()</td>
+               <td>eigenvalues(A)</td>
                <td>Permet de calculer les valeurs propres complexes. <br>Pour les matrices symétriques, on utilise la méthode de Jacobi.<br> Sinon, nous utilisons une transformation en forme Hesseberg<br> pour effectuer la méthode QR avec efficacité,<br> en utilisant des rotations de Givens.</td>
             </tr>
             <tr>
-               <td>A.lu()</td>
+               <td>lu(A)</td>
                <td>Calcule, si possible, la décomposition LU: A = LU.<br> L est une matrice inférieure triangulaire normée,<br> U une matrice supérieure triangulaire.</td>
             </tr>
             <tr>
-               <td>A.QR()</td>
+               <td>QR(A)</td>
                <td>Calcule pour toute matrice la décomposition QR: A = QR<br> Q est une matrice orthogonale et R une matrice triangulaire de dimension n x m.</td>
             </tr>
             <tr>
-               <td>A.cholesky()</td>
+               <td>cholesky(A)</td>
                <td>Pour une matrice A, symétrique et définie positive, on décompose en Cholesky:<br> A = L*L^T<br> L est une matrice inférieure.</td>
             </tr>
             <tr>
-               <td>A.lu_solve(b)</td>
+               <td>lu_solve(A,b)</td>
                <td> Trouve la solution à LUx=b,<br> en calculant y tel que Ly=b, puis x avec Ux=y.</td>
             </tr>
             <tr>
-               <td>A.cholesky_solve(b)</td>
+               <td>cholesky_solve(A,b)</td>
                <td>Comme pour la décomposition LU.</td>
             </tr>
             <tr>
-               <td>A.gauss_solve(b)</td>
+               <td>gauss_solve(A,b)</td>
                <td>Avec des opérations sur les lignes de A, on transforme A en Id.<br> Ces opérations sont appliquées sur b pour résoudre Ax=b</td>
             </tr>
 			<tr>
-               <td>A.gauss_explained(b)</td>
+               <td>gauss_explained(A,b)</td>
                <td>Même algorithme, mais on voit lisiblement le calcule éffectué avec des commentaires.
 			</tr>
             <tr>
-               <td>A.ausgleichsproblem(b)</td>
+               <td>ausgleichsproblem(A,b)</td>
                <td>Régression linéaire: Quand Ax=b a trop de contraintes,<br> il n'y a pas de solution.<br> Or il existe un x tel que Ax-b a une norme minimale.<br> Cette fonction calcule cet x,<br> ce qui est utile pour interpoler en physique et cetera.</td>
             </tr>
 			<tr>
-               <td>A.power_method()</td>
+               <td>power_method(A)</td>
                <td>Calcule, si A est réelement diagonalisable, la valeur propre de norme maximale.</td>
             </tr>
 			<tr>
@@ -286,7 +286,7 @@
                <td>Donne la représentation de A en code de Latex.</td>
             </tr>
 			<tr>
-               <td>A.sub_matrix(ymin, ymax, xmin, xmax)</td>
+               <td>sub_matrix(A,ymin, ymax, xmin, xmax)</td>
                <td>Donne la submatrice de A.</td>
             </tr>
          </table>
