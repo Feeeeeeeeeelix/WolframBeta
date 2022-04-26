@@ -513,7 +513,7 @@ class AnalysisFrame(Frame):
         self.compute_entry = Entry(self.compute_frame, bd=0, highlightthickness=0)
         self.compute_entry.pack(side="left", fill="both", expand=True, padx=20)
         self.compute_entry.bind("<Return>", self.interprete_input)
-        self.return_icon = PhotoImage(file="../pictures/enter.png").subsample(24, 24)
+        self.return_icon = PhotoImage(file="../pictures/enter.png").subsample(24)
         Button(self.compute_frame, image=self.return_icon, command=self.interprete_input, bg="white", bd=0,
                highlightbackground="#707070").pack(side="left", padx=10)
         
@@ -1236,7 +1236,7 @@ class MatrixFrame(Frame):
         self.input_entry = Entry(self.entry_frame, bd=0, highlightthickness=0)
         self.input_entry.pack(side="left", fill="both", expand=True, padx=20)
         self.input_entry.bind("<Return>", self.interprete_input)
-        self.return_icon = PhotoImage(file="../pictures/enter.png").subsample(24, 24)
+        self.return_icon = PhotoImage(file="../pictures/enter.png").subsample(24)
         Button(self.entry_frame, image=self.return_icon, command=self.interprete_input, bg="white").pack(side="left",
                                                                                                          padx=10)
         
@@ -1481,12 +1481,6 @@ class MatrixFrame(Frame):
         self.col_lab.config(text=["Spalten: ", "Colonnes: ", "Columns: "][lang])
 
 
-class CodeFrame(Frame):
-    def __init__(self, container):
-        super().__init__(container)
-        pass
-
-
 class MainScreen(Tk):
     def __init__(self):
         super().__init__()
@@ -1569,7 +1563,7 @@ class MainScreen(Tk):
         # self.selection_frame.place(x=0, rely=0.305, relwidth=1, relheight=0.695)
         
         self.selection = 0
-        self.button_names = [StringVar(value="Rechner"), StringVar(value="Analysis"), StringVar(value="Matrix"), StringVar(value="Code")]
+        self.button_names = [StringVar(value="Rechner"), StringVar(value="Analysis"), StringVar(value="Matrix")]
         self.buttons = self.selection_buttons(self.left_frame, *self.button_names)
         
         # Bottom frame
@@ -1587,7 +1581,7 @@ class MainScreen(Tk):
         self.elements = [self, self.top_frame, self.bottom_frame, self.help_button, self.cm_button, self.logo,
                          self.lang_frame, self.de_button, self.fr_button, self.gb_button, self.exit_button]
         
-        self.rechner_frame = self.analysis_frame = self.matrix_frame = self.code_frame = None
+        self.rechner_frame = self.analysis_frame = self.matrix_frame = None
         self.current_frame = Frame(self)
         self.toggle_main_frame(default_frame)
         
@@ -1606,7 +1600,7 @@ class MainScreen(Tk):
     
     def toggle_main_frame(self, n):
         """ Von den blauen Buttons wird der jeweilige Frame angezeigt."""
-        frame = (self.rechner_frame, self.analysis_frame, self.matrix_frame, self.code_frame)[n]
+        frame = (self.rechner_frame, self.analysis_frame, self.matrix_frame)[n]
         
         if frame is None:
             # initiate frame objects
@@ -1616,10 +1610,8 @@ class MainScreen(Tk):
                 self.analysis_frame = AnalysisFrame(self)
             elif n == 2:
                 self.matrix_frame = MatrixFrame(self)
-            elif n == 3:
-                self.code_frame = CodeFrame(self)
-        
-        frame = (self.rechner_frame, self.analysis_frame, self.matrix_frame, self.code_frame)[n]
+
+        frame = (self.rechner_frame, self.analysis_frame, self.matrix_frame)[n]
         self.current_frame.place_forget()
         self.current_frame = frame
         self.current_frame.show_help(False) if hasattr(self.current_frame, "show_help") else None
@@ -1638,11 +1630,10 @@ class MainScreen(Tk):
                 container["bg"] = [lgray, dgray][self.color_mode]
                 container["activeforeground"] = ["black", "#f0f0f0"][self.color_mode]
                 container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
-                # container["highlightbackground"] = [lgray, dgray][self.color_mode]
             else:
                 container["bg"] = [lgray, dgray][self.color_mode]
                 
-        for frame in (self.rechner_frame, self.analysis_frame, self.matrix_frame, self.code_frame):
+        for frame in (self.rechner_frame, self.analysis_frame, self.matrix_frame):
             try:
                 frame.switch_color(self.color_mode)
             except AttributeError:
@@ -1659,10 +1650,9 @@ class MainScreen(Tk):
         self.button_names[0].set(["Rechner", "Calcul", "Calculator"][lang])
         self.button_names[1].set(["Analysis", "Analyse", "Analysis"][lang])
         self.button_names[2].set(["Matrix", "Matrice", "Matrix"][lang])
-        self.button_names[3].set(["Code", "Code", "Code"][lang])
         
     def selection_buttons(self, container, *names):
-        """Erstellt die vier Buttons links."""
+        """Erstellt die drei Buttons links."""
         buttons = []
         for i, name in enumerate(names):
             button = Button(container,
@@ -1674,17 +1664,17 @@ class MainScreen(Tk):
                             activebackground=dblue,
                             activeforeground="white",
                             command=lambda n=i: self.select_main_frame(n))
-            button.place(rely=i / 4, x=0, relwidth=1, relheight=1 / 4)
+            button.place(rely=i / 3, x=0, relwidth=1, relheight=1 / 3)
             buttons.append(button)
             
             white_bg = Label(container)
-            white_bg.place(rely=i / 4 - 1 / 500, relx=0.05, height=1, relwidth=0.9)
+            white_bg.place(rely=i / 3 - 1 / 500, relx=0.05, height=1, relwidth=0.9)
         
         return buttons
     
     def select_main_frame(self, n):
         """Beim druck auf den knopf bleibt dessen Farbe dunkler, die anderen werden hell und das Frame wird angezeigt"""
-        for i in range(4):
+        for i in range(3):
             self.buttons[i]["bg"] = lblue
         self.toggle_main_frame(n)
         self.buttons[n]["bg"] = dblue
