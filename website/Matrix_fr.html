@@ -1,10 +1,12 @@
 <!doctype html>
 <html lang="fr">
+
    <head>
       <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
       <meta charset="utf-8">
       <title>Wolframbeta</title>
    </head>
+
    <body>
 	   
       <a href=Matrix_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
@@ -13,99 +15,100 @@
       <img  id="ana3" src="ana3.png" style="top:50px;" alt=""/>
       <br/><br/><br/><br/>
       
-      <a href="website.html" class="button" style="top:0px;">Home</a>
+      <a href="Main_fr.html" class="button" style="top:0px;">Home</a>
       <a href="Algebra_fr.html" class="button" style="top:90px;">Algèbre</a>
       <a href="Analysis_fr.html" class="button" style="top:180px;">Analyse</a>
       <a href="Matrix_fr.html" class="button" style="top:270px;">Matrice</a>
       <a href="Console_fr.html" class="button" style="top:360px;">Console</a>
-      
-      <h3> Possibilités de l'ècran "Matrice"</h3>
-      <p> En haut à droite on peut donner les entrées de matrices de tailles variables. Ces matrices sont alors enregistrées en haut à gauche. Grâce à une multitude d'algorithmes et de fonctions, le calcul matriciel est fortement simplifié.</p>
-	  <h4>Voici les algorithmes implémentés:</h4>
-      
-      <div id="tables">
-		  
-      <h3>Opérateurs:</h3>
-      
-      <table>
-         <tr>
-            <th>Expressions</th>
-            <th>Fonctions</th>
-         </tr>
-         <tr>
-            <td>+, -, *, ^n</td>
-            <td>Operations élementaires</td>
-         </tr>
-         <tr>
-            <td>^-1 oder inverse</td>
-            <td>La matrice inverse</td>
-         </tr>
-         <tr>
-            <td>^T</td>
-            <td>La matrice transposée</td>
-         </tr>
-         <tr>
-            <td>det</td>
-            <td>Le déterminant</td>
-         </tr>
-         <tr>
-            <td>Eigenvalues</td>
-            <td>Permet de calculer les valeurs propres complexes. <br>Pour les matrices symétriques, on utilise la méthode de Jacobi.<br> Sinon, nous utilisons une transformation en forme Hesseberg<br> pour effectuer la méthode QR avec efficacité,<br> en utilisant des rotations de Givens.</td>
-         </tr>
-      </table>
-      
-      <h3>Factorisation:</h3>
-      
-      <table>
-         <tr>
-            <th>Expressions</th>
-            <th>Fonctions</th>
-         </tr>
-         <tr>
-            <td>LU</td>
-            <td>Calcule, si possible, la décomposition LU: A = LU.<br> L est une matrice inférieure triangulaire normée,<br> U une matrice supérieure triangulaire.</td>
-         </tr>
-         <tr>
-            <td>QR</td>
-            <td>Calcule pour toute matrice la décomposition QR: A = QR<br> Q est une matrice orthogonale et R une matrice triangulaire de dimension n x m.</td>
-         </tr>
-         <tr>
-            <td>Cholesky</td>
-            <td>Pour une matrice A, symétrique et définie positive, on décompose en Cholesky:<br> A = L*L^T<br> L est une matrice inférieure.</td>
-         </tr>
-      </table>
-      
-      <h3>Résolution de système d'équations linéaires</h3>
-      
-      <table>
-         <tr>
-            <th>Expressions</th>
-            <th>Fonctions</th>
-         </tr>
-         <tr>
-            <td>LU</td>
-            <td> Trouve la solution à LUx=b,<br> en calculant y tel que Ly=b, puis x avec Ux=y.</td>
-         </tr>
-         <tr>
-            <td>Cholesky</td>
-            <td>Comme pour la décomposition LU.</td>
-         </tr>
-         <tr>
-            <td>Gauss</td>
-            <td>Avec des opérations sur les lignes de A, on transforme A en Id.<br> Ces opérations sont appliquées sur b pour résoudre Ax=b</td>
-         </tr>
-         <tr>
-            <td>Ausgleichsproblem</td>
-            <td>Régression linéaire: Quand Ax=b a trop de contraintes,<br> il n'y a pas de solution.<br> Or il existe un x tel que Ax-b a une norme minimale.<br> Cette fonction calcule cet x,<br> ce qui est utile pour interpoler en physique et cetera.</td>
-         </tr>
-      </table>
-      
+
+      <div>
+
+         <h3> Possibilités de l'ècran "Matrice"</h3>
+
+         <p>
+            En haut à droite on peut donner les entrées de matrices de tailles variables. Ces matrices sont alors
+            enregistrées en haut à gauche. Grâce à une multitude d'algorithmes et de fonctions, le calcul matriciel
+            est fortement simplifié.
+         </p>
+
+         <h4>Voici les algorithmes implémentés:</h4>
+
+         <h3>Opérateurs:</h3>
+
+         <table>
+            <tr>
+               <th>Expressions</th>
+               <th>Fonctions</th>
+            </tr>
+            <tr>
+               <td>+, -, *, ^n</td>
+               <td>Operations élementaires</td>
+            </tr>
+            <tr>
+               <td>^-1 oder inverse</td>
+               <td>La matrice inverse</td>
+            </tr>
+            <tr>
+               <td>^T</td>
+               <td>La matrice transposée</td>
+            </tr>
+            <tr>
+               <td>det</td>
+               <td>Le déterminant</td>
+            </tr>
+            <tr>
+               <td>Eigenvalues</td>
+               <td>Permet de calculer les valeurs propres complexes. <br>Pour les matrices symétriques, on utilise la méthode de Jacobi.<br> Sinon, nous utilisons une transformation en forme Hesseberg<br> pour effectuer la méthode QR avec efficacité,<br> en utilisant des rotations de Givens.</td>
+            </tr>
+         </table>
+
+         <h3>Factorisation:</h3>
+
+         <table>
+            <tr>
+               <th>Expressions</th>
+               <th>Fonctions</th>
+            </tr>
+            <tr>
+               <td>LU</td>
+               <td>Calcule, si possible, la décomposition LU: A = LU.<br> L est une matrice inférieure triangulaire normée,<br> U une matrice supérieure triangulaire.</td>
+            </tr>
+            <tr>
+               <td>QR</td>
+               <td>Calcule pour toute matrice la décomposition QR: A = QR<br> Q est une matrice orthogonale et R une matrice triangulaire de dimension n x m.</td>
+            </tr>
+            <tr>
+               <td>Cholesky</td>
+               <td>Pour une matrice A, symétrique et définie positive, on décompose en Cholesky:<br> A = L*L^T<br> L est une matrice inférieure.</td>
+            </tr>
+         </table>
+
+         <h3>Résolution de système d'équations linéaires</h3>
+
+         <table>
+            <tr>
+               <th>Expressions</th>
+               <th>Fonctions</th>
+            </tr>
+            <tr>
+               <td>LU</td>
+               <td> Trouve la solution à LUx=b,<br> en calculant y tel que Ly=b, puis x avec Ux=y.</td>
+            </tr>
+            <tr>
+               <td>Cholesky</td>
+               <td>Comme pour la décomposition LU.</td>
+            </tr>
+            <tr>
+               <td>Gauss</td>
+               <td>Avec des opérations sur les lignes de A, on transforme A en Id.<br> Ces opérations sont appliquées sur b pour résoudre Ax=b</td>
+            </tr>
+            <tr>
+               <td>Ausgleichsproblem</td>
+               <td>Régression linéaire: Quand Ax=b a trop de contraintes,<br> il n'y a pas de solution.<br> Or il existe un x tel que Ax-b a une norme minimale.<br> Cette fonction calcule cet x,<br> ce qui est utile pour interpoler en physique et cetera.</td>
+            </tr>
+         </table>
+
       </div>
-      
-      <br />
-      <hr />
-      <h4> Les  développeurs: &nbsp;&nbsp; Felix Dehon et Eric Trébuchon, de la TSMP </h4>
-      <a href="https://github.com/Feeeeeeeeeelix/WolframBeta">Allez voire notre projet sur Github!</a>
    </body>
 </html>
 
