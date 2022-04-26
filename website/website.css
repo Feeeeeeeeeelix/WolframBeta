@@ -1,6 +1,13 @@
+.header{
+	padding: 0px;
+	text-align: center;
+	background: #1e3799;
+}
+
 #tables {
+	margin-top:50px;
 	margin-left:50px;
-	margin_bottom:50px;
+	margin-bottom:50px;
 }
 
 
@@ -59,23 +66,27 @@
 a {
 	margin-left: 130px;
 	width: 1150px;
+	margin-top: 50px;
 }
 
 p {
 	font-size: 1.35em;
 	margin-left: 250px;
 	width: 850px;
+	margin-top: 50px;
 }
 
 h4 {
 	font-size: 1.4em;
 	margin-left: 300px;
 	width: 1150px;
+	margin-top: 50px;
 }
 
 h3 {
+	margin-top: 30px;
+	margin-bottom:40px;
 	color: white;
-	margin: 40px 250px 20px 65px;
 	margin-left: 300px;
 	padding: 10px 0px 10px 30px;
 	border: solid 2px black;
@@ -93,6 +104,7 @@ ol {
 }
 
 table {
+	margin-bottom:40px;
 	font-size: 1.35em;
 	color: black;
 	padding: 30px 300px 30px 60px;
