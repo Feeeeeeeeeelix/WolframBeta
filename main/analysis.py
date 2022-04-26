@@ -8,7 +8,7 @@ analysis.py module:
 - approximate first order differential equations
 
 """
-
+from functions import *
 DEFAULT_RANGE = [-5, 5]
 
 

@@ -1079,6 +1079,8 @@ class AnalysisFrame(Frame):
         """Vom 'clear' button oben rechts wird alles vom AnalysisFrame gelöscht"""
         self.functions = {}
         self.stored_values = {}
+        self.dgl = {}
+        self.nev_pts = []
         for line in self.lines:
             line.destroy()
         self.lines = []
