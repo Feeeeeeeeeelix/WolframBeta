@@ -35,8 +35,7 @@
          </p>
          
          <p>
-            Für ein genaues Verständnis der Funktionen vom Modul kann man unseren Code lesen,
-            jedoch empfiehlt sich diese Liste einfach durchzulesen/in dieser Liste nachzuschlagen.
+            Pour mieux comprendre notre module, ce n'est pas nécessaire de lire notre code, mais d'utiliser les tableaux et exemples suivants:
          </p>
 			
          
@@ -123,20 +122,21 @@
                <td>Integral de f sur [a; b] avec x comme variable.</td>
                <td>trapez(3,4,ln(x)/x,x)</td>
             </tr>
+			</tr>
             <tr>
-               <td>d/dx(f(x))</td>
+               <td>trapez_fehler(f, a, b) <br />simpson_fehler(f, a, b)</td>
+               <td>Calcule la marge d'erreurs pour l'integral de f sur [a; b]..</td>
+               <td>trapez(3,4,ln(x)/x,x)</td>
+            </tr>
+            <tr>
+               <td>f.diff()</td>
                <td>Dérivée de f(x).</td>
-               <td>d/dx(sqrt(1-cos(x)^2))</td>
+               <td>g=Function("sqrt(1-cos(x)^2)").diff()</td>
             </tr>
             <tr>
-               <td>d^n/dx^n(f(x))</td>
-               <td>Dérivée exacte de f(x).</td>
-               <td>d^3/dx^3(ln(sin(x)^2 + 1))</td>
-            </tr>
-            <tr>
-               <td>d^n/dx^n(f(x))(x_0)</td>
-               <td>Dérivée approximative de f(x) en x_0.</td>
-               <td>d^3/dx^3(sin(exp(x^2 - 4)))(5)</td>
+               <td>der(f, var="x", n=1, dx=10 ** (-3))</td>
+               <td>n-ième dérivée approximative de f(x).</td>
+               <td>der(f,var="t",  n=3)(1)</td>
             </tr>
          </table>
          
@@ -181,9 +181,14 @@
                <td>L = P.nullstellen()</td>
             </tr>
 			<tr>
-               <td>neville([[x_0,y_0],...,[x_n,y_n]]</td>
+               <td>P(x)</td>
+               <td>calcule P(x) avec éfficacité/td>
+               <td>P(2)<td>
+            </tr>
+			<tr>
+               <td>neville([[x_0,y_0],...,[x_n,y_n]])</td>
                <td>Trouve un polynôme qui passe par ces points</td>
-               <td>P = neville([[1,3],[4,7],[6,-2],[7,1])</td>
+               <td>P = neville([[1,3],[4,7],[6,-2],[7,1]])</td>
             </tr>
          </table>
          
@@ -204,49 +209,85 @@
                <td>+, -, *, ^n</td>
                <td>Operations élementaires</td>
             </tr>
+			<tr>
+               <td>A[i][j]</td>
+               <td>L'entrée de la i-ième ligne et j-ième colonne.</td>
+            </tr>
+			<tr>
+               <td>Random(m, n, low=0, high=10):</td>
+               <td>Donne une matrice mxn avec des entrées entiers de low à high.</td>
+            </tr>
+			<tr>
+               <td>RandomSym(m, low=0, high=10):</td>
+               <td>Donne une matrice symétrique mxm avec des entrées entiers de low à high.</td>
+            </tr>
+			<tr>
+               <td>Zero(m,n) <br> Id(n) </td>
+               <td>Donne la Matrice nulle ou l'Identité</td>
+            </tr>
             <tr>
-               <td>inverse(A)</td>
+               <td>A.inverse()</td>
                <td>La matrice inverse de A</td>
             </tr>
             <tr>
-               <td>T(A)</td>
+               <td>A.T()</td>
                <td>La matrice transposée de A</td>
             </tr>
             <tr>
-               <td>det(A)</td>
+               <td>A.det()</td>
                <td>Le déterminant de A</td>
             </tr>
+			<tr>
+               <td>A.normS()<br> A.normZ()</td>
+               <td>Clacule la "Zeilensummennorm" ou "Spaltensummennorm"</td>
+            </tr>
             <tr>
-               <td>Eigenvalues(A)</td>
+               <td>A.eigenvalues()</td>
                <td>Permet de calculer les valeurs propres complexes. <br>Pour les matrices symétriques, on utilise la méthode de Jacobi.<br> Sinon, nous utilisons une transformation en forme Hesseberg<br> pour effectuer la méthode QR avec efficacité,<br> en utilisant des rotations de Givens.</td>
             </tr>
             <tr>
-               <td>LU(A)</td>
+               <td>A.lu()</td>
                <td>Calcule, si possible, la décomposition LU: A = LU.<br> L est une matrice inférieure triangulaire normée,<br> U une matrice supérieure triangulaire.</td>
             </tr>
             <tr>
-               <td>QR(A)</td>
+               <td>A.QR()</td>
                <td>Calcule pour toute matrice la décomposition QR: A = QR<br> Q est une matrice orthogonale et R une matrice triangulaire de dimension n x m.</td>
             </tr>
             <tr>
-               <td>Cholesky(A)</td>
+               <td>A.cholesky()</td>
                <td>Pour une matrice A, symétrique et définie positive, on décompose en Cholesky:<br> A = L*L^T<br> L est une matrice inférieure.</td>
             </tr>
             <tr>
-               <td>LU</td>
+               <td>A.lu_solve(b)</td>
                <td> Trouve la solution à LUx=b,<br> en calculant y tel que Ly=b, puis x avec Ux=y.</td>
             </tr>
             <tr>
-               <td>Cholesky</td>
+               <td>A.cholesky_solve(b)</td>
                <td>Comme pour la décomposition LU.</td>
             </tr>
             <tr>
-               <td>Gauss</td>
+               <td>A.gauss_solve(b)</td>
                <td>Avec des opérations sur les lignes de A, on transforme A en Id.<br> Ces opérations sont appliquées sur b pour résoudre Ax=b</td>
             </tr>
+			<tr>
+               <td>A.gauss_explained(b)</td>
+               <td>Même algorithme, mais on voit lisiblement le calcule éffectué avec des commentaires.
+			</tr>
             <tr>
-               <td>Ausgleichsproblem</td>
+               <td>A.ausgleichsproblem(b)</td>
                <td>Régression linéaire: Quand Ax=b a trop de contraintes,<br> il n'y a pas de solution.<br> Or il existe un x tel que Ax-b a une norme minimale.<br> Cette fonction calcule cet x,<br> ce qui est utile pour interpoler en physique et cetera.</td>
+            </tr>
+			<tr>
+               <td>A.power_method()</td>
+               <td>Calcule, si A est réelement diagonalisable, la valeur propre de norme maximale.</td>
+            </tr>
+			<tr>
+               <td>A.latex()</td>
+               <td>Donne la représentation de A en code de Latex.</td>
+            </tr>
+			<tr>
+               <td>A.sub_matrix(ymin, ymax, xmin, xmax)</td>
+               <td>Donne la submatrice de A.</td>
             </tr>
          </table>
 
@@ -257,7 +298,7 @@
          </p>
 
          <img src="matrix.png" style="margin-left:350px;width:50%;height:auto;" alt=""/>
-
+         
          <br />
          <br />
       </div>
