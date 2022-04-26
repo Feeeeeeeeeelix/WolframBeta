@@ -5,12 +5,8 @@
 }
 
 #tables {
-	margin-top:50px;
-	margin-left:50px;
-	margin-bottom:50px;
+	margin:50px;
 }
-
-
 
 .button {
 	color: white;
@@ -107,7 +103,6 @@ table {
 	margin-bottom:40px;
 	font-size: 1.35em;
 	color: black;
-	padding: 30px 300px 30px 60px;
 	box-shadow: 6px 8px 15px 10px grey;
 	border-radius: 0px 0px 25px 25px;
 	width: 70%;
