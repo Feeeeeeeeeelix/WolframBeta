@@ -102,6 +102,7 @@ class RechnerFrame(Frame):
         self.listed_memory = []
         self.rang = -1
         self.input = ""
+        self.color_mode = 0
         
         self.io_frame = Frame(self)
         self.io_frame.place(relx=0.2, rely=0.1, relwidth=0.6, relheight=0.8)
@@ -1622,6 +1623,7 @@ class MainScreen(Tk):
         self.current_frame.place_forget()
         self.current_frame = frame
         self.current_frame.show_help(False) if hasattr(self.current_frame, "show_help") else None
+        self.current_frame.switch_color(self.color_mode) if hasattr(self.current_frame, "switch_color") else None
         self.current_frame.place(rely=0.1, relx=0.07, relheight=0.8, relwidth=0.93)
         self.current_frame.focus_set()
     
@@ -1639,10 +1641,12 @@ class MainScreen(Tk):
                 # container["highlightbackground"] = [lgray, dgray][self.color_mode]
             else:
                 container["bg"] = [lgray, dgray][self.color_mode]
-        try:
-            self.current_frame.switch_color(self.color_mode)
-        except AttributeError:
-            pass
+                
+        for frame in (self.rechner_frame, self.analysis_frame, self.matrix_frame, self.code_frame):
+            try:
+                frame.switch_color(self.color_mode)
+            except AttributeError:
+                pass
         
     def switch_language(self, language):
         global lang
