@@ -4,116 +4,70 @@
    <head>
       <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
       <meta charset="utf-8">
-      <title>WolframBeta</title>
+      <title>Wolframbeta</title>
    </head>
-
+   
    <body>
-	   
-      <a href=Matrix_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
-      <a href=Matrix_fr.html><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
+      <div class="header">
       <img  id="logo" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/logo.png" alt=""/>
-      <img  id="ana3" src="ana3.png" style="top:50px;" alt=""/>
-      <br/><br/><br/><br/>
+      </div>
+      
+      <a href=Main_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
+      <a href=Main_fr.html><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
+      <img  id="ana3" src="ana3.png" alt=""/>
+      <br/>
       
       <a href="Main_fr.html" class="button" style="top:0px;">Home</a>
       <a href="Algebra_fr.html" class="button" style="top:90px;">Algèbre</a>
       <a href="Analysis_fr.html" class="button" style="top:180px;">Analyse</a>
       <a href="Matrix_fr.html" class="button" style="top:270px;">Matrice</a>
       <a href="Console_fr.html" class="button" style="top:360px;">Console</a>
-
-      <div>
-
-         <h3> Possibilités de l'ècran "Matrice"</h3>
-
-         <p>
-            En haut à droite on peut donner les entrées de matrices de tailles variables. Ces matrices sont alors
-            enregistrées en haut à gauche. Grâce à une multitude d'algorithmes et de fonctions, le calcul matriciel
-            est fortement simplifié.
-         </p>
-
-         <h4>Voici les algorithmes implémentés:</h4>
-
-         <h3>Opérateurs:</h3>
-
-         <table>
-            <tr>
-               <th>Expressions</th>
-               <th>Fonctions</th>
-            </tr>
-            <tr>
-               <td>+, -, *, ^n</td>
-               <td>Operations élementaires</td>
-            </tr>
-            <tr>
-               <td>inverse(A)</td>
-               <td>La matrice inverse de A</td>
-            </tr>
-            <tr>
-               <td>T(A)</td>
-               <td>La matrice transposée de A</td>
-            </tr>
-            <tr>
-               <td>det(A)</td>
-               <td>Le déterminant de A</td>
-            </tr>
-            <tr>
-               <td>Eigenvalues(A)</td>
-               <td>Permet de calculer les valeurs propres complexes. <br>Pour les matrices symétriques, on utilise la méthode de Jacobi.<br> Sinon, nous utilisons une transformation en forme Hesseberg<br> pour effectuer la méthode QR avec efficacité,<br> en utilisant des rotations de Givens.</td>
-            </tr>
-         </table>
-
-         <h3>Factorisation:</h3>
-
-         <table>
-            <tr>
-               <th>Expressions</th>
-               <th>Fonctions</th>
-            </tr>
-            <tr>
-               <td>LU(A)</td>
-               <td>Calcule, si possible, la décomposition LU: A = LU.<br> L est une matrice inférieure triangulaire normée,<br> U une matrice supérieure triangulaire.</td>
-            </tr>
-            <tr>
-               <td>QR(A)</td>
-               <td>Calcule pour toute matrice la décomposition QR: A = QR<br> Q est une matrice orthogonale et R une matrice triangulaire de dimension n x m.</td>
-            </tr>
-            <tr>
-               <td>Cholesky(A)</td>
-               <td>Pour une matrice A, symétrique et définie positive, on décompose en Cholesky:<br> A = L*L^T<br> L est une matrice inférieure.</td>
-            </tr>
-         </table>
-
-         <h3>Résolution de système d'équations linéaires</h3>
-
-          <p>
-            Pour cela, écrivez l'équation suivante : 'AX=B' avec A, B des matrices que vous avez définies.
-             Choisissez ensuite l'une des méthodes suivantes pour résoudre le système d'équations :
-         </p>
-
-         <table>
-            <tr>
-               <th>Expressions</th>
-               <th>Fonctions</th>
-            </tr>
-            <tr>
-               <td>LU</td>
-               <td> Trouve la solution à LUx=b,<br> en calculant y tel que Ly=b, puis x avec Ux=y.</td>
-            </tr>
-            <tr>
-               <td>Cholesky</td>
-               <td>Comme pour la décomposition LU.</td>
-            </tr>
-            <tr>
-               <td>Gauss</td>
-               <td>Avec des opérations sur les lignes de A, on transforme A en Id.<br> Ces opérations sont appliquées sur b pour résoudre Ax=b</td>
-            </tr>
-            <tr>
-               <td>Ausgleichsproblem</td>
-               <td>Régression linéaire: Quand Ax=b a trop de contraintes,<br> il n'y a pas de solution.<br> Or il existe un x tel que Ax-b a une norme minimale.<br> Cette fonction calcule cet x,<br> ce qui est utile pour interpoler en physique et cetera.</td>
-            </tr>
-         </table>
-
-      </div>
+      
+      
+      <h3>Qu'est-ce WolframBeta?</h3>
+      
+      <p>
+		  Pour notre projet d'informatique au baccalauréat du Lycée franco-allemand de fribourg, nous avons choisi de programmer en python une calculatrice avancée ayant une variété d'utilités. Le nom "WolframBeta" est inspiré par le langage naturel "Wolframalpha", qui a aidé beaucoup d'élèves et même de chercheurs  pour vérifier leurs résultats et répondre à des questions difficiles (comme par ex. résoudre une équation différentielle ou calculer une intégrale exacte).
+      </p>
+      
+      <p>
+		  Notre but était de voir comment expliquer à l’ordinateur  les fonctions et matrices, comment implémenter des algorithmes intéressants et utiles. Finalement, nous avons analysé le traitement d'erreurs numériques, de convergence et d’efficacité des solutions aux problèmes numériques.
+          Grace à ce projet, nous avons appris beaucoup.
+      </p>
+      
+      <h3>À quoi est-ce utile?</h3>
+      
+      <p>
+         Avec WolframBeta, on peut entre autres calculer les dérivées exactes de fonctions, faire des approximations d'intégrales et de solutions d'équations différentielles, factoriser des matrices, déterminer leurs valeurs propres.
+         Pour cela, sans utiliser aucun module de mathématiques, nous avons programmé  nous-mêmes des algorithmes avancés et compliqués. Tout cela pour faciliter le travail avec les matrices, les intégrales, dérivées et équations différentielles et autres.
+      </p>
+      
+      <h4> Voici une liste raccourcie de fonctions implementées:</h4>
+      
+      <ul>
+         <li>Toutes les fonctions élémentaires (trigonométriques, hyperboliques, logarithmiques, et les inverses de ces fonctions, …).</li>
+         <li>Le calcul exact et approximatif de la dérivée, puis l'approximation d'intégrales. </li>
+         <li>La recherche de solutions de l’équation f(x)=0 et de la valeur du maximum et minimum sur un intervalle, avec les représentations graphiques des fonctions données.</li>
+         <li>Toutes les opérations simples de matrices (comme la multiplication), le calcul du déterminant et autres.</li>
+         <li>Les décompositions LU, QR et cholesky.</li>
+         <li>La résolution de systèmes d’équations linéaires (de même la régression linéaire en plusieurs dimensions).</li>
+         <li>Le calcul des valeurs propres complexes. </li>
+         <li>La résolution approximative d'équations différentielles de forme y'=f(y,t) avec des conditions initiales. </li>
+      </ul>
+      
+      <h3>Comment utiliser WolframBeta?</h3>
+      
+      <p>
+         Notre programme est divisé en plusieurs sections: Algèbre, Analyse et Matrices. De plus, il est également
+         possible d'importer notre code en tant que module et d'accéder ainsi à toutes les fonctions mathématiques
+         via la console/ par un script Python. Nous avons écrit une documentation pour chaque partie à laquelle vous
+         pouvez accéder en cliquant dans le menu à gauche.
+      </p>
+      
+      <br/>
+      <hr/>
+      
+      <h4> Les développeurs: &nbsp;&nbsp; Felix Dehon et Eric Trébuchon, de la TSMP </h4>
    </body>
 </html>
 
