@@ -1511,7 +1511,9 @@ class MainScreen(Tk):
         self.top_frame.rowconfigure(0, weight=1)
         
         # Help Button
-        self.help_button = Button(self.top_frame, text="?", command=self.show_help, bd=0)
+        self.help_icon = PhotoImage(file="../pictures/help.png").subsample(16)
+        self.help_button = Button(self.top_frame, image=self.help_icon, command=self.show_help, bd=0,
+                                  highlightbackground="#707070")
         self.help_button.grid(row=0, column=0)
         
         # Colormode Buttons
