@@ -1233,7 +1233,7 @@ class MatrixFrame(Frame):
         
         # Entry Frame
         self.entry_frame = Frame(self, bd=1, relief="raised", bg="white")
-        self.entry_frame.place(relx=0.1, rely=0.35, relwidth=0.3, relheight=0.15)
+        self.entry_frame.place(relx=0.1, rely=0.55, relwidth=0.3, relheight=0.25)
         
         self.input_entry = Entry(self.entry_frame, bd=0, highlightthickness=0)
         self.input_entry.pack(side="left", fill="both", expand=True, padx=20)
@@ -1242,23 +1242,27 @@ class MatrixFrame(Frame):
         Button(self.entry_frame, image=self.return_icon, command=self.interprete_input,
                bg="white").pack(side="left", padx=10)
         
+        # Error Label
+        self.input_error_label = Label(self, fg="red")
+        self.input_error_label.place(relx=0.1, rely=0.8, relwidth=0.3, relheight=0.2)
+        
         # method auswahl
         self.method_frame = Frame(self)
         self.method = StringVar(value="LU")
         self.method.trace("w", lambda *_: self.interprete_input())
-        Radiobutton(self.method_frame, text="LU", variable=self.method, value="LU").pack()
-        Radiobutton(self.method_frame, text="Cholesky", variable=self.method, value="Cholesky").pack()
-        Radiobutton(self.method_frame, text="Gauss", variable=self.method, value="Gauss").pack()
+        Radiobutton(self.method_frame, text="LU", variable=self.method, value="LU").pack(anchor="w")
+        Radiobutton(self.method_frame, text="Cholesky", variable=self.method, value="Cholesky").pack(anchor="w")
+        Radiobutton(self.method_frame, text="Gauss", variable=self.method, value="Gauss").pack(anchor="w")
         
         # Output Frame
         self.output_frame = Frame(self, bd=1, relief="raised")
-        self.output_frame.place(relx=0.1, rely=0.55, relwidth=0.8, relheight=0.45)
-        
-        self.in_label = Label(self.output_frame, font=("verdana", 25), anchor="e")
-        self.in_label.pack(side="left", padx=(40, 5))
-        self.out_label = Label(self.output_frame, anchor="w", font=("verdana", 25), justify="center")
-        self.out_label.pack(side="left", padx=10)
-        
+        self.output_frame.place(relx=0.45, rely=0.55, relwidth=0.45, relheight=0.45)
+
+        self.out_labels = [Label(self.output_frame), Label(self.output_frame),
+                           Label(self.output_frame), Label(self.output_frame)]
+        for lab in self.out_labels:
+            lab.pack(side="left", padx=3)
+    
         # clear button
         self.clear_button = Button(self, text="X", command=self.clear_frame)
         self.clear_button.place(relx=0.95, y=10)
@@ -1438,13 +1442,13 @@ class MatrixFrame(Frame):
     
     def show_input_error(self, error=""):
         """Der error wird unter dem input entry angezeigt"""
-        self.in_label.config(text="")
-        self.out_label.config(text=error, fg="red")
+        self.input_error_label.config(text=error)
     
     def interprete_input(self, _=None):
         """Interpretiert den input vom entry."""
         string = self.input_entry.get()
         self.show_answer()
+        self.show_input_error()
         
         for name, matrix in self.matrices_name.items():
             locals()[name] = matrix
@@ -1461,28 +1465,33 @@ class MatrixFrame(Frame):
                     self.show_input_error(["A und B müssen oben definiert sein",
                                            "A et B deuvent être définies en haut",
                                            "A and B must be defined above"][lang])
-                self.method_frame.place(x=0, rely=0.6)
+                    
+                self.method_frame.place(relx=0.11, rely=0.81, relwidth=0.1, relheight=0.15)
+                self.input_error_label.place(relx=0.2,  relwidth=0.2)
+                
                 left_mat = self.matrices_name[left_mat_name]
                 right_mat = self.matrices_name[right_mat_name]
+                
                 method = self.method.get()
                 if method == "LU":
-                    self.show_answer((f"{left_mat_name}X = {right_mat_name} : X = ", left_mat.lu_solve(right_mat)))
+                    self.show_answer((f"X = ", left_mat.lu_solve(right_mat)))
                 elif method == "Cholesky":
-                    self.show_answer((f"{left_mat_name}X = {right_mat_name} : X = ", left_mat.cholesky_solve(right_mat)))
+                    self.show_answer((f"X = ", left_mat.cholesky_solve(right_mat)))
                 elif method == "Gauss":
-                    self.show_answer((f"{left_mat_name}X = {right_mat_name} : X = ", left_mat.gauss_solve(right_mat)))
+                    self.show_answer((f"X = ", left_mat.gauss_solve(right_mat)))
                     
             else:
+                self.input_error_label.place(relx=0.1, relwidth=0.3)
                 self.method_frame.place_forget()
                 out = eval(write(parse(string)))
                 self.show_answer((f"{string} = ", out))
+        
         except Exception as error:
             self.show_input_error(error)
     
     def show_answer(self, answer=("", "")):
-        left, right = answer
-        self.in_label.config(text=left)
-        self.out_label.config(text=right, fg="black")
+        for ans in range(len(answer)):
+            self.out_labels[ans].config(text=answer[ans])
     
     def show_help(self, force=None):
         """Der Hilfe für den MatrixFrame wird oben links angezeigt.

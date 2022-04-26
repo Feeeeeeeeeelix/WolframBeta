@@ -96,7 +96,7 @@ class Matrix:
                 else:
                     text += str(rint(element)) + " " + " " * (5 - len(str(rint(element))))
             text += "\n"
-        return text
+        return text[:-2]
     
     def __add__(self, val):
         if self.rows == val.rows and self.cols == val.cols:
