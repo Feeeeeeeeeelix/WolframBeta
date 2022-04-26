@@ -29,7 +29,7 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 1
+default_frame = 2
 min_window = True
 
 
@@ -1239,8 +1239,16 @@ class MatrixFrame(Frame):
         self.input_entry.pack(side="left", fill="both", expand=True, padx=20)
         self.input_entry.bind("<Return>", self.interprete_input)
         self.return_icon = PhotoImage(file="../pictures/enter.png").subsample(24)
-        Button(self.entry_frame, image=self.return_icon, command=self.interprete_input, bg="white").pack(side="left",
-                                                                                                         padx=10)
+        Button(self.entry_frame, image=self.return_icon, command=self.interprete_input,
+               bg="white").pack(side="left", padx=10)
+        
+        # method auswahl
+        self.method_frame = Frame(self)
+        self.method = StringVar(value="LU")
+        self.method.trace("w", lambda *_: self.interprete_input())
+        Radiobutton(self.method_frame, text="LU", variable=self.method, value="LU").pack()
+        Radiobutton(self.method_frame, text="Cholesky", variable=self.method, value="Cholesky").pack()
+        Radiobutton(self.method_frame, text="Gauss", variable=self.method, value="Gauss").pack()
         
         # Output Frame
         self.output_frame = Frame(self, bd=1, relief="raised")
@@ -1411,7 +1419,6 @@ class MatrixFrame(Frame):
         else:
             self.show_edit_error(["Dimensionen müssen symmetrisch sein", "Dimensions deuvent être symétriques",
                                   "Dimensions must be symmetric"][lang])
-
     
     def generate_new_id(self):
         """Jede Matrix hat eine ID um sie zu unterscheiden. Hier wird eine neue generiert."""
@@ -1437,12 +1444,38 @@ class MatrixFrame(Frame):
     def interprete_input(self, _=None):
         """Interpretiert den input vom entry."""
         string = self.input_entry.get()
+        self.show_answer()
+        
+        for name, matrix in self.matrices_name.items():
+            locals()[name] = matrix
+            DEFINED_MATRICES.append(name)
+        
         try:
-            for name, matrix in self.matrices_name.items():
-                locals()[name] = matrix
-                DEFINED_MATRICES.append(name)
-            out = eval(write(parse(string)))
-            self.show_answer((f"{string} = ", out))
+            if "=" in string:
+                if "x=" not in string.lower():
+                    self.show_input_error(["Gleichung muss die Form 'AX=B' haben",
+                                           "Equation doit avoir la forme 'AX=B'",
+                                           "Equation must be of the form 'AX=B'"][lang])
+                if (left_mat_name := string[:string.lower().index("x=")]) not in self.matrices_name or \
+                        (right_mat_name := string[string.lower().index("x=")+2:]) not in self.matrices_name:
+                    self.show_input_error(["A und B müssen oben definiert sein",
+                                           "A et B deuvent être définies en haut",
+                                           "A and B must be defined above"][lang])
+                self.method_frame.place(x=0, rely=0.6)
+                left_mat = self.matrices_name[left_mat_name]
+                right_mat = self.matrices_name[right_mat_name]
+                method = self.method.get()
+                if method == "LU":
+                    self.show_answer((f"{left_mat_name}X = {right_mat_name} : X = ", left_mat.lu_solve(right_mat)))
+                elif method == "Cholesky":
+                    self.show_answer((f"{left_mat_name}X = {right_mat_name} : X = ", left_mat.cholesky_solve(right_mat)))
+                elif method == "Gauss":
+                    self.show_answer((f"{left_mat_name}X = {right_mat_name} : X = ", left_mat.gauss_solve(right_mat)))
+                    
+            else:
+                self.method_frame.place_forget()
+                out = eval(write(parse(string)))
+                self.show_answer((f"{string} = ", out))
         except Exception as error:
             self.show_input_error(error)
     
