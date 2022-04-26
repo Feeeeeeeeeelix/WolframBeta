@@ -197,25 +197,26 @@ def parse(f: str, simp=False):
         return ""
     
     if f[0] == "+":
+        # positives vorzeichen wird ignoriert
         return parse(f[1:], simp)
     if isfloat(f):
+        #Zahl
         return flint(f)
     if f[:-1] in SIMPLE_FUNCTIONS and f[-1] in ALPHABET + NUMBERS:
         # ex: sinx, sin2 -> sin(x), sin(2)
         return parse(f"{f[:-1]}({f[-1]})", simp)
-    if f in SIMPLE_FUNCTIONS:
+    if f in SIMPLE_FUNCTIONS or f in DEFINED_MATRICES:
+        # kommt nicht weiter, sonst wird ein name als factor von buchtstaben erkannt
         return f
     if len(f) >= 3 and "C" in f and isfloat(f[:f.index("C")]) and isfloat(f[f.index("C") + 1:]):
         # 2C3 -> C(2,3)
         return parse(f"C({f[:f.index('C')]},{f[f.index('C') + 1:]})", simp)
     if f in ALPHABET and len(f) == 1:
-        if f in DEFINED_FUNCTIONS and simp:
-            # Funktionsname einer im AnalysisFrame von WolframBeta definierten Funktion wird durch ihren term ersetzt
-            return parse(DEFINED_FUNCTIONS[f], simp)
-        else:
-            return f
-    if f in DEFINED_MATRICES:
+        # varible/konstante
         return f
+    if f in DEFINED_FUNCTIONS and simp:
+        # Funktionsname einer im AnalysisFrame von WolframBeta definierten Funktion wird durch ihren term ersetzt
+        return parse(DEFINED_FUNCTIONS[f], simp)
     for matrix in DEFINED_MATRICES:
         if matrix in f and f"({matrix})" not in f:
             n0 = f.index(matrix)
@@ -224,6 +225,9 @@ def parse(f: str, simp=False):
     
     f0 = f
     f, innerargs = _extract_args(f)  # klammern und ihr inneres ersetzen
+    
+    if ")" in f or "(" in f:
+        raise SyntaxError
     
     if f == "@":
         # unnötige klammern
@@ -241,9 +245,9 @@ def parse(f: str, simp=False):
             PRINT += f"\nparse: not diff: {f = }"
             return ["diff", parse(innerargs[0]), var]
         
-    # höhere Ableitung:
+    # höhere approximative Ableitung:
     if len(f) == 10 and f[:2] == "d^" and f[3:5] == "/d" and f[6] == "^" and f[8:10] == "@@":
-        # höhere Ableitung: f = "d^n/dx^n(f)(x_0) (n'te ableitung von f(x) nach x bei x_0)
+        # höhere Ableitung: f = "d^n/dx^n(f)(x_0) (n'te ableitung von f(x) nach x in x_0)
         
         if (n := f[2]) != f[7] or not isfloat(f[2]) or not isfloat(f[7]):
             raise ValueError("invalid n while taking the n'th derivative")
@@ -254,6 +258,20 @@ def parse(f: str, simp=False):
             return der(lambda x: eval(innerargs[0]), var=f[5], n=int(n))(flint(x_0))
         else:
             return ["diff", parse(innerargs[0]), f[5], n, x_0]
+        
+    # höhere exakte ableitung
+    if len(f) == 9 and f[:2] == "d^" and f[3:5] == "/d" and f[6] == "^" and f[8] == "@":
+        # höhere Ableitung: f = "d^n/dx^n(f) (n'te ableitung von f(x) nach x)
+    
+        if (n := f[2]) != f[7] or not isfloat(f[2]) or not isfloat(f[7]):
+            raise ValueError("invalid n while taking the n'th derivative")
+        if simp:
+            func = parse(innerargs[0], True)
+            for i in range(int(n)):
+                func = diff(func, f[5])
+            return func
+        else:
+            return ["diff", parse(innerargs[0]), f[5], n]
     
     # implizierte Multiplikationen:
     i = 0
@@ -396,14 +414,14 @@ def write(f: list) -> str or int:
     if f[0] == "*":
         args = []
         for i in f[1]:
-            factor = str(write(i))
-            
-            if factor == "0":
-                return 0
-            if type(i) == list and i[0] in "+-":
-                factor = f"({factor})"
-            if factor != "1" and factor != "ln(e)":
-                args.append(factor)
+            if str(i) == "0":
+                return "0"
+            if type(i) == list and i[0] in "+-" or isfloat(i) and float(i) < 0:
+                args.append(f"({i})")
+            elif i != "1" and i != ["ln", "e"]:
+                args.append(i)
+                
+        args = [str(write(arg)) for arg in args]
         
         consts, funcs = _split_consts(args, isfloat)
         consts = [str(prod(consts))] if consts else []
@@ -462,7 +480,19 @@ def write_latex(f: list, simp=False):
             consts, funcs = _split_consts(summands, isfloat)
             consts = [str(sum(flint(c) for c in consts))] if consts else []
             summands = find_repeated_args(consts + funcs, "+")
-            
+        sum_ = []
+        print(f"1{summands = }")
+        for summand in summands:
+            if summand.startswith("(-1) \\cdot "):
+                
+                sum_.append("-"+summand[11:])
+            elif summand.startswith("(-") and ") \\cdot " in summand and isfloat(fac := summand[2:summand.index(") \\cdot ")]):
+                sum_.append(f"-{fac} \\cdot  " + summand[summand.index(") \\cdot ")+8:])
+            else:
+                sum_.append(summand)
+        summands = sum_
+        print(f"2{summands = }")
+        
         sum_ = summands[0]
         for s in summands[1:]:
             sum_ += f" + {s}" if s[0] != "-" else f" - {s[1:]}"
@@ -470,16 +500,33 @@ def write_latex(f: list, simp=False):
         return sum_
     
     if f[0] == "*":
-        factors = [str(write_latex(fact, simp)) for fact in f[1]]
+        factors = f[1]
         
         if simp:
+            for fac in factors[::-1]:
+                if type(fac) == list and fac[0] == "*":
+                    factors.remove(fac)
+                    factors.extend(fac[1])
+                    
+            factors = [str(write_latex(fact, simp)) for fact in factors]
+            
             consts, funcs = _split_consts(factors, isfloat)
             consts = [str(prod(consts))] if consts else []
+            
             if consts == ["0"]:
                 return "0"
+            if consts == ["1"]:
+                consts = []
+                
             factors = find_repeated_args(consts + funcs, "*")
+            
+        else:
+            factors = [str(write_latex(fact, simp)) for fact in factors]
+
         factors = [f"({fact})" if "+" in fact or "-" in fact else fact for fact in factors]
         PRINT += f"\nfactors: {factors}"
+        if factors[0] == "(-1)":
+            factors = ["-"+factors[1], *factors[2:]]
         return r" \cdot ".join(factors) if factors else 1
     
     if f[0] == "/":
@@ -536,7 +583,9 @@ def write_latex(f: list, simp=False):
     if f[0] == "diff":
         if len(f) == 3:
             return rf"\frac{'{d}{d'}{f[2]}{'}'}({write_latex(f[1], simp)})"
-        else:
+        elif len(f) == 4:
+            return rf"\frac{'{'}d^{f[3]}{'}{'}d{f[2]}^{f[3]}{'}'}({write_latex(f[1], simp)})"
+        elif len(f) == 5:
             return rf"\frac{'{'}d^{f[3]}{'}{'}d{f[2]}^{f[3]}{'}'}({write_latex(f[1], simp)})\vert_{'{'}x={f[4]}{'}'}"
 
 
@@ -759,7 +808,7 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "f(8)"
+    func = "d/dx(cosx)"
     
     try:
         s = Function(func)
