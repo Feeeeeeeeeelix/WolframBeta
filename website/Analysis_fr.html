@@ -4,7 +4,7 @@
    <head>
       <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
       <meta charset="utf-8">
-      <title>Wolframbeta</title>
+      <title>WolframBeta</title>
    </head>
    
    
@@ -58,17 +58,17 @@
                <td>cos(pi)</td>
             </tr>
             <tr>
-               <td>exp(x) oder e^x</td>
+               <td>exp(x) ou e^x</td>
                <td>Exponentialfunktion</td>
                <td>e^4</td>
             </tr>
             <tr>
-               <td>pow(a, b) oder a^b</td>
+               <td>pow(a, b), a^b ou a**b</td>
                <td>Puissance</td>
                <td>pow(3, 7), 3^7, 3**7</td>
             </tr>
             <tr>
-               <td>sqrt(x) oder root(x, n)</td>
+               <td>sqrt(x) ou root(x, n)</td>
                <td>Fonction racine</td>
                <td>sqrt(2), root(18, 5)</td>
             </tr>
@@ -98,9 +98,9 @@
                <td>min(sin^2 - cos(5*x), 0.5, 0.7)</td>
             </tr>
             <tr>
-               <td>nullstellen(f, a, b), f=0</td>
+               <td>racines(f, a, b) ou f=0</td>
                <td>Calcule les racines de f sur [a;b].</td>
-               <td>nullstelle(x^3-x*sin(x),0,2)</td>
+               <td>racines(x^3-x*sin(x),0,2)</td>
             </tr>
             <tr>
                <td>Int(a, b, f(x), x)</td>
@@ -120,23 +120,18 @@
             <tr>
                <td>d^n/dx^n(f(x))(x_0)</td>
                <td>n-ième dérivé approximative de f en x_0.</td>
-               <td>d^3/dx^3(sin(exp(x^2 - 4)))(5)</td>
-            </tr>
-            <tr>
-               <td>Int(a, b, f)</td>
-               <td>Integral de f sur [a;b]</td>
-               <td>Int(0, 5, f)</td>
+               <td>d^3/dx^3(sin(exp(x^2)))(5)</td>
             </tr>
 
          </table>
 
          <p>
-            Pour les fonctions comme min, max et zéro, il n'est pas nécessaire d'indiquer l'intervalle [a;b] :
+            Pour les fonctions comme min, max et racines, il n'est pas nécessaire d'indiquer l'intervalle [a;b] :
             Si vous omettez a et b lors de l'appel des fonctions, l'intervalle affiché sous le graphique (que l'on peut d'ailleurs modifier librement)
 			est pris comme intervalle par défaut.
          </p>
          
-         <h4>On peut chercher un polynom passant par des points donnés:</h4>
+         <h4>On peut chercher un polynôme passant par des points donnés:</h4>
 
          <p>
             Le schéma de Neville permet de trouver un polynôme qui passe par tous les points que l'on spécifie.

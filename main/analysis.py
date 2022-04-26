@@ -143,6 +143,7 @@ def minimum(func, a=None, b=None):
 
 min = minimum
 max = maximum
+racines = nullstellen
 
 
 def riemann(f, a, b):
@@ -264,5 +265,6 @@ if __name__ == "__main__":
     
     print(der(lambda x:sin(x))(1))
     print(cos(1))"""
-    
-    print(nullstellen(lambda x: sqrt(x)))
+
+    L = euler_collatz("9.8*y**2 -sin(y*t)", 0, 3, 1)
+    print(L[-1])

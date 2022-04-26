@@ -3,7 +3,7 @@
    <head>
       <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
       <meta charset="utf-8">
-      <title>Wolframbeta</title>
+      <title>WolframBeta</title>
    </head>
    
    
@@ -22,7 +22,7 @@
       
       <div>
          
-         <h3> Was kann man mit unserem Code mchen?</h3>
+         <h3> Was kann man mit unserem Code machen?</h3>
 
          <p>
             Mir unsrem Code ist viel mehr möglich. Das schöne ist, hier kann man viel genauer arbeiten und Methoden wie for-Schleifen und if-Abfragen verwenden.
@@ -31,11 +31,11 @@
             Auch zufällige Ereignisse kann man gut untersuchen, zum Beispiel die durschnittliche Norm von Eigenwerten von Matrizen mit bestimmter Verteilung von Einträgen oder ähnliches betrachten.
             Für Konvergenzfragen und Stabilität kann man auf unser Programm zurückgreifen.
             Fragt man sich wie gut ein Algorithmus gegen eine Lösung konvergiert, so kann man mit unserem Programm die Lösung bestimmen und die Konvergenz untersuchen!
-            Es gibt kaum Grenzen, weshalb sich das Arbeiten mit unserem Modul für eine Fortgeschrittene Arbeit sehr lohnt! 
+            Es gibt kaum Grenzen, weshalb sich das Arbeiten mit unserem Modul für eine fortgeschrittene Arbeit sehr lohnt!
          </p>
          
          <p>
-            Für ein genaues Verständniss der Funktionen vom Modul kann man unseren Code lesen,
+            Für ein genaues Verständnis der Funktionen vom Modul kann man unseren Code lesen,
             jedoch empfiehlt sich diese Liste einfach durchzulesen/in dieser Liste nachzuschlagen.
          </p>
 			
@@ -109,14 +109,14 @@
                <td>min(sin^2(x) - cos(5*x), 0.5, 0.7)</td>
             </tr>
             <tr>
-               <td>nullstellen(f, a, b), f=0</td>
-               <td>Nullstellen von f auf [a;b] bestimmen.</td>
-               <td>nullstelle(x^3-x*sin(x),0,2)</td>
+               <td>nullstellen(f, a, b)</td>
+               <td>Nullstellen von f auf [a; b] bestimmen.</td>
+               <td>nullstellen(x^3-x*sin(x),0,2)</td>
             </tr>
             <tr>
-               <td>Int(a, b, f(x), x)</td>
+               <td>riemann(a, b, f(x), x), <br />trapez(a, b, f(x), x)<br/> oder simpson(a, b, f(x), x)</td>
                <td>Integral von f über [a; b] bezüglich der Variable x.</td>
-               <td>Int(3,4,ln(x)/x,x)</td>
+               <td>trapez(3,4,ln(x)/x,x)</td>
             </tr>
             <tr>
                <td>d/dx(f(x))</td>
@@ -144,7 +144,7 @@
 		 Für die DGL y' = 9.8*y^2 - sin(t*y) mit y(0)=3 wäre zum Beispiel y(1) gesucht. Dann wäre folgender Code nützlich:<br>
 		 </p>
 		 
-		 <img src="DGL.png" style="margin-left:400px;" alt=""/>
+		 <img src="DGL.png" style="margin-left:300px;width:50%;height:auto;" alt=""/>
 		 
 		 <p> Auch Folgen von Funktionen sollten leicht zu analysieren sein!</p>
 		 
@@ -181,7 +181,7 @@
          <p>Hier ein Beispiel Programm um die ersten Tschebyscheff Funktionen rekursiv zu berechnen:</p>   
          
          
-		 <img src="polynoms.png" style="margin-left:400px;" alt=""/>
+		 <img src="polynom.png" style="margin-left:350px;width:40%;height:auto;" alt=""/>
        
        
          <h3>Methoden für Matrizen:</h3>
@@ -196,57 +196,58 @@
                <td>Elementare Operatoren für Matrizen</td>
             </tr>
             <tr>
-               <td>^-1 oder inverse</td>
+               <td>inverse(A)</td>
                <td>Berechnet die Inverse von A</td>
             </tr>
             <tr>
-               <td>^T</td>
-               <td>Transponierte</td>
+               <td>T(A)</td>
+               <td>Transponierte von A</td>
             </tr>
             <tr>
-               <td>det</td>
-               <td>Determinante</td>
+               <td>det(A)</td>
+               <td>Determinante von A</td>
             </tr>
             <tr>
-               <td>Eigenvalues</td>
+               <td>Eigenvalues(A)</td>
                <td>Berechnet alle komplexen Eigenwerte.<br>Dabei wird im symmetrischen Fall das Jacobi-Verfahren
                   verwendet.<br>Sonst wird A in Hessebergform transformiert um effiziente Givens-Rotationen im QR-Verfahren
                   zu machen. <br> Damit erhalten wir eine Block-Diagonal-Matrix, dessen 2x2 Blöcke die komplesen Eigenenwerte
                   bestimmt.
                </td>
             </tr>
-			   <td>lu</td>
+            <tr>
+			   <td>lu(A)</td>
                <td>Berechnet, falls existent, die LU-Zerlegung: A = LU.<br> L ist eine normalisierte untere Dreiecksmatrix und U eine obere Dreiecksmatrix.</td>
             </tr>
             <tr>
-               <td>QR</td>
+               <td>QR(A)</td>
                <td>Berechnet für beliebige Matrizen A = QR<br> Q ist eine orthogonale Matrix und R eine verallgemeinerte obere Dreiecksmatrix.</td>
             </tr>
             <tr>
-               <td>cholesky</td>
+               <td>cholesky(A)</td>
                <td>Berechnet für symmetrische und positiv definite Matrizen A = L*L^T<br> L ist eine untere Dreiecksmatrix.</td>
             </tr>
             <tr>
-               <td>lu_solve</td>
-               <td> Löst LUx=b durch lösen von Ly=b und dann Ux=y.</td>
+               <td>lu_solve(A, B)</td>
+               <td>Löst LUx=b durch lösen von Ly=b und dann Ux=y.</td>
             </tr>
             <tr>
-               <td>cholesky_solve</td>
+               <td>cholesky_solve(A, B)</td>
                <td>Analog zu LU</td>
             </tr>
             <tr>
-               <td>gauss_solve</td>
+               <td>gauss_solve(A, B)</td>
                <td>Durch elementare Zeilenumformungen wird A zur Id-Matrix umgeformt.<br> Diese Operationen werden auf b
                   anwgewendet um Ax=b zu lösen
                </td>
             </tr>
             <tr>
-               <td>gauss_explanied</td>
+               <td>gauss_explained(A, B)</td>
                <td>Hier wird das Gauss-Verfahren sehr detailreich erklärt<br> und man sieht die Rechnungen beim lösen von Ax=b!
                </td>
             </tr>
             <tr>
-               <td>ausgleichsproblem</td>
+               <td>ausgleichsproblem(A, B)</td>
                <td>Falls Ax=b überbestimmt ist, gibt es keine Lösung.<br> Man kann aber ein x finden, welches die Norm von
                   Ax-b minimiert.<br> Dies kann für Interpolation in Physik nützlich sein.
                </td>
@@ -255,23 +256,13 @@
          </table>
 
          <p>
-         Hier noch ein Beispiel für eine Funktion mit Matrizen. Falls ein probalistisches Problem durch diskrete Zeit n und Vektoren u_n mit u_(n+1)=A*u_n dargestellt werden kann, kann man nach dem Wert u_100 fragen. Per Hand wäre dies unmöglich, per Code aber nur wenige Zeilen lang:
-         
-         Bild:
-         
-         v = Matrix([[0.5,0.3,0.2]])  #u_0
-         A = Matrix([[0.2,0.5,0],[0.6,0,0.2],[0.2,0.5,0.8]])
-         for n in range(1,100):
-			v = A*v 	#u_(n+1) = A * u_n
-         print(v)
-         
+            Hier noch ein Beispiel für eine Funktion mit Matrizen. Falls ein probalistisches Problem durch diskrete
+            Zeit n und Vektoren u_n mit u_(n+1)=A*u_n dargestellt werden kann, kann man nach dem Wert u_100 fragen.
+            Per Hand wäre dies unmöglich, per Code aber nur wenige Zeilen lang:
          </p>
-         
-           
-         <br />
-         <hr />
-         
-         <h4> Die Entwickler: &nbsp;&nbsp; Felix Dehon und Eric Trébuchon, aus der TSMP </h4>
+
+         <img src="matrix.png" style="margin-left:350px;width:50%;height:auto;" alt=""/>
+
       </div>
    </body>
 </html>

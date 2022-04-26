@@ -190,11 +190,9 @@ def neville(list_of_pairs):
 
 if __name__ == '__main__':
     
-    p = Polynomial("x^2 + 3x -2")
-    q = Polynomial("x^2 + 4")
-    r = Polynomial("x^2 - 1x - 1")
-    
-    print(q.nullstellen())  # Komplexe Zahlen 0 +- 2i
-    print(r.nullstellen())  # die Goldenen Schnitte
-    
-    print((q * r).nullstellen())  # beides kombiniert
+    P_0 = Polynomial("1")
+    P_1 = Polynomial("x")
+    T = [P_0, P_1]
+    for k in range(1, 50):
+        T.append(2 * P_1 * T[k] - T[k - 1])
+        print(f"{k}-th Tschebyscheff Polynom: {T[k]}")

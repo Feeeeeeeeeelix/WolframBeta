@@ -4,7 +4,7 @@
    <head>
       <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
       <meta charset="utf-8">
-      <title>Wolframbeta</title>
+      <title>WolframBeta</title>
    </head>
    
    <body>
@@ -26,7 +26,7 @@
          
          <p>
             Oben Rechts kann man Matrizen von variabler Größe eingeben (oder zufällig generieren lassen) und
-            einspeichern. Durch viele Algorithmen und Funktionen können Sie die meisten Rechnungen mit MAtrizen
+            einspeichern. Durch viele Algorithmen und Funktionen können Sie die meisten Rechnungen mit Matrizen
             leicht und effizient berechnen lassen.
          </p>
          
@@ -44,19 +44,19 @@
                <td>Elementare Operatoren für Matrizen</td>
             </tr>
             <tr>
-               <td>inverse</td>
+               <td>inverse(A)</td>
                <td>Berechnet die Inverse von A</td>
             </tr>
             <tr>
-               <td>T()</td>
+               <td>T(A)</td>
                <td>Transponierte</td>
             </tr>
             <tr>
-               <td>det</td>
+               <td>det(A)</td>
                <td>Determinante</td>
             </tr>
             <tr>
-               <td>Eigenvalues</td>
+               <td>Eigenvalues(A)</td>
                <td>Berechnet alle komplexen Eigenwerte.<br>Dabei wird im symmetrischen Fall das Jacobi-Verfahren
                   verwendet.<br>Sonst wird A in Hessebergform transformiert um effiziente Givens-Rotationen im QR-Verfahren
                   zu machen. <br> Damit erhalten wir eine Block-Diagonal-Matrix, dessen 2x2 Blöcke die komplesen Eigenenwerte
@@ -73,20 +73,25 @@
                <th>Funktion</th>
             </tr>
             <tr>
-               <td>LU</td>
+               <td>LU(A)</td>
                <td>Berechnet, falls existent, die LU-Zerlegung: A = LU.<br> L ist eine normalisierte untere Dreiecksmatrix und U eine obere Dreiecksmatrix.</td>
             </tr>
             <tr>
-               <td>QR</td>
+               <td>QR(A)</td>
                <td>Berechnet für beliebige Matrizen A = QR<br> Q ist eine orthogonale Matrix und R eine verallgemeinerte obere Dreiecksmatrix.</td>
             </tr>
             <tr>
-               <td>Cholesky</td>
+               <td>Cholesky(A)</td>
                <td>Berechnet für symmetrische und positiv definite Matrizen A = L*L^T<br> L ist eine untere Dreiecksmatrix.</td>
             </tr>
          </table>
          
          <h3>Lineare Gleichunssystem lösen:</h3>
+
+         <p>
+            Schreiben Sie dazu folgende Gleichung: 'AX=B' mit A, B von Ihnen definierten Matrizen. Wählen Sie dach eine
+            der folgenden Methoden aus, um das Gleichungssystem zu lösen:
+         </p>
          
          <table>
             <tr>

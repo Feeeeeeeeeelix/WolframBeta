@@ -4,7 +4,7 @@
    <head>
       <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
       <meta charset="utf-8">
-      <title>Wolframbeta</title>
+      <title>WolframBeta</title>
    </head>
 
    <body>
@@ -45,19 +45,19 @@
                <td>Operations élementaires</td>
             </tr>
             <tr>
-               <td>^-1 oder inverse</td>
-               <td>La matrice inverse</td>
+               <td>inverse(A)</td>
+               <td>La matrice inverse de A</td>
             </tr>
             <tr>
-               <td>^T</td>
-               <td>La matrice transposée</td>
+               <td>T(A)</td>
+               <td>La matrice transposée de A</td>
             </tr>
             <tr>
-               <td>det</td>
-               <td>Le déterminant</td>
+               <td>det(A)</td>
+               <td>Le déterminant de A</td>
             </tr>
             <tr>
-               <td>Eigenvalues</td>
+               <td>Eigenvalues(A)</td>
                <td>Permet de calculer les valeurs propres complexes. <br>Pour les matrices symétriques, on utilise la méthode de Jacobi.<br> Sinon, nous utilisons une transformation en forme Hesseberg<br> pour effectuer la méthode QR avec efficacité,<br> en utilisant des rotations de Givens.</td>
             </tr>
          </table>
@@ -70,20 +70,25 @@
                <th>Fonctions</th>
             </tr>
             <tr>
-               <td>LU</td>
+               <td>LU(A)</td>
                <td>Calcule, si possible, la décomposition LU: A = LU.<br> L est une matrice inférieure triangulaire normée,<br> U une matrice supérieure triangulaire.</td>
             </tr>
             <tr>
-               <td>QR</td>
+               <td>QR(A)</td>
                <td>Calcule pour toute matrice la décomposition QR: A = QR<br> Q est une matrice orthogonale et R une matrice triangulaire de dimension n x m.</td>
             </tr>
             <tr>
-               <td>Cholesky</td>
+               <td>Cholesky(A)</td>
                <td>Pour une matrice A, symétrique et définie positive, on décompose en Cholesky:<br> A = L*L^T<br> L est une matrice inférieure.</td>
             </tr>
          </table>
 
          <h3>Résolution de système d'équations linéaires</h3>
+
+          <p>
+            Pour cela, écrivez l'équation suivante : 'AX=B' avec A, B des matrices que vous avez définies.
+             Choisissez ensuite l'une des méthodes suivantes pour résoudre le système d'équations :
+         </p>
 
          <table>
             <tr>
