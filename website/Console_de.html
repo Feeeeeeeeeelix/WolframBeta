@@ -118,20 +118,25 @@
                <td>Integral von f über [a; b] bezüglich der Variable x.</td>
                <td>trapez(3,4,ln(x)/x,x)</td>
             </tr>
+			<tr>
+               <td>trapez_fehler(a, b, f(x), x),<br/> simpson_fehler(a, b, f(x), x)</td>
+               <td>Obere Schranke für Fehler für das Integral von f.</td>
+               <td>trapez_fehler(3,4,ln(x)/x,x)</td>
+            </tr>
             <tr>
-               <td>d/dx(f(x))</td>
+               <td>f.diff()</td>
                <td>Ableitung von f(x).</td>
-               <td>d/dx(sqrt(1-cos(x)^2))</td>
+               <td>df = Function("cos(sin(x)^2-1)*x").diff()</td>
             </tr>
             <tr>
                <td>d^n/dx^n(f(x))</td>
-               <td>Exakte n'te Ableitung von f(x).</td>
+               <td>Exakte n'te Ableitung von f(x). ?!?!?!?!?!??<td>
                <td>d^3/dx^3(ln(sin(x)^2 + 1))</td>
             </tr>
             <tr>
-               <td>d^n/dx^n(f(x))(x_0)</td>
-               <td>Approximative n'te Ableitung von f(x) in x_0.</td>
-               <td>d^3/dx^3(sin(exp(x^2 - 4)))(5)</td>
+               <td>der(f, var="x", n=1, dx=10 ** (-3))</td>
+               <td>Approximative n-te Ableitung von f(x) in x_0.</td>
+               <td>der(f,x,n=3)(5)</td>
             </tr>
          </table>
          
@@ -162,19 +167,24 @@
                <td>P = Q^2 - R^2,<br> wobei Q und R Instanzen der Klasse sind</td>
             </tr>
 			<tr>
-               <td>f.derivative()</td>
+               <td>P[i]</td>
+               <td>i-ter Koeffizient</td>
+               <td>P[3]</td>
+            </tr>
+			<tr>
+               <td>P.derivative()</td>
                <td>Exakte Ableitung</td>
                <td>P = Q.derivative()</td>
             </tr>
             <tr>
-               <td>f.nullstellen()</td>
+               <td>P.nullstellen()</td>
                <td>Approximative Nullstellen</td>
                <td>L = P.nullstellen()</td>
             </tr>
 			<tr>
-               <td>neville([[x_0,y_0],...,[x_n,y_n]]</td>
+               <td>neville([[x_0,y_0],...,[x_n,y_n]])</td>
                <td>Findet Polynom durch gegebene Punkte</td>
-               <td>P = neville([[1,3],[4,7],[6,-2],[7,1])</td>
+               <td>P = neville([[1,3],[4,7],[6,-2],[7,1]])</td>
             </tr>
          </table>
          
@@ -195,62 +205,95 @@
                <td>+, -, *, ^n</td>
                <td>Elementare Operatoren für Matrizen</td>
             </tr>
+			<tr>
+               <td>A[i][j]</td>
+               <td>Der (i,j)-Eintrag <td>
+            </tr>
             <tr>
-               <td>inverse(A)</td>
+               <td>A.inverse()</td>
                <td>Berechnet die Inverse von A</td>
             </tr>
             <tr>
-               <td>T(A)</td>
+               <td>A.T()</td>
                <td>Transponierte von A</td>
             </tr>
             <tr>
-               <td>det(A)</td>
+               <td>A.det()</td>
                <td>Determinante von A</td>
             </tr>
             <tr>
-               <td>Eigenvalues(A)</td>
+               <td>A.eigenvalues()</td>
                <td>Berechnet alle komplexen Eigenwerte.<br>Dabei wird im symmetrischen Fall das Jacobi-Verfahren
                   verwendet.<br>Sonst wird A in Hessebergform transformiert um effiziente Givens-Rotationen im QR-Verfahren
                   zu machen. <br> Damit erhalten wir eine Block-Diagonal-Matrix, dessen 2x2 Blöcke die komplesen Eigenenwerte
                   bestimmt.
                </td>
             </tr>
-            <tr>
-			   <td>lu(A)</td>
-               <td>Berechnet, falls existent, die LU-Zerlegung: A = LU.<br> L ist eine normalisierte untere Dreiecksmatrix und U eine obere Dreiecksmatrix.</td>
+			<tr>
+               <td>Random(m, n, low=0, high=10):</td>
+               <td>Eine Zufällige mxn Marix mit ganzen Einträgen von low bis high.</td>
+            </tr>
+			<tr>
+               <td>RandomSym(m, low=0, high=10):</td>
+               <td>Eine Zufällige symmetrische mxm Marix mit ganzen Einträgen von low bis high.</td>
+            </tr>
+			<tr>
+               <td>Zero(m,n) <br> Id(n) </td>
+               <td>Nullmatrix oder Identitäts-matrix</td>
+            </tr>            
+			<tr>
+               <td>A.normS()<br> A.normZ()</td>
+               <td>Bestimmt die "Zeilensummennorm" oder "Spaltensummennorm"</td>
             </tr>
             <tr>
-               <td>QR(A)</td>
+			   <td>A.lu()</td>
+               <td>Berechnet, falls existent, die LU-Zerlegung: A = LU.<br> L ist eine normalisierte untere Dreiecksmatrix und U eine obere Dreiecksmatrix.</td>
+            </tr>
+            
+            <tr>
+               <td>A.QR()</td>
                <td>Berechnet für beliebige Matrizen A = QR<br> Q ist eine orthogonale Matrix und R eine verallgemeinerte obere Dreiecksmatrix.</td>
             </tr>
             <tr>
-               <td>cholesky(A)</td>
+               <td>A.cholesky()</td>
                <td>Berechnet für symmetrische und positiv definite Matrizen A = L*L^T<br> L ist eine untere Dreiecksmatrix.</td>
             </tr>
             <tr>
-               <td>lu_solve(A, B)</td>
+               <td>A.lu_solve(b)</td>
                <td>Löst LUx=b durch lösen von Ly=b und dann Ux=y.</td>
             </tr>
             <tr>
-               <td>cholesky_solve(A, B)</td>
+               <td>A.cholesky_solve(b)</td>
                <td>Analog zu LU</td>
             </tr>
             <tr>
-               <td>gauss_solve(A, B)</td>
+               <td>A.gauss_solve(b)</td>
                <td>Durch elementare Zeilenumformungen wird A zur Id-Matrix umgeformt.<br> Diese Operationen werden auf b
                   anwgewendet um Ax=b zu lösen
                </td>
             </tr>
             <tr>
-               <td>gauss_explained(A, B)</td>
+               <td>A.gauss_explained(b)</td>
                <td>Hier wird das Gauss-Verfahren sehr detailreich erklärt<br> und man sieht die Rechnungen beim lösen von Ax=b!
                </td>
             </tr>
             <tr>
-               <td>ausgleichsproblem(A, B)</td>
+               <td>A.ausgleichsproblem(b)</td>
                <td>Falls Ax=b überbestimmt ist, gibt es keine Lösung.<br> Man kann aber ein x finden, welches die Norm von
                   Ax-b minimiert.<br> Dies kann für Interpolation in Physik nützlich sein.
                </td>
+            </tr>
+            <tr>
+               <td>A.power_method()</td>
+               <td>Bestimmt, falls A reell diagonaliserbar ist, den Eigenwert mit größter Norm.</td>
+            </tr>
+			<tr>
+               <td>A.latex()</td>
+               <td>Gibt den Latex-Code für die Darstellung von A.</td>
+            </tr>
+			<tr>
+               <td>A.sub_matrix(ymin, ymax, xmin, xmax)</td>
+               <td>Gibt eine gegebene Teilmatrix von A.</td>
             </tr>
             
          </table>
