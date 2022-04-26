@@ -125,7 +125,7 @@ th {
 body {
 	background-image: url('Hintergrund.png');
 	background-repeat: repeat-y;
-	height=700px;
+	height:700px;
 }
 
 hr {
