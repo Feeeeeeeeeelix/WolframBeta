@@ -18,25 +18,24 @@
       <a href="Algebra_de.html" class="button" style="top:90px;">Rechner</a>
       <a href="Analysis_de.html" class="button" style="top:180px;">Analysis</a>
       <a href="Matrix_de.html" class="button" style="top:270px;">Matrizen</a>
-      <a href="Console_de.html" class="button" style="top:360px;">Console</a>
+      <a href="Modul_de.html" class="button" style="top:360px;">Console</a>
       
       <div>
          
-         <h3> Was kann man im Cosnole-Screen machen?</h3>
+         <h3> Was kann man mit unserem Code mchen?</h3>
 
          <p>
-            Hier ist alles möglich. Das schöne ist, hier kann man viel genauer arbeiten und Methoden wie for-Schleifen und if-Abfragen verwenden.
+            Mir unsrem Code ist viel mehr möglich. Das schöne ist, hier kann man viel genauer arbeiten und Methoden wie for-Schleifen und if-Abfragen verwenden.
             Man kann zum Beispiel eine Folge an Polynomen definieren, zum Beispiel die Tschebbycheff Polynome, indem man eine Rekursive Folge berechnet.
             Für eine Folge von Funktionen könnte man ihre Integrale untersuchen, um mehr über die Folge zu lernen.
             Auch zufällige Ereignisse kann man gut untersuchen, zum Beispiel die durschnittliche Norm von Eigenwerten von Matrizen mit bestimmter Verteilung von Einträgen oder ähnliches betrachten.
             Für Konvergenzfragen und Stabilität kann man auf unser Programm zurückgreifen.
             Fragt man sich wie gut ein Algorithmus gegen eine Lösung konvergiert, so kann man mit unserem Programm die Lösung bestimmen und die Konvergenz untersuchen!
-            Es gibt kaum Grenzen, weshalb sich diese Konsole für eine Fortgeschrittene Arbeit sehr lohnt! 
+            Es gibt kaum Grenzen, weshalb sich das Arbeiten mit unserem Modul für eine Fortgeschrittene Arbeit sehr lohnt! 
          </p>
          
          <p>
-            Die Konsole ist wie ein Programm in Python, jedoch sind unsere eigenen Funktionen implementiert.
-            Für ein genaues Verständniss der Funktionen kann man unseren Code lesen,
+            Für ein genaues Verständniss der Funktionen vom Modul kann man unseren Code lesen,
             jedoch empfiehlt sich diese Liste einfach durchzulesen/in dieser Liste nachzuschlagen.
          </p>
 			
@@ -59,14 +58,16 @@
 			<tr>
                <td>Polynom("a_n*x^n + ... + a_0")</td>
                <td>Definiert Polynom</td>
-               <td>f = Polynom("x^4 -3x^2 -1x +2")</td>
+               <td>P = Polynom("x^4 -3x^2 -1x +2")</td>
             </tr>
 			<tr>
                <td>Matrix([[a_11,...,a_1n],...,[a_n1,...,a_nn]])</td>
                <td>Definiert Matrizen</td>
-               <td>f = Matrix([[1,2,3],[4,2,1],[0,0.1,18])</td>
+               <td>A = Matrix([[1,2,3],[4,2,1],[0,0.1,18])</td>
             </tr>
          </table>
+         
+         <p>Jeder diese Klassen hat viele Funktionen. Man kann sie zum Beispiel ausschreiben: print(A).</p>
          
          <h3>Methoden für Funktionen:</h3>
          
@@ -135,7 +136,8 @@
          </table>
          
          <p>Hier ein Beispiel für die Anwendung dieser Klasse:</p>
-         <p>Angenommen wir haben eine Physikalische Aufgabe bei der wir ein Integral berechnen müssen, dessen exakter Wert nicht bestimmt werden kann, da das Integral nicht elementar ist. Dann können wir dieses leicht berechnen.<p>
+         <p>Angenommen wir haben eine Physikalische Aufgabe bei der wir ein Integral berechnen müssen, dessen exakter Wert nicht bestimmt werden kann,
+         da das Integral nicht elementar ist. Dann können wir dieses leicht berechnen.<p>
 		 
 		 <p>
 		 Man könnte aber auch Differntialgleichungen lösen. Dafür die Funktion euler_collatz(f(t,y),t_0,y_0,t_ende). <br>
@@ -143,6 +145,8 @@
 		 </p>
 		 
 		 <img src="DGL.png" style="margin-left:400px;" alt=""/>
+		 
+		 <p> Auch Folgen von Funktionen sollten leicht zu analysieren sein!</p>
 		 
          <h3>Methoden für Polynome:</h3>
          
@@ -181,19 +185,76 @@
        
        
          <h3>Methoden für Matrizen:</h3>
-         <table>
+		  
+		 <table>
             <tr>
                <th>Ausdruck</th>
                <th>Funktion</th>
-               <th>Beispiel</th>
             </tr>
-			<tr>
-               <td>+,-,*, ^n</td>
-               <td>Elementare Operationen</td>
-               <td>A = B^5-C*B
+            <tr>
+               <td>+, -, *, ^n</td>
+               <td>Elementare Operatoren für Matrizen</td>
             </tr>
+            <tr>
+               <td>^-1 oder inverse</td>
+               <td>Berechnet die Inverse von A</td>
+            </tr>
+            <tr>
+               <td>^T</td>
+               <td>Transponierte</td>
+            </tr>
+            <tr>
+               <td>det</td>
+               <td>Determinante</td>
+            </tr>
+            <tr>
+               <td>Eigenvalues</td>
+               <td>Berechnet alle komplexen Eigenwerte.<br>Dabei wird im symmetrischen Fall das Jacobi-Verfahren
+                  verwendet.<br>Sonst wird A in Hessebergform transformiert um effiziente Givens-Rotationen im QR-Verfahren
+                  zu machen. <br> Damit erhalten wir eine Block-Diagonal-Matrix, dessen 2x2 Blöcke die komplesen Eigenenwerte
+                  bestimmt.
+               </td>
+            </tr>
+			   <td>lu</td>
+               <td>Berechnet, falls existent, die LU-Zerlegung: A = LU.<br> L ist eine normalisierte untere Dreiecksmatrix und U eine obere Dreiecksmatrix.</td>
+            </tr>
+            <tr>
+               <td>QR</td>
+               <td>Berechnet für beliebige Matrizen A = QR<br> Q ist eine orthogonale Matrix und R eine verallgemeinerte obere Dreiecksmatrix.</td>
+            </tr>
+            <tr>
+               <td>cholesky</td>
+               <td>Berechnet für symmetrische und positiv definite Matrizen A = L*L^T<br> L ist eine untere Dreiecksmatrix.</td>
+            </tr>
+            <tr>
+               <td>lu_solve</td>
+               <td> Löst LUx=b durch lösen von Ly=b und dann Ux=y.</td>
+            </tr>
+            <tr>
+               <td>cholesky_solve</td>
+               <td>Analog zu LU</td>
+            </tr>
+            <tr>
+               <td>gauss_solve</td>
+               <td>Durch elementare Zeilenumformungen wird A zur Id-Matrix umgeformt.<br> Diese Operationen werden auf b
+                  anwgewendet um Ax=b zu lösen
+               </td>
+            </tr>
+            <tr>
+               <td>gauss_explanied</td>
+               <td>Hier wird das Gauss-Verfahren sehr detailreich erklärt<br> und man sieht die Rechnungen beim lösen von Ax=b!
+               </td>
+            </tr>
+            <tr>
+               <td>ausgleichsproblem</td>
+               <td>Falls Ax=b überbestimmt ist, gibt es keine Lösung.<br> Man kann aber ein x finden, welches die Norm von
+                  Ax-b minimiert.<br> Dies kann für Interpolation in Physik nützlich sein.
+               </td>
+            </tr>
+            
+         </table>
 
-         
+         <p>
          Hier noch ein Beispiel für eine Funktion mit Matrizen. Falls ein probalistisches Problem durch diskrete Zeit n und Vektoren u_n mit u_(n+1)=A*u_n dargestellt werden kann, kann man nach dem Wert u_100 fragen. Per Hand wäre dies unmöglich, per Code aber nur wenige Zeilen lang:
          
          Bild:
@@ -203,6 +264,9 @@
          for n in range(1,100):
 			v = A*v 	#u_(n+1) = A * u_n
          print(v)
+         
+         </p>
+         
            
          <br />
          <hr />
