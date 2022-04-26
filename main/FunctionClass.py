@@ -135,6 +135,12 @@ def check_ensemble_de_definition(funcname, arg, n):
                                                     f"ne prend que {n} argmuents",
                                                     f"only takes {n} arguments"]))
     
+    if funcname in ['arccosh', 'arcsin', 'arcsinh', 'arctanh', 'cos', 'cosh', 'sin', 'sinh', 'eratosthenes',
+                      'exp', 'fact', 'isprime', 'ln', 'partition', 'sqrt', 'tan', 'tanh'] and n > 1:
+        raise n_error(funcname, 1)
+    elif funcname in ['C', 'PGCD', 'PPCM', 'ggT', 'kgV', 'pow', 'root', 'log'] and n > 2:
+        raise n_error(funcname, 2)
+    
     if not isfloat(arg[0]):
         # bei variable
         return True
@@ -152,11 +158,6 @@ def check_ensemble_de_definition(funcname, arg, n):
         raise df_error(funcname, arg)
     elif funcname in ['C', 'eratosthenes', 'fact', 'isprime', 'partition'] and not arg[0] == abs(int(arg[0])):
         raise df_error(funcname, arg)
-    elif funcname in ['arccosh', 'arcsin', 'arcsinh', 'arctanh', 'cos', 'cosh', 'sin', 'sinh', 'eratosthenes',
-                      'exp', 'fact', 'isprime', 'log', 'ln', 'partition', 'sqrt', 'tan', 'tanh'] and n > 1:
-        raise n_error(funcname, 1)
-    elif funcname in ['C', 'PGCD', 'PPCM', 'ggT', 'kgV', 'pow', 'root'] and n > 2:
-        raise n_error(funcname, 2)
 
 
 def find_repeated_args(args: list, operation) -> list:
@@ -363,7 +364,9 @@ def parse(f: str, simp=False):
             check_ensemble_de_definition(funcname, args, n)
             
             if funcname == "root" and len(args) == 1:
-                return ["root", parse(args[0], simp), 2]
+                return ["sqrt", parse(args[0], simp)]
+            if funcname == "pow":
+                return parse(f"{args[0]}**{args[1]}")
             return [funcname, *[parse(a, simp) for a in args]]
         elif funcname in DEFINED_FUNCTIONS:
             if simp:
@@ -688,14 +691,14 @@ def diff(f: list, VAR: str) -> list or int:
     elif f[0] == "root":
         return diff(["^", [f[1], ["/", [1, f[2]]]]], VAR) if len(f) > 2 else diff(["sqrt", f[1]], VAR)
     
-    elif f[0] in FUNCTIONS:
+    elif f[0] in SIMPLE_FUNCTIONS:
         return funcderivative(f)
     
     elif f[0] == "diff":
         return diff(f[1], f[2])
     
     else:
-        PRINT += f"\nDIFF: whats {f} ?"
+        raise Exception(f"Couldn't differentiate {write(f)}")
 
 
 def set_default_integration_method(method):
@@ -808,7 +811,7 @@ class Function:
 
 
 if __name__ == "__main__":
-    func = "d/dx(cosx)"
+    func = "d/dx(log(x,3))"
     
     try:
         s = Function(func)
