@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="fr">
+   <head>
+      <link rel=" stylesheet" media="screen" type="text/css" href="website.css" />
+      <meta charset="utf-8">
+      <title>WolframBeta</title>
+   </head>
+   
+   
+   <body>
+      <a href=Console_de.html><img  id="de" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/de.png" alt=""/></a>
+      <a href="Console_fr.html"><img  id="fr" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/fr.png" alt=""/></a>
+      <img  id="logo" src="https://raw.githubusercontent.com/Feeeeeeeeeelix/WolframBeta/main/pictures/logo.png" alt=""/>
+      <img  id="ana3" src="ana3.png" style="top:50px;" alt=""/>
+      <br/><br/><br/><br/>
+      
+      <a href="Main_fr.html" class="button" style="top:0px;">Home</a>
+      <a href="Algebra_fr.html" class="button" style="top:90px;">Rechner</a>
+      <a href="Analysis_fr.html" class="button" style="top:180px;">Analysis</a>
+      <a href="Matrix_fr.html" class="button" style="top:270px;">Matrizen</a>
+      <a href="Console_fr.html" class="button" style="top:360px;">Console</a>
+      
+      <div>
+         
+         <h3> Qu'est ce qu'on peut faire avec notre code?</h3>
+
+         <p>
+            Avec notre code, il est possible de faire beaucoup plus. Ce qui est bien, c'est que l'on peut travailler de manière beaucoup plus précise et utiliser des méthodes comme les boucles for et les requêtes if.
+            On peut par exemple définir une suite de polynômes, par exemple les polynômes de Tchebbycheff, en calculant une suite récursive.
+            Pour une suite de fonctions, on peut étudier leurs intégrales afin d'en apprendre davantage sur la suite.
+            Il est également possible d'étudier des événements aléatoires, par exemple la norme moyenne des valeurs propres de matrices avec une certaine distribution d'entrées ou autres.
+            Pour les questions de convergence et de stabilité, on peut recourir à notre programme.
+            Si l'on se demande dans quelle mesure un algorithme converge vers une solution, on peut utiliser notre programme pour déterminer la solution et étudier la convergence !
+            Il n'y a pratiquement pas de limites, c'est pourquoi il vaut vraiment la peine de travailler avec notre module pour un travail avancé !
+         </p>
+         
+         <p>
+            Für ein genaues Verständnis der Funktionen vom Modul kann man unseren Code lesen,
+            jedoch empfiehlt sich diese Liste einfach durchzulesen/in dieser Liste nachzuschlagen.
+         </p>
+			
+         
+         <h4>Une liste des fonctions utiles:</h4>
+         
+         <h3>Classes:</h3>
+         
+		  <table>
+            <tr>
+               <th>Expression</th>
+               <th>Fonction</th>
+               <th>Exemple</th>
+            </tr>
+            <tr>
+               <td>Function(f(x))</td>
+               <td>Définie une fonction</td>
+               <td>f = Function("sin(x^2-1)")</td>
+            </tr>
+			<tr>
+               <td>Polynom("a_n*x^n + ... + a_0")</td>
+               <td>Défini un polynôme</td>
+               <td>P = Polynom("x^4 -3x^2 -1x +2")</td>
+            </tr>
+			<tr>
+               <td>Matrix([[a_11,...,a_1n],...,[a_n1,...,a_nn]])</td>
+               <td>Défini une matrice</td>
+               <td>A = Matrix([[1,2,3],[4,2,1],[0,0.1,18])</td>
+            </tr>
+         </table>
+         
+         <p>Ces classes ont beaucoup de fonctions. On peut par exemple tous les afficher: print(A).</p>
+         
+         <h3>Mehtodes pour les Classes:</h3>
+         
+         <table>
+            <tr>
+               <th>Expressions</th>
+               <th>Functions</th>
+               <th>Exemples</th>
+            </tr>
+            <tr>
+               <td>cos, arccos, cosh, arccosh,<br> sin, arcsin, sinh, arcsinh,<br> tan, arctan, tanh, arctanh</td>
+               <td>Opérateurs élementairs </td>
+               <td>cos(pi)</td>
+            </tr>
+            <tr>
+               <td>exp(x) ou e^x</td>
+               <td>Exponentialfunktion</td>
+               <td>e^4</td>
+            </tr>
+            <tr>
+               <td>pow(a, b), a^b ou a**b</td>
+               <td>Puissance</td>
+               <td>pow(3, 7), 3^7, 3**7</td>
+            </tr>
+            <tr>
+               <td>sqrt(x) ou root(x, n)</td>
+               <td>Fonction racine</td>
+               <td>sqrt(2), root(18, 5)</td>
+            </tr>
+            <tr>
+               <td>ln(x)</td>
+               <td>logarithme népérien</td>
+               <td>ln(2)</td>
+            </tr>
+            <tr>
+               <td>log(x, n)</td>
+               <td>logarithme (de base n) de x</td>
+               <td> log(10, 2)</td>
+            </tr>
+            <tr>
+               <td>min(f, a, b), max(f, a, b)</td>
+               <td>Minimum/Maximum de f sur [a;b].<br>
+				   f peut être un objet de Function(), ou être un string.</td>
+               <td>min(sin^2(x) - cos(5*x), 0.5, 0.7)</td>
+            </tr>
+            <tr>
+               <td>racines(f, a, b)</td>
+               <td>racines de f sur [a; b]</td>
+               <td>racines(x^3-x*sin(x),0,2)</td>
+            </tr>
+            <tr>
+               <td>riemann(a, b, f(x), x), <br />trapez(a, b, f(x), x)<br/> oder simpson(a, b, f(x), x)</td>
+               <td>Integral de f sur [a; b] avec x comme variable.</td>
+               <td>trapez(3,4,ln(x)/x,x)</td>
+            </tr>
+            <tr>
+               <td>d/dx(f(x))</td>
+               <td>Dérivée de f(x).</td>
+               <td>d/dx(sqrt(1-cos(x)^2))</td>
+            </tr>
+            <tr>
+               <td>d^n/dx^n(f(x))</td>
+               <td>Dérivée exacte de f(x).</td>
+               <td>d^3/dx^3(ln(sin(x)^2 + 1))</td>
+            </tr>
+            <tr>
+               <td>d^n/dx^n(f(x))(x_0)</td>
+               <td>Dérivée approximative de f(x) en x_0.</td>
+               <td>d^3/dx^3(sin(exp(x^2 - 4)))(5)</td>
+            </tr>
+         </table>
+         
+         <p>Voici un exemple d'application de cette classe :</p>
+
+         <p>Supposons que nous ayons un problème de physique dans lequel nous devons calculer une intégrale,
+            dont la valeur exacte ne peut pas être déterminée, car l'intégrale n'est pas élémentaire.
+            Dans ce cas, nous pouvons facilement la calculer.
+         </p>
+
+		 <p>
+            On peut aussi résoudre des equations différentielles. Pour cela la fonction: euler_collatz(f(t,y),t_0,y_0,t_ende). <br>
+		    Pour l'équation y' = 9.8*y^2 - sin(t*y) avec y(0)=3 on pourrait chercher y(1).
+            Pour cela, on peut écrire:<br>
+		 </p>
+		 
+		 <img src="DGL.png" style="margin-left:300px;width:50%;height:auto;" alt=""/>
+		 
+		 <p> Les suites de fonctions peuvent également être simple à analyser!</p>
+		 
+         <h3>Methodes pour les polynômes:</h3>
+         
+         <table>
+            <tr>
+               <th>Expression</th>
+               <th>Fonction</th>
+               <th>Exemple</th>
+            </tr>
+			<tr>
+               <td>+,-,*, ^n</td>
+               <td>Opérations élémentaires</td>
+               <td>P = Q^2 - R^2,<br> Q et R sont des objets de Matrix</td>
+            </tr>
+			<tr>
+               <td>f.derivative()</td>
+               <td>Dérivée exacte</td>
+               <td>P = Q.derivative()</td>
+            </tr>
+            <tr>
+               <td>f.nullstellen()</td>
+               <td>Racine approximatives</td>
+               <td>L = P.nullstellen()</td>
+            </tr>
+			<tr>
+               <td>neville([[x_0,y_0],...,[x_n,y_n]]</td>
+               <td>Trouve un polynôme qui passe par ces points</td>
+               <td>P = neville([[1,3],[4,7],[6,-2],[7,1])</td>
+            </tr>
+         </table>
+         
+         <p>Voici un exemple de programme pour calculer récursivement les premières fonctions de Chebyshev:</p>
+         
+         
+		 <img src="polynom.png" style="margin-left:350px;width:40%;height:auto;" alt=""/>
+       
+       
+         <h3>Methodes pour Matrix:</h3>
+		  
+		 <table>
+            <tr>
+               <th>Expressions</th>
+               <th>Fonctions</th>
+            </tr>
+            <tr>
+               <td>+, -, *, ^n</td>
+               <td>Operations élementaires</td>
+            </tr>
+            <tr>
+               <td>inverse(A)</td>
+               <td>La matrice inverse de A</td>
+            </tr>
+            <tr>
+               <td>T(A)</td>
+               <td>La matrice transposée de A</td>
+            </tr>
+            <tr>
+               <td>det(A)</td>
+               <td>Le déterminant de A</td>
+            </tr>
+            <tr>
+               <td>Eigenvalues(A)</td>
+               <td>Permet de calculer les valeurs propres complexes. <br>Pour les matrices symétriques, on utilise la méthode de Jacobi.<br> Sinon, nous utilisons une transformation en forme Hesseberg<br> pour effectuer la méthode QR avec efficacité,<br> en utilisant des rotations de Givens.</td>
+            </tr>
+            <tr>
+               <td>LU(A)</td>
+               <td>Calcule, si possible, la décomposition LU: A = LU.<br> L est une matrice inférieure triangulaire normée,<br> U une matrice supérieure triangulaire.</td>
+            </tr>
+            <tr>
+               <td>QR(A)</td>
+               <td>Calcule pour toute matrice la décomposition QR: A = QR<br> Q est une matrice orthogonale et R une matrice triangulaire de dimension n x m.</td>
+            </tr>
+            <tr>
+               <td>Cholesky(A)</td>
+               <td>Pour une matrice A, symétrique et définie positive, on décompose en Cholesky:<br> A = L*L^T<br> L est une matrice inférieure.</td>
+            </tr>
+            <tr>
+               <td>LU</td>
+               <td> Trouve la solution à LUx=b,<br> en calculant y tel que Ly=b, puis x avec Ux=y.</td>
+            </tr>
+            <tr>
+               <td>Cholesky</td>
+               <td>Comme pour la décomposition LU.</td>
+            </tr>
+            <tr>
+               <td>Gauss</td>
+               <td>Avec des opérations sur les lignes de A, on transforme A en Id.<br> Ces opérations sont appliquées sur b pour résoudre Ax=b</td>
+            </tr>
+            <tr>
+               <td>Ausgleichsproblem</td>
+               <td>Régression linéaire: Quand Ax=b a trop de contraintes,<br> il n'y a pas de solution.<br> Or il existe un x tel que Ax-b a une norme minimale.<br> Cette fonction calcule cet x,<br> ce qui est utile pour interpoler en physique et cetera.</td>
+            </tr>
+         </table>
+
+         <p>
+            Voici un autre exemple de fonction avec des matrices. Si un problème probalistique est représenté par des nombres discrets de
+            temps n et des vecteurs u_n avec u_(n+1)=A*u_n, on peut chercher la valeur u_100.
+            A la main, cela serait impossible, mais a l'aide d'petit script, cela ne prendrait que quelques lignes :
+         </p>
+
+         <img src="matrix.png" style="margin-left:350px;width:50%;height:auto;" alt=""/>
+         <br />
+         <br />
+      </div>
+   </body>
+</html>
+
