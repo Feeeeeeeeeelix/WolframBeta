@@ -103,6 +103,13 @@ class RechnerFrame(Frame):
         self.rang = -1
         self.input = ""
         self.color_mode = 0
+        self.bttn_style = {"fg": ["black", "#f0f0f0"][self.color_mode],
+                           "bg": [lgray, dgray][self.color_mode],
+                           "activeforeground": ["black", "#f0f0f0"][self.color_mode],
+                           "activebackground": [lblue, dblue][self.color_mode],
+                           "highlightbackground": [lblue, dblue][self.color_mode],
+                           "highlightthickness": 2,
+                           "bd": 0}
         
         self.io_frame = Frame(self)
         self.io_frame.place(relx=0.2, rely=0.1, relwidth=0.6, relheight=0.8)
@@ -120,8 +127,8 @@ class RechnerFrame(Frame):
         self.lab = Label(self.einstellungs_frame,
                          text=["Integrationsmethode:", "Methode d'integration", "Integration method"][lang])
         self.lab.grid(row=0, column=0)
-        Button(self.einstellungs_frame, text="X", bd=0, command=self.hide_einstellungen,
-               highlightbackground="#707070").grid(row=0, column=1)
+        Button(self.einstellungs_frame, text="X", command=self.hide_einstellungen,
+               **self.bttn_style).grid(row=0, column=1)
         self.method = StringVar(value="riemann")
         self.method.trace("w", lambda *_: self.refresh_integration(self.method.get()))
         Radiobutton(self.einstellungs_frame, text="Riemann", variable=self.method,
@@ -136,8 +143,7 @@ class RechnerFrame(Frame):
         self.error_label.place(relx=0.1, rely=0.2, relwidth=0.8, relheight=0.075)
         
         # Enter Button
-        self.enter_button = Button(self.io_frame, text="=", bd=0, command=self.commit_input,
-                                   highlightbackground="#707070")
+        self.enter_button = Button(self.io_frame, text="=", command=self.commit_input, **self.bttn_style)
         self.enter_button.place(relx=0.425, rely=0.35, relwidth=0.15, relheight=0.08)
         
         # Latex frame
@@ -150,7 +156,7 @@ class RechnerFrame(Frame):
         self.answers = ""
         
         # clear button
-        self.clear_button = Button(self, text="X", command=self.clear_frame, bd=0, highlightbackground="#707070")
+        self.clear_button = Button(self, text="X", command=self.clear_frame, **self.bttn_style, padx=6, pady=3)
         self.clear_button.place(relx=0.95, y=10)
         
         # Help label
@@ -334,16 +340,20 @@ class RechnerFrame(Frame):
         """refresht den canvas"""
         self.show_answer()
         self.color_mode = color_mode
+        self.bttn_style = {"fg": ["black", "#f0f0f0"][self.color_mode],
+                           "bg": [lgray, dgray][self.color_mode],
+                           "activeforeground": ["black", "#f0f0f0"][self.color_mode],
+                           "activebackground": [lblue, dblue][self.color_mode],
+                           "highlightbackground": [lblue, dblue][self.color_mode],
+                           "highlightthickness": 2,
+                           "bd": 0}
         
         for container in self.elements:
             if type(container) == Entry:
                 container["fg"] = ["black", "white"][self.color_mode]
                 container["bg"] = ["white", "#505050"][self.color_mode]
             elif type(container) == Button:
-                container["fg"] = ["black", "#f0f0f0"][self.color_mode]
-                container["bg"] = [lgray, dgray][self.color_mode]
-                container["activeforeground"] = ["black", "#f0f0f0"][self.color_mode]
-                container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
+                container.config(**self.bttn_style)
             elif type(container) == Text:
                 container["bg"] = [lgray, dgray][self.color_mode]
                 container["fg"] = ["black", "white"][self.color_mode]
@@ -351,6 +361,7 @@ class RechnerFrame(Frame):
                 container["bg"] = [lgray, dgray][self.color_mode]
                 container["highlightbackground"] = [lgray, dgray][self.color_mode]
                 container["highlightcolor"] = [lgray, dgray][self.color_mode]
+                container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
             else:
                 container["bg"] = [lgray, dgray][self.color_mode]
     
@@ -455,6 +466,13 @@ class AnalysisFrame(Frame):
     def __init__(self, container):
         super().__init__(container)
         self.color_mode = 0
+        self.bttn_style = {"fg": ["black", "#f0f0f0"][self.color_mode],
+                           "bg": [lgray, dgray][self.color_mode],
+                           "activeforeground": ["black", "#f0f0f0"][self.color_mode],
+                           "activebackground": [lblue, dblue][self.color_mode],
+                           "highlightbackground": [lblue, dblue][self.color_mode],
+                           "highlightthickness": 2,
+                           "bd": 0}
         
         # Entry lines Frame
         self.entry_lines_outer_frame = Frame(self, bg="white", bd=1, relief="solid")
@@ -501,10 +519,10 @@ class AnalysisFrame(Frame):
         
         self.new_lab = Label(self.new_frame, text=["Neu: ", "Nouveau: ", "New: "][lang])
         self.new_lab.grid(row=0, column=0, sticky="news")
-        Button(self.new_frame, text="f(x) = ...", command=self.add_new_func, bd=0,
-               highlightbackground="#707070").grid(row=0, column=1, padx=2, pady=2, sticky="news")
-        Button(self.new_frame, text="y' = f(y, t) & y(t0) = y0", command=self.add_new_dgl, bd=0,
-               highlightbackground="#707070").grid(row=0, column=2, padx=2, pady=2, sticky="news")
+        Button(self.new_frame, text="f(x) = ...", command=self.add_new_func,
+               **self.bttn_style).grid(row=0, column=1, padx=2, pady=2, sticky="news")
+        Button(self.new_frame, text="y' = f(y, t) & y(t0) = y0", command=self.add_new_dgl,
+               **self.bttn_style).grid(row=0, column=2, padx=2, pady=2, sticky="news")
         
         # single entry Frame
         self.compute_frame = Frame(self, bd=1, relief="solid", highlightthickness=0, bg="white")
@@ -514,8 +532,9 @@ class AnalysisFrame(Frame):
         self.compute_entry.pack(side="left", fill="both", expand=True, padx=20)
         self.compute_entry.bind("<Return>", self.interprete_input)
         self.return_icon = PhotoImage(file="../pictures/enter.png").subsample(24)
-        Button(self.compute_frame, image=self.return_icon, command=self.interprete_input, bg="white", bd=0,
-               highlightbackground="#707070").pack(side="left", padx=10)
+        self.return_bttn = Button(self.compute_frame, image=self.return_icon, command=self.interprete_input,
+               **self.bttn_style)
+        self.return_bttn.pack(side="left", padx=10, ipadx=3, ipady=3)
         
         self.compute_error_label = Label(self, fg="red")
         self.compute_error_label.place(relx=0.1, rely=0.65, relheight=0.05, relwidth=0.35)
@@ -554,13 +573,13 @@ class AnalysisFrame(Frame):
         self.x_max_entry.insert(0, self.default_range[1])
         Label(self.range_frame, text="]").pack(side="left")
         self.refresh_icon = PhotoImage(file="../pictures/refresh.png").subsample(30, 30)
-        Button(self.range_frame, image=self.refresh_icon, command=self.refresh_max_range, bd=0,
-               highlightbackground="#707070").pack(side="left", padx=20)
+        Button(self.range_frame, image=self.refresh_icon, command=self.refresh_max_range,
+               **self.bttn_style).pack(side="left", padx=20, ipadx=3, ipady=3)
         self.x_min_entry.bind("<Return>", lambda _: self.x_max_entry.focus_set())
         self.x_max_entry.bind("<Return>", lambda _: self.refresh_max_range())
         
         # clear button
-        self.clear_button = Button(self, text="X", bd=0, highlightbackground="#707070", command=self.clear_frame)
+        self.clear_button = Button(self, text="X", **self.bttn_style, padx=5, pady=3, command=self.clear_frame)
         self.clear_button.place(relx=0.95, y=10)
         
         # Help Label
@@ -1028,17 +1047,21 @@ class AnalysisFrame(Frame):
     def switch_color(self, color_mode):
         """Switch darkmode/lightmode"""
         self.color_mode = color_mode
+        self.bttn_style = {"fg": ["black", "#f0f0f0"][self.color_mode],
+                           "bg": [lgray, dgray][self.color_mode],
+                           "activeforeground": ["black", "#f0f0f0"][self.color_mode],
+                           "activebackground": [lblue, dblue][self.color_mode],
+                           "highlightbackground": [lblue, dblue][self.color_mode],
+                           "highlightthickness": 2,
+                           "bd": 0}
         
         for container in self.elements:
             if type(container) == Entry:
                 container["fg"] = ["black", "white"][self.color_mode]
                 container["bg"] = ["white", "#505050"][self.color_mode]
             elif type(container) == Button:
-                container["fg"] = ["black", "#f0f0f0"][self.color_mode]
-                container["bg"] = [lgray, dgray][self.color_mode]
-                container["activeforeground"] = ["black", "#f0f0f0"][self.color_mode]
-                container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
-            elif type(container) == Text:
+                container.config(**self.bttn_style)
+            elif type(container) == Text or type(container) == Label:
                 container["bg"] = [lgray, dgray][self.color_mode]
                 container["fg"] = ["black", "white"][self.color_mode]
             else:
@@ -1058,6 +1081,7 @@ class AnalysisFrame(Frame):
                 container["bg"] = [lgray, dgray][self.color_mode]
         
         self.compute_frame["bg"] = ["white", "#505050"][self.color_mode]
+        self.return_bttn["bg"] = ["white", "#505050"][self.color_mode]
         self.figure.set_facecolor(["white", "#505050"][self.color_mode])
         self.subplot.set_facecolor(["white", "#505050"][self.color_mode])
         self.io_figure.set_facecolor(["white", "#505050"][self.color_mode])
@@ -1095,10 +1119,11 @@ class AnalysisFrame(Frame):
 
 class MatrixWrapper:
     def __init__(self, super_frame, name, rows, columns, id_):
+        self.sup = super_frame
         
         self.name = name
         self.id = id_
-        self.values_frame = Frame(super_frame.edit_frame)
+        self.values_frame = Frame(super_frame.edit_frame, bg=[lgray, dgray][super_frame.color_mode])
         self.name_entry = super_frame.name_entry
         self.rows_var, self.cols_var = super_frame.rows_variable, super_frame.columns_variable
         self.rows = rows
@@ -1107,8 +1132,7 @@ class MatrixWrapper:
         self.values = []
         self.entries = self.entry_gitter(self.values_frame, rows, columns)
     
-    @staticmethod
-    def entry_gitter(container, rows, columns):
+    def entry_gitter(self, container, rows, columns):
         """Gibt eine Tabelle mit Entries aus, die im 'container' plaziert werden"""
         entries = []
         for n in range(rows):
@@ -1116,7 +1140,8 @@ class MatrixWrapper:
             row = []
             for m in range(columns):
                 container.columnconfigure(m, weight=1)
-                entry = Entry(container, width=3, justify="center")
+                entry = Entry(container, width=3, justify="center", fg=["black", "white"][self.sup.color_mode],
+                              bg=["white", "#505050"][self.sup.color_mode], bd=0, highlightbackground="#707070")
                 entry.grid(row=n, column=m)
                 row.append(entry)
             entries.append(row)
@@ -1162,12 +1187,20 @@ class MatrixFrame(Frame):
         self.matrices = []
         self.matrices_name = {}
         self.current_matrix = None
+        self.color_mode = 0
+        self.bttn_style = {"fg": ["black", "#f0f0f0"][self.color_mode],
+                           "bg": [lgray, dgray][self.color_mode],
+                           "activeforeground": ["black", "#f0f0f0"][self.color_mode],
+                           "activebackground": [lblue, dblue][self.color_mode],
+                           "highlightbackground": [lblue, dblue][self.color_mode],
+                           "highlightthickness": 2,
+                           "bd": 0}
         
         # Auswahl Frame
         self.matrix_auswahl = Frame(self, bd=1, relief="raised")
         self.matrix_auswahl.place(relx=0.1, rely=0.0, relwidth=0.3, relheight=0.25)
-        Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2).pack(side="left",
-                                                                                                  anchor="n")
+        Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2,
+               **self.bttn_style).pack(side="left", anchor="n")
         
         # Edit Frame
         self.matrix_frame = Frame(self, bd=1, relief="raised")
@@ -1184,7 +1217,7 @@ class MatrixFrame(Frame):
         self.name_frame = Frame(self.matrix_frame)
         self.name_frame.grid(row=1, column=0, sticky="e")
         
-        self.name_entry = Entry(self.name_frame, width=2, justify="center")
+        self.name_entry = Entry(self.name_frame, width=2, justify="center", bd=0, highlightbackground="#707070")
         self.name_entry.pack(side="left")
         Label(self.name_frame, text=" = ").pack(side="right")
         
@@ -1200,14 +1233,14 @@ class MatrixFrame(Frame):
         self.row_lab.pack(side="left")
         self.rows_variable = StringVar(value="3")
         self.rows_box = Spinbox(self.dimensions_frame, from_=1, to=15, width=3, textvariable=self.rows_variable,
-                                justify="center")
+                                justify="center", bd=0, highlightbackground="#707070")
         self.rows_box.pack(side="left", padx=10)
         self.refresh_logo = PhotoImage(file="../pictures/refresh.png").subsample(30, 30)
         Button(self.dimensions_frame, image=self.refresh_logo, command=self.refresh_dimensions, padx=20, pady=20,
-               bd=0).pack(side="right", padx=10)
+               **self.bttn_style).pack(side="right", padx=10, ipadx=3, ipady=3)
         self.columns_variable = StringVar(value="3")
         self.columns_box = Spinbox(self.dimensions_frame, from_=1, to=15, width=3, textvariable=self.columns_variable,
-                                   justify="center")
+                                   justify="center", bd=0, highlightbackground="#707070")
         self.columns_box.pack(side="right", padx=0)
         self.col_lab = Label(self.dimensions_frame, text="columns: ")
         self.col_lab.pack(side="right", padx=10)
@@ -1216,16 +1249,22 @@ class MatrixFrame(Frame):
         self.vorschlag_frame = Frame(self.matrix_frame)
         self.vorschlag_frame.grid(row=2, column=1)
         
-        Button(self.vorschlag_frame, text="ID", command=self.new_identity_matrix).pack(side="left")
-        Button(self.vorschlag_frame, text="Zero", command=self.new_zero_matrix).pack(side="left")
-        Button(self.vorschlag_frame, text="Random", command=self.new_random_matrix).pack(side="left")
-        Button(self.vorschlag_frame, text="RandomSym", command=self.new_randomsym_matrix).pack(side="left")
+        Button(self.vorschlag_frame, text="ID", command=self.new_identity_matrix,
+               **self.bttn_style).pack(side="left", padx=2)
+        Button(self.vorschlag_frame, text="Zero", command=self.new_zero_matrix,
+               **self.bttn_style).pack(side="left", padx=2)
+        Button(self.vorschlag_frame, text="Random", command=self.new_random_matrix,
+               **self.bttn_style).pack(side="left", padx=2)
+        Button(self.vorschlag_frame, text="RandomSym", command=self.new_randomsym_matrix,
+               **self.bttn_style).pack(side="left", padx=2)
         
         # Delet and Save Button
         self.trash_icon = PhotoImage(file="../pictures/trash.png").subsample(20, 20)
         self.save_icon = PhotoImage(file="../pictures/check.png").subsample(20, 20)
-        Button(self.matrix_frame, image=self.trash_icon, command=self.delete_matrix).grid(row=0, column=2)
-        Button(self.matrix_frame, image=self.save_icon, command=self.submit_matrix).grid(row=2, column=2)
+        Button(self.matrix_frame, image=self.trash_icon, command=self.delete_matrix,
+               **self.bttn_style).grid(row=0, column=2, ipadx=3, ipady=3)
+        Button(self.matrix_frame, image=self.save_icon, command=self.submit_matrix,
+               **self.bttn_style).grid(row=2, column=2, ipadx=3, ipady=3)
         
         # Error Label
         self.error_label = Label(self, fg="red")
@@ -1239,8 +1278,10 @@ class MatrixFrame(Frame):
         self.input_entry.pack(side="left", fill="both", expand=True, padx=20)
         self.input_entry.bind("<Return>", self.interprete_input)
         self.return_icon = PhotoImage(file="../pictures/enter.png").subsample(24)
-        Button(self.entry_frame, image=self.return_icon, command=self.interprete_input,
-               bg="white").pack(side="left", padx=10)
+        self.enter_button = Button(self.entry_frame, image=self.return_icon, command=self.interprete_input,
+               **self.bttn_style)
+        self.enter_button.config(bg="white")
+        self.enter_button.pack(side="left", padx=10, ipadx=3, ipady=3)
         
         # Error Label
         self.input_error_label = Label(self, fg="red")
@@ -1264,7 +1305,7 @@ class MatrixFrame(Frame):
             lab.pack(side="left", padx=3)
     
         # clear button
-        self.clear_button = Button(self, text="X", command=self.clear_frame)
+        self.clear_button = Button(self, text="X", command=self.clear_frame, **self.bttn_style, padx=5, pady=3)
         self.clear_button.place(relx=0.95, y=10)
         
         # Help Label
@@ -1282,6 +1323,7 @@ class MatrixFrame(Frame):
         self.ignore = False
         
         self.show_matrix()
+        self.elements = get_all_children(self)
     
     def check_dimensions(self):
         """Es wird geschaut ob die gegebenen Werte n und m integer zwischen 1 und 15 sind, wenn dann werden sie
@@ -1358,7 +1400,7 @@ class MatrixFrame(Frame):
             auswahl.destroy()
         for matrix in self.matrices:
             Button(self.matrix_auswahl, text=matrix.name, command=lambda m=matrix: self.show_matrix(m), width=2,
-                   height=2).pack(side="left", anchor="n")
+                   height=2, **self.bttn_style).pack(side="left", anchor="n")
         Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2).pack(side="left",
                                                                                                   anchor="n")
     
@@ -1450,6 +1492,13 @@ class MatrixFrame(Frame):
         self.show_answer()
         self.show_input_error()
         
+        string = check_and_clean(string)
+        if type(string) == SyntaxError:
+            self.show_input_error(format_error(string))
+            return None
+        if not string:
+            return None
+        
         for name, matrix in self.matrices_name.items():
             locals()[name] = matrix
             DEFINED_MATRICES.append(name)
@@ -1524,6 +1573,40 @@ class MatrixFrame(Frame):
         self.row_lab.config(text=["Zeilen: ", "Lignes: ", "Rows: "][lang])
         self.col_lab.config(text=["Spalten: ", "Colonnes: ", "Columns: "][lang])
 
+    def switch_color(self, color_mode):
+        """switch darkmode/lightmode"""
+        self.color_mode = color_mode
+        self.bttn_style = {"fg": ["black", "#f0f0f0"][self.color_mode],
+                           "bg": [lgray, dgray][self.color_mode],
+                           "activeforeground": ["black", "#f0f0f0"][self.color_mode],
+                           "activebackground": [lblue, dblue][self.color_mode],
+                           "highlightbackground": [lblue, dblue][self.color_mode],
+                           "highlightthickness": 2,
+                           "bd": 0}
+
+        # muss jeder mal aktualisiert werden weil neue widgets dazu kommen:
+        self.elements = get_all_children(self)
+
+        for container in self.elements:
+            if type(container) == Entry:
+                container["fg"] = ["black", "white"][self.color_mode]
+                container["bg"] = ["white", "#505050"][self.color_mode]
+            elif type(container) == Button:
+                container.config(**self.bttn_style)
+            elif type(container) == Text:
+                container["bg"] = [lgray, dgray][self.color_mode]
+                container["fg"] = ["black", "white"][self.color_mode]
+            elif type(container) == Radiobutton:
+                container["bg"] = [lgray, dgray][self.color_mode]
+                container["highlightbackground"] = [lgray, dgray][self.color_mode]
+                container["highlightcolor"] = [lgray, dgray][self.color_mode]
+                container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
+            else:
+                container["bg"] = [lgray, dgray][self.color_mode]
+        
+        self.entry_frame["bg"] = ["white", "#505050"][self.color_mode]
+        self.enter_button["bg"] = ["white", "#505050"][self.color_mode]
+
 
 class MainScreen(Tk):
     def __init__(self):
@@ -1539,6 +1622,13 @@ class MainScreen(Tk):
         
         # 0: lightmode, 1: darkmode
         self.color_mode = 0
+        self.bttn_style = {"fg": ["black", "#f0f0f0"][self.color_mode],
+                           "bg": [lgray, dgray][self.color_mode],
+                           "activeforeground": ["black", "#f0f0f0"][self.color_mode],
+                           "activebackground": [lblue, dblue][self.color_mode],
+                           "highlightbackground": [lblue, dblue][self.color_mode],
+                           "highlightthickness": 2,
+                           "bd": 0}
         
         # für die LaTeX schrift
         # matplotlib.use("TkAgg")
@@ -1556,15 +1646,13 @@ class MainScreen(Tk):
         
         # Help Button
         self.help_icon = PhotoImage(file="../pictures/help.png").subsample(16)
-        self.help_button = Button(self.top_frame, image=self.help_icon, command=self.show_help, bd=0,
-                                  highlightbackground="#707070")
+        self.help_button = Button(self.top_frame, image=self.help_icon, command=self.show_help, **self.bttn_style)
         self.help_button.grid(row=0, column=0)
         
         # Colormode Buttons
         self.lightmode_image = PhotoImage(file="../pictures/lm.png").subsample(5)
         self.darkmode_image = PhotoImage(file="../pictures/dm.png").subsample(5)
-        self.cm_button = Button(self.top_frame, bd=0, highlightbackground="#707070",
-                                image=self.darkmode_image, command=self.switch_color_mode)
+        self.cm_button = Button(self.top_frame, **self.bttn_style, image=self.darkmode_image, command=self.switch_color_mode)
         self.cm_button.grid(row=0, column=1)
         
         # Logo
@@ -1584,17 +1672,17 @@ class MainScreen(Tk):
         self.lang_frame.grid(row=0, column=3)
         
         self.de_flag = PhotoImage(file="../pictures/de.png").subsample(5)
-        self.de_button = Button(self.lang_frame, bd=0, highlightbackground="#707070",
+        self.de_button = Button(self.lang_frame, **self.bttn_style,
                                 image=self.de_flag, command=lambda: self.switch_language(0))
         self.de_button.grid(row=0, column=0, ipadx=3, ipady=3)
         
         self.fr_flag = PhotoImage(file="../pictures/fr.png").subsample(5)
-        self.fr_button = Button(self.lang_frame, bd=0, highlightbackground="#707070",
+        self.fr_button = Button(self.lang_frame, **self.bttn_style,
                                 image=self.fr_flag, command=lambda: self.switch_language(1))
         self.fr_button.grid(row=0, column=1, padx=4, ipadx=3, ipady=3)
         
         self.gb_flag = PhotoImage(file="../pictures/gb.png").subsample(5)
-        self.gb_button = Button(self.lang_frame, bd=0, highlightbackground="#707070",
+        self.gb_button = Button(self.lang_frame, **self.bttn_style,
                                 image=self.gb_flag, command=lambda: self.switch_language(2))
         self.gb_button.grid(row=0, column=2, ipadx=3, ipady=3)
         
@@ -1621,7 +1709,8 @@ class MainScreen(Tk):
                                   command=self.exit_screen,
                                   bd=0,
                                   highlightthickness=1.5,
-                                  highlightbackground="red")
+                                  highlightbackground="red",
+                                  activebackground="red")
         self.exit_button.place(relx=0.85, rely=0.2, relwidth=0.1, relheight=0.6)
         
         self.elements = [self, self.top_frame, self.bottom_frame, self.help_button, self.cm_button, self.logo,
@@ -1669,16 +1758,22 @@ class MainScreen(Tk):
         """Von den Darkmode/lightmode button werden hier alle widgets durchgegangen und die Farbe angepasst."""
         self.color_mode = not self.color_mode
         self.cm_button.config(image=[self.lightmode_image, self.darkmode_image][not self.color_mode])
+        self.bttn_style = {"fg": ["black", "#f0f0f0"][self.color_mode],
+                           "bg": [lgray, dgray][self.color_mode],
+                           "activeforeground": ["black", "#f0f0f0"][self.color_mode],
+                           "activebackground": [lblue, dblue][self.color_mode],
+                           "highlightbackground": [lblue, dblue][self.color_mode],
+                           "highlightthickness": 2,
+                           "bd": 0}
         
         for container in self.elements:
             if type(container) == Button:
-                container["fg"] = ["black", "#f0f0f0"][self.color_mode]
-                container["bg"] = [lgray, dgray][self.color_mode]
-                container["activeforeground"] = ["black", "#f0f0f0"][self.color_mode]
-                container["activebackground"] = ["#ececec", "#4c4c4c"][self.color_mode]
+                container.config(**self.bttn_style)
             else:
                 container["bg"] = [lgray, dgray][self.color_mode]
                 
+        self.exit_button.config(highlightthickness=1.5, highlightbackground="red", activebackground="red")
+        
         for frame in (self.rechner_frame, self.analysis_frame, self.matrix_frame):
             try:
                 frame.switch_color(self.color_mode)
