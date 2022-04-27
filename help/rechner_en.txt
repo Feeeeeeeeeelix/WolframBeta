@@ -1,0 +1,32 @@
+Help for Calculator:
+
+Elementary funcitons:
+* all trigonometric functions(sin, sinh,
+arcsin, arcsinh, cos, cosh, arccos, arccosh,
+tan, tanh, arctan, arctanh)
+* exp(x) or e^x
+* pow(a, b), a**b or a^b
+* sqrt(x)
+* root(x, n)
+* ln(x)
+* log(x, n)
+
+Functions:
+* d/dx(f(x))
+* d^n/dx^n(f(x))  (exact derivative of f)
+* d^n/dx^n(f(x))(x_0)   (Approximatee derivative of f in x_0)
+* Int(a, b, f(x), x) (with selection of approximation method)
+
+Arithmetic:
+* C(a, b) or aCb
+* fact(n) or n!
+* KgV(a, b) or PPCM(a, b)
+* ggT(a, b) or PGCD(a, b)
+* isprime(n)
+* eratosthenes(n)
+* primfactors(n)
+* partition(n)
+
+Equations:
+* a=b (check equality)
+* f(x) = g(x) (solve equation for x)

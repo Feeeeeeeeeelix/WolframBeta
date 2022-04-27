@@ -1,4 +1,5 @@
 Hilfe für AnalysisFrame:
+
 EntryLines:
 Gebe einen Funktionsterm ein, es wird
 automatisch ein Funktionsname generiert
@@ -9,11 +10,12 @@ Knopfes ein/ausschalten, und die funktion
 Außerdem kannst du Differentialgleichungen
 approximativ lösen lassen. Die gesuchte
 Funktion wird auf dem Graph angezeigt
+Sie soll die Form "y' = f(y, t) & y(t_0) = y_0" haben
 
-Compute Input:
-gebe ein, was du berechnen willst:
+Input:
 * min(f) / max(f)
 * f(x) = 0
 * f'(x) / df(x)/dx
 * f^n(a) / d^nf(a)/dx^n
 * int(a, b, f(x))
+* neville((x0, y0), (x1, y1), ...,(xn, yn))

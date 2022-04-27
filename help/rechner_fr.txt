@@ -1,1 +1,32 @@
-leeel
+Aide pour la calculatrice:
+
+Fonctions élémentaires:
+* toutes les fonctions trigonometriques (sin, sinh,
+arcsin, arcsinh, cos, cosh, arccos, arccosh,
+tan, tanh, arctan, arctanh)
+* exp(x) ou e^x
+* pow(a, b), a**b ou a^b
+* sqrt(x)
+* root(x, n)
+* ln(x)
+* log(x, n)
+
+Operateurs:
+* d/dx(f(x))
+* d^n/dx^n(f(x))  (dérivée exacte de f)
+* d^n/dx^n(f(x))(x_0)   (dérivé approximative de f en x_0)
+* Int(a, b, f(x), x) (choix d'algorithme d'approximation)
+
+Arithmétique:
+* C(a, b) ou aCb
+* fact(n) ou n!
+* KgV(a, b) ou PPCM(a, b)
+* ggT(a, b) ou PGCD(a, b)
+* isprime(n)
+* eratosthenes(n)
+* primfactors(n)
+* partition(n)
+
+Equations:
+* a=b (égalité)
+* f(x) = g(x) (équation à résoudre pour x)

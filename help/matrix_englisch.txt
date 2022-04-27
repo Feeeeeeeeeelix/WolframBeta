@@ -1,0 +1,44 @@
+Help for Matrixframe:
+
+
+    T()
+transposition
+
+    inverse()
+Specifies what the inverse matrix is using the operations from the Gaussian method.
+
+    det()
+Using the Gaussian operations, this function determines the determinant.
+
+    eigenvalues()
+Calculates eigenvalues
+
+    power_method()
+Only for real diagonalizable matrix (large restriction): With power method the largest eigenvalue is determined.
+
+
+    Decompositions:
+
+    lu()
+Decomposition of a matrix with regular principal minors A = L*U with L normalized lower-triangular matrix and U upper-triangulear matrix
+
+    QR()
+Any matrix (not necessarily square) can be decomposed as A=QR with Q orthogonal matrix and R extended triangular matrix.
+
+    cholesky()
+Decomposes a symmetric positive definite matrix A = L * L^T, i.e. a stable version of the LU decomposition, with half the effort.
+
+
+    Solve systems of linear equations:
+
+    LU
+Solves LUx=b by solving Ly=b and then Ux=y.
+
+    Cholesky
+Analogous to LU
+
+    Gauss
+Elementary row transformations are used to transform A to the Id matrix. These operations are applied to b to solve Ax=b
+
+    balancing_problem (automatic selection when rows > columns)
+Given an overdetermined and unsolvable problem Ax=b, this method finds a solution that best solves the equations (it minimizes the squares of the errors). Useful for interpolation and physics.

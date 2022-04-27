@@ -167,7 +167,7 @@ class RechnerFrame(Frame):
             rechner_fr = help_fr.read()
             rechner_en = help_en.read()
         self.help_texts = [rechner_de, rechner_fr, rechner_en]
-        self.help_label = Text(self, bg=lgray, padx=20, pady=20, bd=1, relief="raised", width=50, height=35)
+        self.help_label = Text(self, bg=lgray, padx=20, pady=20, bd=1, relief="raised", width=50, height=35, highlightthickness=0)
         self.help_label.insert("end", rechner_de)
         self.help_label.config(state="disabled")
         self.help_show = False
@@ -590,7 +590,7 @@ class AnalysisFrame(Frame):
             analysis_fr = help_fr.read()
             analysis_en = help_en.read()
         self.help_texts = [analysis_de, analysis_fr, analysis_en]
-        self.help_label = Text(self, bg=lgray, padx=20, pady=20, bd=1, relief="raised", width=50, height=35)
+        self.help_label = Text(self, bg=lgray, padx=20, pady=20, bd=1, relief="raised", width=45, height=25, highlightthickness=0)
         self.help_label.insert("end", analysis_de)
         self.help_label.config(state="disabled")
         self.help_show = False
@@ -1317,7 +1317,7 @@ class MatrixFrame(Frame):
             matrix_fr = help_fr.read()
             matrix_en = help_en.read()
         self.help_texts = [matrix_de, matrix_fr, matrix_en]
-        self.help_label = Text(self, bg=lgray, padx=20, pady=20, bd=1, relief="raised", width=50, height=35)
+        self.help_label = Text(self, bg=lgray, padx=20, pady=20, bd=1, relief="raised", width=50, height=35, highlightthickness=0)
         self.help_label.insert("end", matrix_de)
         self.help_label.config(state="disabled")
         self.help_show = False

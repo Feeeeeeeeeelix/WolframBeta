@@ -1,0 +1,45 @@
+Aide pour Matrice:
+
+
+    T()
+Transposition
+
+    inverse()
+Indique la matrice inverse en utilisant les opérations de la méthode de Gauss.
+
+    det()
+Détermine le déterminant en utilisant les opérations de la méthode de Gauss.
+
+    eigenvalues()
+Calcule les valeurs propres
+
+    power_method()
+Uniquement pour les matrices diagonalisables réelles (grande restriction) : la plus grande valeur propre est déterminée par la méthode des puissances.
+
+
+    Décomposition:
+
+    lu()
+Décomposition d'une matrice avec mineurs principaux réguliers A = L*U avec L matrice lower-triangular normalisée et U matrice upper-triangulear.
+
+    QR()
+Toute matrice (pas nécessairement carrée) peut être décomposée comme A = QR avec Q matrice orthogonale et R matrice triangulaire étendue.
+
+    cholesky()
+Décompose une matrice symétrique définie positivement A = L * L^T, donc une version stable de la décomposition LU, avec moitié moins d'effort.
+
+
+    Résoudre des systèmes d'équations linéaires :
+
+    LU
+Résout LUx=b en résolvant Ly=b puis Ux=y.
+
+    Cholesky
+Analogue à LU
+
+    Gauss
+Par des transformations élémentaires en ligne, A est transformé en matrice Id. Ces opérations sont appliquées à b pour résoudre Ax=b
+
+    ausgleichs_problem  (sélection automatique si rangées > colonnes)
+Étant donné un problème surdéterminé et insoluble Ax=b, cette méthode trouve une solution qui résout au mieux les équations (elle minimise les carrés des erreurs). Utile pour l'interpolation et la physique.
+

@@ -5,24 +5,29 @@ Elementare Funktionen:
 arcsin, arcsinh, cos, cosh, arccos, arccosh,
 tan, tanh, arctan, arctanh)
 * exp(x) oder e^x
-* pow(a, b) oder a^b
+* pow(a, b), a**b oder a^b
 * sqrt(x)
 * root(x, n)
 * ln(x)
 * log(x, n)
-* C(a, b) oder aCb
-* fact(n) oder n!
 
 Funktionen:
 * d/dx(f(x))
-* d^n/dx^n(f(x))(x_0)
+* d^n/dx^n(f(x))  (Exakte Ableitung von f)
+* d^n/dx^n(f(x))(x_0)   (Approximative Ableitung von f in x_0)
 * Int(a, b, f(x), x) (mit anschließender Auswahl
 vom Approximationsverfahren)
 
 Zahlentheorie:
-* KgV(a, b) oder PDCM(a, b)
+* C(a, b) oder aCb
+* fact(n) oder n!
+* KgV(a, b) oder PPCM(a, b)
 * ggT(a, b) oder PGCD(a, b)
 * isprime(n)
 * eratosthenes(n)
 * primfactors(n)
 * partition(n)
+
+Gleichungen:
+* a=b (Gleichheit überprüfen)
+* f(x) = g(x) (Gleichung nach x auflösen)
