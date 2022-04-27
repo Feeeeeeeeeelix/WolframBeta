@@ -814,16 +814,3 @@ class Function:
     
     def __str__(self):
         return self.str_out
-
-
-if __name__ == "__main__":
-    func = "d/dx(root(x, 3))"
-    
-    try:
-        s = Function(func)
-        print(s.tree)
-
-        
-    except Exception as e:
-        raise e
-    
