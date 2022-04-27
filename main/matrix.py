@@ -534,8 +534,8 @@ class Matrix:
         
         [Q, R] = self.QR()
         v = Q.T() * b
-        c = v._sub_matrix(0, 0, 0, self.cols - 1)
-        R_hat = R._sub_matrix(0, R.rows - 1, 0, R.rows - 1)
+        c = v._sub_matrix(0, self.cols, 0, 1)
+        R_hat = R._sub_matrix(0, R.rows, 0, R.rows)
         return R_hat._upper_triangle_solve(c)  # Output: bestes x
 
     def power_method(self):
