@@ -1,9 +1,7 @@
 Aide pour la calculatrice:
 
 Fonctions élémentaires:
-* toutes les fonctions trigonometriques (sin, sinh,
-arcsin, arcsinh, cos, cosh, arccos, arccosh,
-tan, tanh, arctan, arctanh)
+* toutes les fonctions trigonométriques (sin, sinh, arcsin, arcsinh, cos, cosh, arccos, arccosh, tan, tanh, arctan, arctanh)
 * exp(x) ou e^x
 * pow(a, b), a**b ou a^b
 * sqrt(x)
@@ -11,7 +9,7 @@ tan, tanh, arctan, arctanh)
 * ln(x)
 * log(x, n)
 
-Operateurs:
+Opérateurs:
 * d/dx(f(x))
 * d^n/dx^n(f(x))  (dérivée exacte de f)
 * d^n/dx^n(f(x))(x_0)   (dérivé approximative de f en x_0)
@@ -27,6 +25,6 @@ Arithmétique:
 * primfactors(n)
 * partition(n)
 
-Equations:
+Équations:
 * a=b (égalité)
 * f(x) = g(x) (équation à résoudre pour x)

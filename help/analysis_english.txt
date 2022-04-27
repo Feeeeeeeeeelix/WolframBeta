@@ -1,16 +1,9 @@
 Help for AnalysisFrame:
 
-EntryLines:
-Enter a function term, a function name will be
-generated automatically and the function is
-displayed on the graph.
-You can switch the display on/off with the
-button, and change the function name.
+Entrylines:
+Enter a function term, a function name will be generated automatically and the function is displayed on the graph. You can switch the display on/off with the button, and change the function name.
 
-You can also solve differential equations
-approximatively. The searched
-function is displayed on the graph
-It should have the form "y' = f(y, t) & y(t_0) = y_0"
+You can also solve differential equations approximatively. The searched function is displayed on the graph It should have the form "y' = f(y, t) & y(t_0) = y_0"
 
 Input:
 * min(f) / max(f)

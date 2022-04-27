@@ -1,16 +1,9 @@
 Aide pour AnalysisFrame :
 
-EntryLines :
-Saisissez un terme de fonction, un nom de
-fonction est automatiquement généré
-et la fonction est affichée sur le graphique.
-Tu peux afficher la fonction à l'aide du
-bouton pour activer/désactiver la fonction.
+Lignes d'entrée:
+Saisissez un terme de fonction, un nom de fonction est automatiquement généré et la fonction est affichée sur le graphique. Tu peux afficher la fonction à l'aide du bouton pour activer/désactiver la fonction.
 
-Les équations différentielles
-peuvent être résolues de manière approximative.
-La fonction recherchée est affichée sur le graphique.
-Elle doit avoir la forme "y' = f(y, t) & y(t_0) = y_0".
+Les équations différentielles peuvent être résolues de manière approximative. La fonction recherchée est affichée sur le graphique. Elle doit avoir la forme "y' = f(y, t) & y(t_0) = y_0".
 
 Entrée :
 * min(f) / max(f)
