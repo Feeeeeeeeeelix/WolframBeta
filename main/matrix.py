@@ -772,8 +772,22 @@ if __name__ == "__main__":
     # print(v)
     
     
-    a=Matrix.Random(5, 3)
-    b=Matrix.Random(5, 1)
-    # print(a.power_method())
-    print(a.ausgleichs_problem(b))
+    times = [0,0.1,0.4,0.5,0.9,1,1.05,1.5] #Zeiten
+    y = [0.0, -0.05, -1.38, -2.22, -7.54, -9.36, -10.33, -21.39] #y(Zeit)
+    # (Es gibt Messungenauigkeiten)
     
+    # y(t) = -g * t**2 + v_0 * t, y(0)=0   - Unser Modell.
+    # Wir suchen -g (und v_0) so gut wie möglich!
+    
+    # Jetzt gilt (elementweise) y = -g * (times^2) + v_0 * times.
+    # Mit x = [[g] [v_0]] ist also [times^2 times] * x  = y
+    # Ausgleichsproblem (Ax=b überbestimmt)!
+    
+    A = Matrix([[t**2,t] for t in times]) # 8x2 Matrix
+    y =T(Matrix([y])) # 8x1 Matrix
+    
+    [g,v_0] = A.ausgleichs_problem(y)
+    
+    print(-g) # sollte nah von 9.81 sein, aber es gibt Messungenauigkeiten
+    
+
