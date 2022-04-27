@@ -4,24 +4,6 @@ Matrix Funktionen:
     T()
 Transposition
 
-    s()
-zur i-ten Zeile das lam-fache der j-ten Zeile hinzufügen
-
-    v()
-i-te und j-te Zeile vertauschen
-
-    m()
-i-te Zeile mit lam multiplizieren
-
-    sq()
-Quadrat
-
-    normS()
-Spaltensummen-Norm
-
-    normZ()
-Zeilensummen-Norm
-
     inverse()
 Gibt mittels der Operationen vom Gauss-Verfahren an, was die Inverse Matrix ist.
 
@@ -29,10 +11,10 @@ Gibt mittels der Operationen vom Gauss-Verfahren an, was die Inverse Matrix ist.
 Mittels den Operationen vom Gauss-Verfahren bestimmt diese Funktion die Determinante.
 
     eigenvalues()
-Berechnet Eigenwerte mit den früheren MEthoden, und entscheidet welche die beste ist.
+Berechnet Eigenwerte mit den früheren Methoden, und entscheidet welche die beste ist.
 
     power_method()
-Nur für reell diagonalisierbare MAtrix (große Einschränkung): Mit Potenzmethode wird der größter Eigenwert bestimmt.
+Nur für reell diagonalisierbare Matrix (große Einschränkung): Mit Potenzmethode wird der größte Eigenwert bestimmt.
 
 
     Zerlegungen:
@@ -44,19 +26,19 @@ Input: Matrix mit regulären Hauptminoren. Output: Zerlegung self = L*U mit L no
 Jede Matrix (nicht unbedingt quadratisch) kann als A=QR mit Q orthogonale Matrix und R erweiterte trianguläre Matrix zerlegt werden.
 
     cholesky()
-Input: symmetrische positiv definite Matrix A. Output: Zerlegung A = L* L^T, also eine stabilee Version von LU-Zerlegung, mit halbem Aufwand.
+Zerlegt eine symmetrische positiv definite Matrix A = L * L^T, also eine stabile Version der LU-Zerlegung, mit halbem Aufwand.
 
 
     Lineare Gleichungssysteme lösen:
 
-    Lu_solve()
+    LU
 Löst LUx=b durch lösen von Ly=b und dann Ux=y.
 
-    Cholesky()
+    Cholesky
 Analog zu LU
 
-    gauss_solve
+    Gauss
 Durch elementare Zeilenumformungen wird A zur Id-Matrix umgeformt. Diese Operationen werden auf b anwgewendet um Ax=b zu lösen
 
-    ausgleichs_problem()
+    ausgleichs_problem
 Gegeben ein überbestimmtes und unlösbares Problem Ax=b, findet diese Methode eine Lösung, die die Gleichungen am besten löst (es minimiert die quadrate der Fehler). Nützlich für Interpolation und Physik.

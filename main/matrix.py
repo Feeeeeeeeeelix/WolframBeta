@@ -767,11 +767,10 @@ class Matrix:
         return text
         
         
-for func in ["T", "s", "m", "v", "sq", "normZ", "normS", "lu", "cholesky", "inverse", "det", "QR", "power_method",
+for func in ["T", "lu", "cholesky", "inverse", "det", "QR", "power_method",
              "eigenvalues"]:
-    s = f"""def {func}(*args):
-    return args[0].{func}(*args[1:])"""
-    exec(s)
+    # Die methods werden als Funktionen definiert
+    globals()[func] = lambda *args, method=func: Matrix.__getattribute__(args[0], method)(*args[1:])
 
 if __name__ == "__main__":
     # docstring = ""
@@ -783,9 +782,13 @@ if __name__ == "__main__":
     #            docstring += method.__doc__ + "\n\n"
     # print(docstring)
 
-    v = Matrix([[0.5], [0.3], [0.2]])  # U_0
-    A = Matrix([[0.2, 0.5, 0], [0.6, 0, 0.2], [0.2, 0.5, 0.8]])
-    for n in range(1, 100):
-        v = A * v  # U_(n+1) = A * U_n
-    print(v)
+    # v = Matrix([[0.5], [0.3], [0.2]])  # U_0
+    # A = Matrix([[0.2, 0.5, 0], [0.6, 0, 0.2], [0.2, 0.5, 0.8]])
+    # for n in range(1, 100):
+    #     v = A * v  # U_(n+1) = A * U_n
+    # print(v)
+    a=Matrix.Random(6, 3)
+    b=Matrix.Random(6, 1)
+    print(a.ausgleichs_problem(b))
+    pass
     

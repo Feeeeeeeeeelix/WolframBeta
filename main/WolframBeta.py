@@ -1484,11 +1484,12 @@ class MatrixFrame(Frame):
     
     def show_input_error(self, error=""):
         """Der error wird unter dem input entry angezeigt"""
-        self.input_error_label.config(text=error)
+        self.input_error_label.config(text=error, wraplength=220)
     
     def interprete_input(self, _=None):
         """Interpretiert den input vom entry."""
         string = self.input_entry.get()
+        
         self.show_answer()
         self.show_input_error()
         
@@ -1509,17 +1510,23 @@ class MatrixFrame(Frame):
                     self.show_input_error(["Gleichung muss die Form 'AX=B' haben",
                                            "Equation doit avoir la forme 'AX=B'",
                                            "Equation must be of the form 'AX=B'"][lang])
+                    return None
                 if (left_mat_name := string[:string.lower().index("x=")]) not in self.matrices_name or \
                         (right_mat_name := string[string.lower().index("x=")+2:]) not in self.matrices_name:
                     self.show_input_error(["A und B müssen oben definiert sein",
                                            "A et B deuvent être définies en haut",
                                            "A and B must be defined above"][lang])
-                    
-                self.method_frame.place(relx=0.11, rely=0.81, relwidth=0.1, relheight=0.15)
-                self.input_error_label.place(relx=0.2,  relwidth=0.2)
+                    return None
                 
                 left_mat = self.matrices_name[left_mat_name]
                 right_mat = self.matrices_name[right_mat_name]
+                
+                if left_mat.rows > left_mat.cols:
+                    # Ausgleichsproblem
+                    self.show_answer(("X = ", left_mat.ausgleichs_problem(right_mat)))
+                
+                self.method_frame.place(relx=0.11, rely=0.85, relwidth=0.1, relheight=0.15)
+                self.input_error_label.place(relx=0.2,  relwidth=0.2)
                 
                 method = self.method.get()
                 if method == "LU":
@@ -1532,13 +1539,27 @@ class MatrixFrame(Frame):
             else:
                 self.input_error_label.place(relx=0.1, relwidth=0.3)
                 self.method_frame.place_forget()
-                out = eval(write(parse(string)))
-                self.show_answer((f"{string} = ", out))
+                w = write(parse(string))
+                print(w)
+                out = eval(w)
+                
+                if type(out) == list:
+                    out1 = str(out[0])
+                    out2 = str(out[1])
+                    if "lu" in string:
+                        self.show_answer(("L = ", out1, "U = ", out2))
+                    elif "QR" in string:
+                        self.show_answer(("Q = ", out1, "R = ", out2))
+                elif "cholesky" in string:
+                    self.show_answer(("L = ", str(out)))
+                else:
+                    self.show_answer((f"{string} = ", out))
         
         except Exception as error:
             self.show_input_error(error)
+            raise error
     
-    def show_answer(self, answer=("", "")):
+    def show_answer(self, answer=("", "", "", "")):
         for ans in range(len(answer)):
             self.out_labels[ans].config(text=answer[ans])
     
