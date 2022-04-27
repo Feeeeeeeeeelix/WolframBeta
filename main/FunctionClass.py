@@ -205,11 +205,11 @@ def parse(f: str, simp=False) -> list or str:
     if f in DEFINED_FUNCTIONS and simp:
         # Funktionsname einer im AnalysisFrame von WolframBeta definierten Funktion wird durch ihren term ersetzt
         return parse(DEFINED_FUNCTIONS[f], simp)
-    for matrix in DEFINED_MATRICES:
-        if matrix in f and f"({matrix})" not in f:
-            n0 = f.index(matrix)
-            n1 = n0 + len(matrix)
-            f = f[:n0] + "(" + f[n0:n1] + ")" + f[n1:]
+    # for matrix in DEFINED_MATRICES:
+    #     if matrix in f and f"({matrix})" not in f:
+    #         n0 = f.index(matrix)
+    #         n1 = n0 + len(matrix)
+    #         f = f[:n0] + "(" + f[n0:n1] + ")" + f[n1:]
     if f in ALPHABET and len(f) == 1:
         # varible/konstante
         return f
@@ -277,7 +277,8 @@ def parse(f: str, simp=False) -> list or str:
         # 2@ / 2x / @@ / @x / ax(keine funktion) --> implizierte multiplikation
         if f[i] in NUMBERS + "@" and f[i + 1] in "@" + ALPHABET \
                 or (f[i] in ALPHABET and f[i + 1] in ALPHABET and "@" not in f and f[i] != "d"
-                    and not any([f.find(func) + len(func) < len(f) and func in f for func in SIMPLE_FUNCTIONS])):
+                and not any([f.find(func) + len(func) < len(f) and func in f for func in FUNCTIONS])) \
+                and not any(mat in f for mat in DEFINED_MATRICES):
             f = f[:i + 1] + "*" + f[i + 1:]
         
         # @2 -> verboten

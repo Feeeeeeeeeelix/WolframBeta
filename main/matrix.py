@@ -787,8 +787,8 @@ if __name__ == "__main__":
     # for n in range(1, 100):
     #     v = A * v  # U_(n+1) = A * U_n
     # print(v)
-    a=Matrix.Random(6, 3)
+    a=Matrix.Random(6, 6)
     b=Matrix.Random(6, 1)
-    print(a.ausgleichs_problem(b))
+    print(a.eigenvalues())
     pass
     

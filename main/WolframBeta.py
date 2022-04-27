@@ -1082,6 +1082,7 @@ class AnalysisFrame(Frame):
         
         self.compute_frame["bg"] = ["white", "#505050"][self.color_mode]
         self.return_bttn["bg"] = ["white", "#505050"][self.color_mode]
+        self.compute_error_label.config(fg="red")
         self.figure.set_facecolor(["white", "#505050"][self.color_mode])
         self.subplot.set_facecolor(["white", "#505050"][self.color_mode])
         self.io_figure.set_facecolor(["white", "#505050"][self.color_mode])
@@ -1484,7 +1485,7 @@ class MatrixFrame(Frame):
     
     def show_input_error(self, error=""):
         """Der error wird unter dem input entry angezeigt"""
-        self.input_error_label.config(text=error, wraplength=220)
+        self.input_error_label.config(text=error, wraplength=220, fg="red")
     
     def interprete_input(self, _=None):
         """Interpretiert den input vom entry."""
@@ -1544,6 +1545,16 @@ class MatrixFrame(Frame):
                 out = eval(w)
                 
                 if type(out) == list:
+                    if "eigenvalues" in string:
+                        out_str = ""
+                        for eigenvalue in out:
+                            if eigenvalue[1] == 0:
+                                out_str += str(round(eigenvalue[0], 5))+"\n"
+                            else:
+                                out_str += f"{round(eigenvalue[0], 5)} {['', '+', ''][sign(eigenvalue[1])]} {round(eigenvalue[1], 5)}i \n"
+                                
+                        self.show_answer((f"Eigenvalues: ", out_str))
+                        return None
                     out1 = str(out[0])
                     out2 = str(out[1])
                     if "lu" in string:
