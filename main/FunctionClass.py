@@ -202,9 +202,6 @@ def parse(f: str, simp=False) -> list or str:
     if len(f) >= 3 and "C" in f and isfloat(f[:f.index("C")]) and isfloat(f[f.index("C") + 1:]):
         # 2C3 -> C(2,3)
         return parse(f"C({f[:f.index('C')]},{f[f.index('C') + 1:]})", simp)
-    if f in ALPHABET and len(f) == 1:
-        # varible/konstante
-        return f
     if f in DEFINED_FUNCTIONS and simp:
         # Funktionsname einer im AnalysisFrame von WolframBeta definierten Funktion wird durch ihren term ersetzt
         return parse(DEFINED_FUNCTIONS[f], simp)
@@ -213,6 +210,9 @@ def parse(f: str, simp=False) -> list or str:
             n0 = f.index(matrix)
             n1 = n0 + len(matrix)
             f = f[:n0] + "(" + f[n0:n1] + ")" + f[n1:]
+    if f in ALPHABET and len(f) == 1:
+        # varible/konstante
+        return f
     if "@" in f:
         raise SyntaxError(f"Invalid character: '@'")
     
@@ -235,7 +235,7 @@ def parse(f: str, simp=False) -> list or str:
             return diff(parse(innerargs[0], simp), var)
         else:
             return ["diff", parse(innerargs[0]), var]
-        
+    
     # höhere approximative Ableitung:
     if len(f) == 10 and f[:2] == "d^" and f[3:5] == "/d" and f[6] == "^" and f[8:10] == "@@":
         # höhere Ableitung: f = "d^n/dx^n(f)(x_0) (n'te ableitung von f(x) nach x in x_0)
@@ -249,11 +249,11 @@ def parse(f: str, simp=False) -> list or str:
             return str(der(lambda x: eval(innerargs[0]), var=f[5], n=int(n))(flint(x_0)))
         else:
             return ["diff", parse(innerargs[0]), f[5], n, x_0]
-        
+    
     # höhere exakte ableitung
     if len(f) == 9 and f[:2] == "d^" and f[3:5] == "/d" and f[6] == "^" and f[8] == "@":
         # höhere Ableitung: f = "d^n/dx^n(f) (n'te ableitung von f(x) nach x)
-    
+        
         if (n := f[2]) != f[7] or not isfloat(f[2]) or not isfloat(f[7]):
             raise ValueError("invalid n while taking the n'th derivative")
         if simp:
@@ -410,7 +410,7 @@ def parse(f: str, simp=False) -> list or str:
 
 def write(f: list) -> str:
     """Schreibt den Syntaxtree wieder als lesbaren Ausdruck, und vereinfacht ihn ,wenn möglich"""
-    print(f"write: {f}")
+    
     if type(f) != list:
         return str(f)
     
