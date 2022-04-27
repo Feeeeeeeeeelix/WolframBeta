@@ -521,7 +521,9 @@ def write_latex(f: list, simp=False) -> str:
                 
             else:
                 summands.append(summand)
-                
+        
+        if not summands:
+            return "0"
         sum_ = summands[0]
         for s in summands[1:]:
             sum_ += f" + {s}" if s[0] != "-" else f" - {s[1:]}"
@@ -566,6 +568,8 @@ def write_latex(f: list, simp=False) -> str:
         
         if not denom:
             raise ZeroDivisionError
+        if not num:
+            return "0"
         
         return 1 if num == denom and simp else r"\frac{" + str(num) + "}{" + str(denom) + "}"
     
