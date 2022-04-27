@@ -216,15 +216,15 @@
                <td>L'entrée de la i-ième ligne et j-ième colonne.</td>
             </tr>
 			<tr>
-               <td>Random(m, n, low=0, high=10):</td>
-               <td>Donne une matrice mxn avec des entrées entiers de low à high.</td>
+               <td>Matrix.Random(m, n, low=0, high=10):</td>
+               <td>Donne une matrice m*n avec des entrées entiers de low à high.</td>
             </tr>
 			<tr>
-               <td>RandomSym(m, low=0, high=10):</td>
-               <td>Donne une matrice symétrique mxm avec des entrées entiers de low à high.</td>
+               <td>Matrix.RandomSym(m, low=0, high=10):</td>
+               <td>Donne une matrice symétrique m*m avec des entrées entiers de low à high.</td>
             </tr>
 			<tr>
-               <td>Zero(m,n) <br> Id(n) </td>
+               <td>Matrix.Zero(m,n) <br> Matrix.Id(n) </td>
                <td>Donne la Matrice nulle ou l'Identité</td>
             </tr>
             <tr>
@@ -240,7 +240,7 @@
                <td>Le déterminant de A</td>
             </tr>
 	        <tr>
-               <td>normS(A)<br> normZ(A)</td>
+               <td>A.normS()<br> A.normZ()</td>
                <td>Calcule la "Zeilensummennorm" ou "Spaltensummennorm"</td>
             </tr>
             <tr>
@@ -260,23 +260,23 @@
                <td>Pour une matrice A, symétrique et définie positive, on décompose en Cholesky:<br> A = L*L^T<br> L est une matrice inférieure.</td>
             </tr>
             <tr>
-               <td>lu_solve(A,b)</td>
+               <td>A.lu_solve(b)</td>
                <td> Trouve la solution à LUx=b,<br> en calculant y tel que Ly=b, puis x avec Ux=y.</td>
             </tr>
             <tr>
-               <td>cholesky_solve(A,b)</td>
+               <td>A.cholesky_solve(b)</td>
                <td>Comme pour la décomposition LU.</td>
             </tr>
             <tr>
-               <td>gauss_solve(A,b)</td>
+               <td>A.gauss_solve(b)</td>
                <td>Avec des opérations sur les lignes de A, on transforme A en Id.<br> Ces opérations sont appliquées sur b pour résoudre Ax=b</td>
             </tr>
 			<tr>
-               <td>gauss_explained(A,b)</td>
+               <td>A.gauss_explained(b)</td>
                <td>Même algorithme, mais on voit lisiblement le calcule éffectué avec des commentaires.
 			</tr>
             <tr>
-               <td>ausgleichsproblem(A,b)</td>
+               <td>A.ausgleichs_problem(b)</td>
                <td>Régression linéaire: Quand Ax=b a trop de contraintes,<br> il n'y a pas de solution.<br> Or il existe un x tel que Ax-b a une norme minimale.<br> Cette fonction calcule cet x,<br> ce qui est utile pour interpoler en physique et cetera.</td>
             </tr>
 			<tr>
@@ -284,11 +284,7 @@
                <td>Calcule, si A est réelement diagonalisable, la valeur propre de norme maximale.</td>
             </tr>
 			<tr>
-               <td>A.latex()</td>
-               <td>Donne la représentation de A en code de Latex.</td>
-            </tr>
-			<tr>
-               <td>sub_matrix(A,ymin, ymax, xmin, xmax)</td>
+               <td>A.sub_matrix(ymin, ymax, xmin, xmax)</td>
                <td>Donne la submatrice de A.</td>
             </tr>
          </table>
@@ -301,6 +297,16 @@
 
          <img src="screens/matrix.png" style="margin-left:350px;width:50%;height:auto;" alt=""/>
          
+         <br />
+         <br />
+
+         <p>
+            On peut aussi résoudre une régression linéaire à plusieurs variables, ce qui peut être utile en physique. Ci-dessous, un exemple
+            pour la détermination de l'accélération de la pesanteur :
+         </p>
+
+         <img src="screens/probleme.png" style="margin-left:350px;width:50%;height:auto;" alt=""/>
+
          <br />
          <br />
       </div>

@@ -233,15 +233,15 @@
                </td>
             </tr>
 			<tr>
-               <td>Random(m, n, low=0, high=10):</td>
+               <td>Matrix.Random(m, n, low=0, high=10):</td>
                <td>Eine Zufällige mxn Marix mit ganzen Einträgen von low bis high.</td>
             </tr>
 			<tr>
-               <td>RandomSym(m, low=0, high=10):</td>
+               <td>Matrix.RandomSym(m, low=0, high=10):</td>
                <td>Eine Zufällige symmetrische mxm Marix mit ganzen Einträgen von low bis high.</td>
             </tr>
 			<tr>
-               <td>Zero(m,n) <br> Id(n) </td>
+               <td>Matrix.Zero(m,n) <br> Matrix.Id(n) </td>
                <td>Nullmatrix oder Identitäts-matrix</td>
             </tr>            
 			<tr>
@@ -281,7 +281,7 @@
                </td>
             </tr>
             <tr>
-               <td>A.ausgleichsproblem(b)</td>
+               <td>A.ausgleichs_problem(b)</td>
                <td>Falls Ax=b überbestimmt ist, gibt es keine Lösung.<br> Man kann aber ein x finden, welches die Norm von
                   Ax-b minimiert.<br> Dies kann für Interpolation in Physik nützlich sein.
                </td>
@@ -308,6 +308,16 @@
          </p>
 
          <img src="screens/matrix.png" style="margin-left:350px;width:50%;height:auto;" alt=""/>
+         <br />
+         <br />
+
+         <p>
+            Man kann auch ein Ausgleichsproblem lösen, was für die Physik nützlich sein kann. Im Folgenden ein Beispiel
+            für die Bestimmung der Fallbeschleunigung:
+         </p>
+
+         <img src="screens/ausgleichsproblem.png" style="margin-left:350px;width:50%;height:auto;" alt=""/>
+
          <br />
          <br />
       </div>
