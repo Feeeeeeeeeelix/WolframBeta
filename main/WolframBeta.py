@@ -974,10 +974,9 @@ class AnalysisFrame(Frame):
                     lp_simp = round(flint(lp_simp), 10)
                 if isfloat(rp_simp):
                     rp_simp = round(flint(rp_simp), 10)
-                print(f"{DEFINED_FUNCTIONS = }, {'f' in locals()}, {lp_simp =}, {rp_simp = }")
+                    
                 if not isfloat(eq := write(parse(f"{lp_simp}-({rp_simp})", True))):
                     # gleichung lösen:
-                    print(f"{eq = }")
                     loesungen = nullstellen(lambda x: eval(eq))
                     output_latex = r"x \in \{" + str([flint(round(ans, 5)) for ans in loesungen])[1:-1] + r"\}"
                 
