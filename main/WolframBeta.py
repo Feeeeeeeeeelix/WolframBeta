@@ -1390,7 +1390,7 @@ class MatrixFrame(Frame):
         for matrix in self.matrices:
             Button(self.matrix_auswahl, text=matrix.name, command=lambda m=matrix: self.show_matrix(m), width=2,
                    height=2, **self.bttn_style).pack(side="left", anchor="n")
-        Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2
+        Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2,
                **self.bttn_style).pack(side="left", anchor="n")
     
     def create_new_matrix(self, leave_name=False):
