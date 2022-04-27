@@ -30,7 +30,7 @@ def _sekanten_verfahren(f, x1, x2):
         return x2
     
     elif y1 * y2 > 0:
-        print("Kein Vorzeichenwechsel")
+        raise Exception("Kein Vorzeichenwechsel")
     
     else:
         x_old = x1
@@ -225,46 +225,3 @@ def der(f, var="x", n=1, dx=10 ** (-3)):
     
     else:
         return lambda x=var: 1 / dx ** n * sum([(-1) ** (k + n) * C(n, k) * f(x + k * dx) for k in range(n + 1)])
-
-
-if __name__ == "__main__":
-    from functions import sin, cos, ln, sqrt, e
-    
-    """print("Beispiele:")
-    
-    y = euler_collatz("y", 0, 1, 3)  # Löse y' = y mit y(0) = 1   --> y(t) = e^t einzige Lösung
-    print(y)
-    print("Zum Vergleich mit dem letzten Term: ", e ** 3)
-    
-    print("")
-    
-    y = euler_collatz("y^2", 0, 1,
-                      0.9)  # Löse y'(t) = y^2 mit y(0) = 1 auf Intervall (0,0.9) --> exakte Lösung y(t) = 1/(1-t)
-    print(y)
-    print("Zum Vergleich mit dem letzten Term: ", 1 / (1 - 0.9))
-    
-    print("")
-    
-    y = euler_collatz("y*t", 0, 1,
-                      2)  # Löse y'(t) = y*t mit y(0) = 1 auf Intervall (0,2) --> exakte Lösung y(t) = e^{1/2*t^2}
-    print(y)
-    print("Zum Vergleich mit dem letzten Term: ", e ** (1 / 2 * 2 ** 2))"""
-    
-    """ f = lambda t: sin(t ** 2)
-    df = lambda t: 2 * t * cos(t ** 2)
-    ddf = lambda t: 2 * cos(t ** 2) - 4 * t ** 2 * sin(t ** 2)
-    
-    print(der(f, var="t", n=0)(1))
-    print(f(1))
-    
-    print(der(f,var="t",  n=1)(1))
-    print(df(1))
-    
-    print(der(f,var="t", n=2)(1))
-    print(ddf(1))
-    
-    print(der(lambda x:sin(x))(1))
-    print(cos(1))"""
-
-    L = euler_collatz("9.8*y**2 -sin(y*t)", 0, 3, 1)
-    print(L[-1])

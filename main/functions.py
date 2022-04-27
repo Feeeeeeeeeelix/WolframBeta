@@ -4,7 +4,7 @@ functions.py module:
 - essential constants (π, e) (3)
 - all trigonometric functions
 - logarithmic, exponential and root functions
-- zahlentheorie baaic functions
+- zahlentheorie basic functions
 - n! and aCb
 
 """
@@ -262,7 +262,6 @@ def euclidean_algorithm(a: int, b: int):
         raise ValueError("a and b must be integers")
     while b != 0:  # b==0 --> Algorithmus fertig
         n, rest = division_with_rest(a, b)
-        print(a, "=", n, "*", b, "+", rest)
         a = b
         b = rest
     return a  # ggT von a,b nach dem euklidischen Algorithmus
@@ -327,8 +326,3 @@ def partition(n: int):
                 part[i][j] += part[i - 1][j - 1]
     
     return sum(part[n][k] for k in range(1, n + 1))
-
-
-if __name__ == '__main__':
-    print(fact(998))
-

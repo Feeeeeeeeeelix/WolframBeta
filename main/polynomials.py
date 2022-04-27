@@ -186,13 +186,3 @@ def neville(list_of_pairs):
                     Polynomial([-x[i], 1]) * p[i + 1][j - 1] - Polynomial([-x[i + j], 1]) * p[i][j - 1])
     
     return p[0][n - 1]
-
-
-if __name__ == '__main__':
-    
-    P_0 = Polynomial("1")
-    P_1 = Polynomial("x")
-    T = [P_0, P_1]
-    for k in range(1, 50):
-        T.append(2 * P_1 * T[k] - T[k - 1])
-        print(f"{k}-th Tschebyscheff Polynom: {T[k]}")

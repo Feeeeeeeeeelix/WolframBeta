@@ -29,9 +29,6 @@ dgray = "#404040"
 # Deutsch: 0, Francais: 1, English: 2
 lang = 0
 
-default_frame = 2
-min_window = True
-
 
 def format_error(error):
     """Formatiert ein error code."""
@@ -154,6 +151,7 @@ class RechnerFrame(Frame):
         self.io_canvas = FigureCanvasTkAgg(self.io_figure, master=self.latex_io)
         self.io_canvas.get_tk_widget().pack(expand=1, fill="both")
         self.answers = ""
+        self.io_canvas.draw()
         
         # clear button
         self.clear_button = Button(self, text="X", command=self.clear_frame, **self.bttn_style, padx=6, pady=3)
@@ -255,7 +253,6 @@ class RechnerFrame(Frame):
                 except Exception as e:
                     """Wenn eine variable im ergebnis ist, kann es nicht berechnet werden. Dann wird nur versucht
                     das eingegebene zu vereinfachen."""
-                    # print(f"couldnt eval expr: {write_}, {e}")
                     output_latex = write_latex(output_tree, simp=True)
                     
                 if f := get_int_fehler():
@@ -310,7 +307,6 @@ class RechnerFrame(Frame):
     
     def show_error(self, error=""):
         self.error_label.config(text=error)
-        if error: print(f"Error: {error}")
     
     def show_einstellungen(self):
         """Wenn ein Intergral berechnet wird (es wird nur nach 'Int' im input gesucht), dann erscheinen einstellungen
@@ -934,7 +930,6 @@ class AnalysisFrame(Frame):
         else:
             # Fehler in dem computeentry
             self.compute_error_label.config(text=error)
-        if error: print(f"Error({n}): {error}")
     
     def interprete_input(self, _=None):
         self.show_error("")
@@ -994,7 +989,6 @@ class AnalysisFrame(Frame):
                     if list_ in self.nev_pts:
                         return None
                     pol = parse(str(neville(list_)), True), list_
-                    print(f"{list_ = }, {pol = }")
                     self.add_new_func(pol)
                     self.nev_pts.append(list_)
                     self.graph(True)
@@ -1006,16 +1000,10 @@ class AnalysisFrame(Frame):
                 # Sonstige Eingaben
                 input_latex = write_latex(parse(string))
                 output_tree = parse(string, simp=True)
-                print(DEFINED_FUNCTIONS)
-                print(input_latex, output_tree)
                 
                 try:
-                    w = write(output_tree)
-                    print(f"write: {w}")
-                    output_latex = eval(str(w))
-                
+                    output_latex = eval(str(write(output_tree)))
                 except Exception as e:
-                    print(f"couldnt eval {write(output_tree)}, {e}")
                     output_latex = write_latex(output_tree, simp=True)
                 
                 output = f"{input_latex} = {output_latex}"
@@ -1230,7 +1218,7 @@ class MatrixFrame(Frame):
         self.dimensions_frame = Frame(self.matrix_frame)
         self.dimensions_frame.grid(row=0, column=1)
         
-        self.row_lab = Label(self.dimensions_frame, text="rows: ")
+        self.row_lab = Label(self.dimensions_frame, text="Reihen: ")
         self.row_lab.pack(side="left")
         self.rows_variable = StringVar(value="3")
         self.rows_box = Spinbox(self.dimensions_frame, from_=1, to=15, width=3, textvariable=self.rows_variable,
@@ -1243,7 +1231,7 @@ class MatrixFrame(Frame):
         self.columns_box = Spinbox(self.dimensions_frame, from_=1, to=15, width=3, textvariable=self.columns_variable,
                                    justify="center", bd=0, highlightbackground="#707070")
         self.columns_box.pack(side="right", padx=0)
-        self.col_lab = Label(self.dimensions_frame, text="columns: ")
+        self.col_lab = Label(self.dimensions_frame, text="Spalten: ")
         self.col_lab.pack(side="right", padx=10)
         
         # Vorschlag Frame (4 Buttons)
@@ -1402,8 +1390,8 @@ class MatrixFrame(Frame):
         for matrix in self.matrices:
             Button(self.matrix_auswahl, text=matrix.name, command=lambda m=matrix: self.show_matrix(m), width=2,
                    height=2, **self.bttn_style).pack(side="left", anchor="n")
-        Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2).pack(side="left",
-                                                                                                  anchor="n")
+        Button(self.matrix_auswahl, text=" + ", command=self.show_matrix, width=2, height=2
+               **self.bttn_style).pack(side="left", anchor="n")
     
     def create_new_matrix(self, leave_name=False):
         """Eine neue Matrix wird mit den aktuellen dimensionen erstellt und angezeigt"""
@@ -1540,9 +1528,8 @@ class MatrixFrame(Frame):
             else:
                 self.input_error_label.place(relx=0.1, relwidth=0.3)
                 self.method_frame.place_forget()
-                w = write(parse(string))
-                print(w)
-                out = eval(w)
+                
+                out = eval(write(parse(string)))
                 
                 if type(out) == list:
                     if "eigenvalues" in string:
@@ -1646,8 +1633,6 @@ class MainScreen(Tk):
         
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        if min_window:
-            screen_width, screen_height = 700, 500
         
         self.geometry(f"{screen_width}x{screen_height}")
         self.title("WolframBeta")
@@ -1662,8 +1647,7 @@ class MainScreen(Tk):
                            "highlightthickness": 2,
                            "bd": 0}
         
-        # für die LaTeX schrift
-        # matplotlib.use("TkAgg")
+        # für die LaTeX schrift:
         plt.rcParams["mathtext.fontset"] = "cm"
         
         # Top Frame
@@ -1721,13 +1705,7 @@ class MainScreen(Tk):
         # Left frame
         self.left_frame = Frame(self, bg=lblue)
         self.left_frame.place(rely=0, x=0, relheight=1, relwidth=0.07)
-        
-        # self.sep = Label(self.left_frame, bg="white")
-        # self.sep.place(x=0, rely=0.299, relwidth=1, height=3)
-        #
-        # self.selection_frame = Frame(self.left_frame, bg=lblue)
-        # self.selection_frame.place(x=0, rely=0.305, relwidth=1, relheight=0.695)
-        
+
         self.selection = 0
         self.button_names = [StringVar(value="Rechner"), StringVar(value="Analysis"), StringVar(value="Matrix")]
         self.buttons = self.selection_buttons(self.left_frame, *self.button_names)
@@ -1750,12 +1728,10 @@ class MainScreen(Tk):
         
         self.rechner_frame = self.analysis_frame = self.matrix_frame = None
         self.current_frame = Frame(self)
-        self.toggle_main_frame(default_frame)
+        self.toggle_main_frame(0)
         
-        self.bind("<KP_Enter>", self.exit_screen)
-    
     def move_logo(self, state):
-        """Das logo wird animiert. Dazu müss alle 40ms ein neues frame des gifs angezeigt werden.
+        """Das logo wird animiert. Dazu muss alle 40ms ein neues frame des gifs angezeigt werden.
         Das muss manuell gemacht werden da tkinter das Anzeigen einer Animation nicht anders unterstützt."""
         
         self.logo_state = state

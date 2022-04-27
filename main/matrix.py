@@ -231,7 +231,6 @@ class Matrix:
             raise TypeError("Die Untermatrizen der Matrix sind nicht alle regulär, also ist die LU-Zerlegung unmöglich!")
     
     def _upper_triangle_solve(A, b):
-        """Nicht im Interface nötig."""
         try:
             x = Matrix.Zero(b.rows, 1)
             for i in range(b.rows - 1, -1, -1):
@@ -243,7 +242,6 @@ class Matrix:
             raise TypeError("A ist nicht regulär!")
     
     def _lower_triangle_solve(A, b):
-        """Nicht im Interface nötig"""
         try:
             x = Matrix.Zero(b.rows, 1)
             
@@ -303,15 +301,15 @@ class Matrix:
             raise TypeError("LU Zerlegung nicht möglich")
     
     def _sub_matrix(self, ymin, ymax, xmin, xmax):
-        """Nicht im Interface nötig. berechnet eine Teilmatrix mit gegebenen x und y Werten."""
+        """Berechnet eine Teilmatrix mit gegebenen x und y Werten."""
         coeffs = []
         for y in range(ymin, ymax):
             coeffs += [self[y][xmin:xmax]]
         
         return Matrix(coeffs)
     
-    def _gauss_explained(self, b_in):
-        """Nicht im Interface nötig. Erklärt die Berechnung von x hinter dem Gauss-Algorithmus, um Ax=b zu lösen,
+    def gauss_explained(self, b_in):
+        """Erklärt die Berechnung von x hinter dem Gauss-Algorithmus, um Ax=b zu lösen,
         für reguläres A. """
         
         def Mprint(self, b): # Schreibt die Erweiterte Matrix (A,b) schön auf
@@ -410,7 +408,7 @@ class Matrix:
         # Transpositionen der Zeilenvertauschungen an
     
     def _gauss(self, b_in):
-        """Nicht im Interface nötig. führt Gauss Algorithmus aus. Output: gibt die Finale Matrix M an (sollte die
+        """Führt Gauss Algorithmus aus. Output: gibt die Finale Matrix M an (sollte die
         Id-Matrix sein), die umgeformte rechte Seite b, welche nun die Lösung x ist. V gibt die Anzahl an
         Zeilenvertauschungen an. pi gibt die Transpositionen der Zeilenvertauschungen an. Operationen gibt die
         Operationen an, welche verwendet wurden """
@@ -538,18 +536,17 @@ class Matrix:
         v = Q.T() * b
         c = v._sub_matrix(0, 0, 0, self.cols - 1)
         R_hat = R._sub_matrix(0, R.rows - 1, 0, R.rows - 1)
-        return R_hat._upper_triangle_solve(c) #Output: bestes x
+        return R_hat._upper_triangle_solve(c)  # Output: bestes x
 
     def power_method(self):
-        """Nur für reell diagonalisierbare MAtrix (große Einschränkung): Mit Potenzmethode wird der größter Eigenwert
+        """Nur für reell diagonalisierbare Matrix (große Einschränkung): Mit Potenzmethode wird der größte Eigenwert
         bestimmt."""
         
         x = Matrix([[1] for _ in range(self.rows)])
         mu = 1
         for i in range(100):
-            print(mu)
             mu_old = mu
-            x = A * x
+            x = self * x
             mu = self.norm(x)
             x = 1 / mu * x
             if abs(mu_old - mu) < 0.0000000001:
@@ -560,7 +557,7 @@ class Matrix:
             raise TypeError("Potenz-Methode geht nicht, da A nicht reell diagonalisierbar ist.")
     
     def _hesseberg(self):
-        """Nicht im Interface nötig. Gibt für gegebene Matrix A die MAtrix H in der Zerlegung A=Q^T*H*Q mit Q
+        """Gibt für gegebene Matrix A die MAtrix H in der Zerlegung A=Q^T*H*Q mit Q
         orthogonal und H in Hessebergform."""
         
         R = self.T().T()
@@ -580,7 +577,7 @@ class Matrix:
         return R
     
     def _jacobi(self):
-        """Nicht im Interface nötig. Gibt mittels 32*n^2 Schritten alle Eigenwerte, solange die Matrix symmetrisch ist."""
+        """Gibt mittels 32*n^2 Schritten alle Eigenwerte, solange die Matrix symmetrisch ist."""
         
         if self.T() != self:
             raise TypeError("Matrix ist nicht symmetrisch. Jacobi-Vefahren nicht anwendbar.")
@@ -646,8 +643,7 @@ class Matrix:
                         return [A[i][i] for i in range(n)]
             
     def _RQ_hesseberg(self):
-        """Nicht im Interface nötig. Berechnet RQ für Hessebergmatrizen, für
-        eine schnelle QR-Methode."""
+        """Berechnet RQ für Hessebergmatrizen, für eine schnelle QR-Methode."""
         # A [=QR] in hessberg form |-> RQ
         def givensrotation(a, b):
             if b == 0:
@@ -698,7 +694,7 @@ class Matrix:
         return R
     
     def eigenvalues(self, iter=-1):
-        """Berechnet Eigenwerte mit den früheren MEthoden, und entscheidet welche die beste ist."""
+        """Berechnet Eigenwerte mit den früheren Methoden, und entscheidet welche die beste ist."""
         if iter == -1:
             iter = 40 * self.rows
         
@@ -708,8 +704,8 @@ class Matrix:
             n = M.rows
             
             for i in range(iter):
-                if i % 20 == 0:
-                    print(100 * i / iter, "%")
+                # if i % 20 == 0:
+                    # print(100 * i / iter, "%")
                 kappa = M[n - 1][n - 1]
                 M = (M - kappa * Matrix.Id(n))._RQ_hesseberg() + kappa * Matrix.Id(n) # ein shift im RQ-Schritt verbessert die Konvergenz
             
@@ -735,7 +731,7 @@ class Matrix:
             
             return block_matrizen
         
-        if self == self.T(): #falls symmetrisch, verwende Jacobi-Verfahren.
+        if self == self.T():  # falls symmetrisch, verwende Jacobi-Verfahren.
             return [[B, 0] for B in self._jacobi()]
         
         B = QR_verfahren(self)
@@ -743,30 +739,17 @@ class Matrix:
         blocks = block(B)
         eigenwerte = []
         for M in blocks:
-            if type(M) == int or type(M) == float: #falls es kein 2x2-Block ist, ist es ein reeller Eigenwert.
+            if type(M) == int or type(M) == float:  # falls es kein 2x2-Block ist, ist es ein reeller Eigenwert.
                 eigenwerte.append([M, 0.0])
             else:
                 C_1 = -M[0][0] - M[1][1]
                 C_2 = -M[1][0] * M[0][1] + M[0][0] * M[1][1]
                 
-                eigenwerte.append([-C_1 / 2, 1 / 2 * sqrt(abs(C_1 * C_1 - 4 * C_2))]) #berechnet komplexe Eigenwerte für jeden Block
+                eigenwerte.append([-C_1 / 2, 1 / 2 * sqrt(abs(C_1 * C_1 - 4 * C_2))])  # berechnet komplexe Eigenwerte für jeden Block
                 eigenwerte.append([-C_1 / 2, -1 / 2 * sqrt(abs(C_1 * C_1 - 4 * C_2))])
         return eigenwerte
     
-    def _latex(self):
 
-        text = "\\begin{pmatrix} \n"
-        
-        for row in self.row:
-            for element in row:
-                text += " " +str(rint(element)) + " &"
-            text = text[:-1]
-            text += "\\\\" + '\n'
-        text += "\end{pmatrix}"
-        
-        return text
-        
-        
 for func in ["T", "lu", "cholesky", "inverse", "det", "QR", "power_method",
              "eigenvalues"]:
     # Die methods werden als Funktionen definiert
@@ -787,8 +770,10 @@ if __name__ == "__main__":
     # for n in range(1, 100):
     #     v = A * v  # U_(n+1) = A * U_n
     # print(v)
-    a=Matrix.Random(6, 6)
-    b=Matrix.Random(6, 1)
-    print(a.eigenvalues())
-    pass
+    
+    
+    a=Matrix.Random(5, 3)
+    b=Matrix.Random(5, 1)
+    # print(a.power_method())
+    print(a.ausgleichs_problem(b))
     

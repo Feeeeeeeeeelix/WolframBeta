@@ -783,9 +783,7 @@ class Function:
         self.lam = lambda x: eval(self.str_out.replace("^", "**"))
     
     def diff(self, var="x"):
-        d = diff(self.tree, var)
-        print(d)
-        return Function(d)
+        return Function(diff(self.tree, var))
     
     def __call__(self, x):
         return self.lam(x)
@@ -824,12 +822,7 @@ if __name__ == "__main__":
     try:
         s = Function(func)
         print(s.tree)
-        print(s.str)
-        print(s.latex_in)
-        print(s.str_out)
-        print(s.latex_out)
-        print("diff:")
-        print(s.diff())
+
         
     except Exception as e:
         raise e
